@@ -1,1 +1,1 @@
-# codemazer
+# Codemaze
