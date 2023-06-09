@@ -22,7 +22,7 @@ python app.py
 
 ### Tests
 
-The environment var `TEST_DB_STRING` must be set with the debug database string or an exception will be raised.
+The environment var `TEST_DB_STRING` must be set with the testing database string or an exception will be raised.
 
 ## Modelling
 
