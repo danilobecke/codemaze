@@ -1,6 +1,6 @@
 # Codemaze
 
-## Requirements
+## Install Requirements
 
 Install all requirements by going to the root folder and running:
 
@@ -8,6 +8,21 @@ Install all requirements by going to the root folder and running:
 pip install -r requirements.txt
 ```
 
+## Running
+
+### As debug (localhost:48345)
+
+The environment var `DEBUG_DB_STRING` must be set with the debug database string or an exception will be raised.
+
+Navigate to code folder and run:
+
+```bash
+python app.py
+```
+
+### Tests
+
+The environment var `TEST_DB_STRING` must be set with the debug database string or an exception will be raised.
 
 ## Modelling
 
