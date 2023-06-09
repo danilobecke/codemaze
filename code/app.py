@@ -19,7 +19,7 @@ def run_as_debug():
     # postgresql://root:admin@localhost/postgres
     db_string = __get_env('DEBUG_DB_STRING')
     app = __init_app(db_string, debug=True)
-    app.run(debug=True)
+    app.run(port=48345, debug=True)
 
 def run_as_test():
     db_string = __get_env('TEST_DB_STRING')
