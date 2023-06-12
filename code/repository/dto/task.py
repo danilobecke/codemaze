@@ -14,3 +14,4 @@ class TaskDTO(Base):
     group_id = Column(Integer, ForeignKey('group.id'), nullable=False)
 
     test_cases = relationship('TestCaseDTO')
+    results = relationship('ResultDTO')

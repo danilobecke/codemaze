@@ -7,3 +7,4 @@ from repository.dto.group import GroupDTO
 from repository.dto.student_group import student_group
 from repository.dto.task import TaskDTO
 from repository.dto.test_case import TestCaseDTO
+from repository.dto.result import ResultDTO
