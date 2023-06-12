@@ -13,3 +13,4 @@ class GroupDTO(Base):
 
     manager = relationship('ManagerDTO', back_populates='groups')
     students = relationship('StudentDTO', secondary=student_group, back_populates='groups')
+    tasks = relationship('TaskDTO')
