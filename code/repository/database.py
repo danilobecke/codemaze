@@ -5,7 +5,7 @@ from repository.base import Base
 import repository.table_builder
 
 class Database:
-    shared: Self
+    shared: Self | None = None
 
     def __init__(self, db_string: str, debug: bool):
         connection = self.__create_connection(db_string, debug)
