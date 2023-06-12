@@ -1,6 +1,7 @@
 from repository.base import Base
 from sqlalchemy_utils import force_auto_coercion, PasswordType
-from sqlalchemy import Column, Integer, Sequence, String
+from sqlalchemy import Column, Integer, Sequence, String, DateTime
+from sqlalchemy.sql import func
 
 force_auto_coercion()
 
@@ -11,6 +12,8 @@ class UserDTO(Base):
     email = Column(String, nullable=False, unique=True)
     password = Column(PasswordType(schemes=[ 'pbkdf2_sha512' ]), nullable=False)
     name = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     type = Column(String)
 
     __mapper_args__ = {
