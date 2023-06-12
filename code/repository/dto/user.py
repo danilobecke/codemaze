@@ -8,8 +8,9 @@ class UserDTO(Base):
     __tablename__ = 'user'
 
     id = Column(Integer, Sequence('sq_user_pk'), primary_key=True, autoincrement=True)
-    email = Column(String, nullable=False)
+    email = Column(String, nullable=False, unique=True)
     password = Column(PasswordType(schemes=[ 'pbkdf2_sha512' ]), nullable=False)
+    name = Column(String, nullable=False)
     type = Column(String)
 
     __mapper_args__ = {
