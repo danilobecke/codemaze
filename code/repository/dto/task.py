@@ -1,5 +1,6 @@
 from repository.base import Base
 from sqlalchemy import Column, Integer, Sequence, String, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 
 class TaskDTO(Base):
     __tablename__ = 'task'
@@ -11,3 +12,5 @@ class TaskDTO(Base):
     ends_on = Column(DateTime(timezone=True), nullable=True)
     file_path = Column(String, nullable=False)
     group_id = Column(Integer, ForeignKey('group.id'), nullable=False)
+
+    test_cases = relationship('TestCaseDTO')
