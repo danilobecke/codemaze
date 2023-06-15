@@ -8,24 +8,33 @@ M = TypeVar('M', bound=Base)
 class AbstractRepository(Generic[M]):
     def __init__(self, klass):
         self.__class = klass
-        self.__session = Database.shared.session
+        self._session = Database.shared.session
 
     def find_all(self) -> list[M]:
-        return self.__session.query(self.__class).all()
+        return self._session.query(self.__class).all()
 
     def find(self, id: int) -> M:
         if id < 1:
              raise InvalidID()
-        model = self.__session.query(self.__class).get(id)
+        model = self._session.query(self.__class).get(id)
         if model is None:
             raise NotFound()
         return model
 
     def add(self, model: M):
-        self.__session.add(model)
-        self.__session.commit()
+        try:
+            self._session.add(model)
+            self._session.commit()
+            return model
+        except Exception as e:
+            self._session.rollback()
+            raise ServerError()
 
     def delete(self, id: int):
         obj = self.find(id)
-        self.__session.delete(obj)
-        self.__session.commit()
+        try:
+            self._session.delete(obj)
+            self._session.commit()
+        except Exception as e:
+            self._session.rollback()
+            raise e

@@ -4,9 +4,10 @@ from repository.database import Database
 import os
 
 def __init_app(db_string: str, debug: bool):
+    key = __get_env('CODEMAZE_KEY')
     app = Flask(__name__)
-    Router(app).create_routes()
     Database.initialize(db_string, debug)
+    Router(app, key).create_routes()
     return app
 
 def __get_env(name: str):
