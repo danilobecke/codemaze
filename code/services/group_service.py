@@ -28,3 +28,5 @@ class GroupService:
         except Exception as e:
             raise e
 
+    def add_join_request(self, code: str, student_id: int):
+        self.__group_repository.add_join_request(code, student_id)

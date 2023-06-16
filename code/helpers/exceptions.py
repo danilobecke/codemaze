@@ -29,3 +29,7 @@ class Unauthorized(Exception):
     
 class Internal_UniqueViolation(Exception):
     "Raised when the unique constraint was violated on the database."
+
+class Conflict(Exception):
+    def __init__(self):
+        super().__init__("This request was made already.")
