@@ -1,13 +1,15 @@
 from flask import Flask
 from router import Router
 from repository.database import Database
+from services.session_service import SessionService
 import os
 
 def __init_app(db_string: str, debug: bool):
     key = __get_env('CODEMAZE_KEY')
     app = Flask(__name__)
     Database.initialize(db_string, debug)
-    Router(app, key).create_routes()
+    SessionService.initialize(key)
+    Router(app).create_routes()
     return app
 
 def __get_env(name: str):

@@ -14,8 +14,6 @@ signup_model = _namespace.model('Sign Up', {
 })
 
 class ManagerResource(Resource):
-        _session_service: SessionService | None = None
-
         @_namespace.doc(description="Create a new manager.")
         @_namespace.expect(signup_model, validate=True)
         @_namespace.response(200, 'Success', user_model)
@@ -26,15 +24,14 @@ class ManagerResource(Resource):
             email = request.json['email']
             password = request.json['password']
             try:
-                return ManagerResource._session_service.create_user(email, name, password, Role.MANAGER)
+                return SessionService.shared.create_user(email, name, password, Role.MANAGER)
             except Exception as e:
                  abort(500, str(e))
 
 class ManagerEndpoints:
-    def __init__(self, api: Api, session_service: SessionService):
+    def __init__(self, api: Api):
         api.add_namespace(_namespace)
         _namespace.add_model('User', user_model)
-        ManagerResource._session_service = session_service
 
     def register_resources(self):
         _namespace.add_resource(ManagerResource, '')

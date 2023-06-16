@@ -1,3 +1,4 @@
+from typing import Self
 from services.jwt_service import JWTService
 from services.user_service import UserService
 from endpoints.models.user import UserVO
@@ -5,6 +6,8 @@ from helpers.exceptions import *
 from helpers.role import Role
 
 class SessionService:
+    shared: Self | None = None
+
     def __init__(self, key: str):
         self.__jwt_service = JWTService(key)
         self.__user_service = UserService()
@@ -30,3 +33,8 @@ class SessionService:
         token = self.__jwt_service.create_token(user_id)
         vo.token = token
         return vo
+    @staticmethod
+    def initialize(key: str):
+        if SessionService.shared is not None:
+            return
+        SessionService.shared = SessionService(key)
