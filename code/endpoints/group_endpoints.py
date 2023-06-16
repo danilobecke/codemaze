@@ -24,7 +24,7 @@ _join_group_model = _namespace.model('Join Request', {
      'code': fields.String(required=True)
 })
 
-class GroupResource(Resource):
+class GroupsResource(Resource):
     _group_service: GroupService | None = None
 
     @_namespace.doc(description="*Managers only*\nCreate a new group.")
@@ -37,7 +37,7 @@ class GroupResource(Resource):
     def post(self, user: UserVO):
         name = request.json['name']
         try:
-            return GroupResource._group_service.create(name, user.id)
+            return GroupsResource._group_service.create(name, user.id)
         except Exception as e:
                 abort(500, str(e))
 
@@ -65,9 +65,9 @@ class JoinResource(Resource):
 class GroupEndpoints:
     def __init__(self, api: Api, group_service: GroupService):
         api.add_namespace(_namespace)
-        GroupResource._group_service = group_service
+        GroupsResource._group_service = group_service
         JoinResource._group_service = group_service
 
     def register_resources(self):
-        _namespace.add_resource(GroupResource, '')
+        _namespace.add_resource(GroupsResource, '')
         _namespace.add_resource(JoinResource, '/join')
