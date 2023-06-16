@@ -2,6 +2,7 @@ from repository.database import Database
 from repository.base import Base
 from typing import TypeVar, Generic
 from helpers.exceptions import *
+from psycopg2.errors import UniqueViolation
 
 M = TypeVar('M', bound=Base)
 
@@ -21,11 +22,14 @@ class AbstractRepository(Generic[M]):
             raise NotFound()
         return model
 
-    def add(self, model: M):
+    def add(self, model: M, raise_unique_violation_error: bool = False):
         try:
             self._session.add(model)
             self._session.commit()
             return model
+        except UniqueViolation:
+            self._session.rollback()
+            raise Internal_UniqueViolation() if raise_unique_violation_error else ServerError()
         except Exception as e:
             self._session.rollback()
             raise ServerError()

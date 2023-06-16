@@ -27,3 +27,5 @@ class Unauthorized(Exception):
     def __init__(self):
         super().__init__("Log in to an authorized account to gain access to this resource.")
     
+class Internal_UniqueViolation(Exception):
+    "Raised when the unique constraint was violated on the database."
