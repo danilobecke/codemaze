@@ -1,8 +1,9 @@
 from repository.abstract_repository import AbstractRepository
 from repository.dto.group import GroupDTO
 from repository.dto.student_group import student_group
+from repository.dto.student import StudentDTO
 from helpers.exceptions import *
-from sqlalchemy import insert
+from sqlalchemy import insert, select, column
 from sqlalchemy.exc import IntegrityError
 
 class GroupRepository(AbstractRepository):
@@ -23,3 +24,9 @@ class GroupRepository(AbstractRepository):
         except Exception as e:
             self._session.rollback()
             raise ServerError()
+    
+    def get_students_with_join_request(self, group_id: int) -> list[StudentDTO]:
+        stm = select(column("student_id")).where(student_group.columns["group_id"] == group_id).where(student_group.columns["approved"] == False)
+        result = self._session.execute(stm)
+        students = list(map(lambda row: row.student_id, result.all()))
+        return self._session.query(StudentDTO).filter(StudentDTO.id.in_(students)).all()

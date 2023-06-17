@@ -3,6 +3,7 @@ import secrets
 from repository.group_repository import GroupRepository
 from repository.dto.group import GroupDTO
 from endpoints.models.group import GroupVO
+from endpoints.models.join_request import JoinRequestVO
 from helpers.exceptions import *
 
 class GroupService:
@@ -30,3 +31,9 @@ class GroupService:
 
     def add_join_request(self, code: str, student_id: int):
         self.__group_repository.add_join_request(code, student_id)
+
+    def get_students_with_join_request(self, group_id: int, manager_id: int) -> list[JoinRequestVO]:
+        if self.__group_repository.find(group_id).manager_id != manager_id:
+            raise Forbidden()
+        students = self.__group_repository.get_students_with_join_request(group_id)
+        return list(map(lambda student: JoinRequestVO.import_from_student(student), students))
