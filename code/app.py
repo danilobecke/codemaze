@@ -4,10 +4,10 @@ from repository.database import Database
 from services.session_service import SessionService
 import os
 
-def __init_app(db_string: str, debug: bool):
+def __init_app(db_string: str):
     key = __get_env('CODEMAZE_KEY')
     app = Flask(__name__)
-    Database.initialize(db_string, debug)
+    Database.initialize(db_string)
     SessionService.initialize(key)
     Router(app).create_routes()
     return app
@@ -20,12 +20,12 @@ def __get_env(name: str):
 
 def run_as_debug():
     db_string = __get_env('DEBUG_DB_STRING')
-    app = __init_app(db_string, debug=True)
+    app = __init_app(db_string)
     app.run(port=48345, debug=True)
 
 def run_as_test():
     db_string = __get_env('TEST_DB_STRING')
-    app = __init_app(db_string, debug=False)
+    app = __init_app(db_string)
     return app.test_client()
 
 if __name__ == '__main__':
