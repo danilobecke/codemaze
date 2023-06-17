@@ -65,3 +65,9 @@ class GroupService:
     def get_group(self, id: int) -> GroupVO:
         dto = self.__group_repository.find(id)
         return GroupVO.import_from_dto(dto)
+
+    def get_students_of_group(self, id: int, manager_id: int) -> list[UserVO]:
+        if self.__group_repository.find(id).manager_id != manager_id:
+            raise Forbidden()
+        students = self.__group_repository.get_students_with_join_request(id, approved=True)
+        return list(map(lambda student: UserVO.import_from_dto(student), students))

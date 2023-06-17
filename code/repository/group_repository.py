@@ -26,8 +26,8 @@ class GroupRepository(AbstractRepository):
             self._session.rollback()
             raise ServerError()
     
-    def get_students_with_join_request(self, group_id: int) -> list[StudentDTO]:
-        stm = select(column("student_id")).where(student_group.columns["group_id"] == group_id).where(student_group.columns["approved"] == False)
+    def get_students_with_join_request(self, group_id: int, approved: bool = False) -> list[StudentDTO]:
+        stm = select(column("student_id")).where(student_group.columns["group_id"] == group_id).where(student_group.columns["approved"] == approved)
         result = self._session.execute(stm)
         students = list(map(lambda row: row.student_id, result.all()))
         return self._session.query(StudentDTO).filter(StudentDTO.id.in_(students)).all()

@@ -41,6 +41,11 @@ _manage_request_model = _namespace.model('Manage Request', {
     'approve': fields.Boolean(required=True)
 })
 
+_public_student_model = _namespace.model('Public Student', {
+    'name': fields.String(required=True),
+    'email': fields.String(required=True)
+})
+
 class GroupsResource(Resource):
     _group_service: GroupService | None = None
 
@@ -182,6 +187,27 @@ class RequestResource(Resource):
         except Exception as e:
             abort(500, str(ServerError()))
 
+class GroupStudentResource(Resource):
+    _group_service: GroupService | None = None
+
+    @_namespace.doc(description="*Managers only*\nGet a students' list of the current group.")
+    @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
+    @_namespace.response(401, 'Error')
+    @_namespace.response(403, 'Error')
+    @_namespace.response(404, 'Error')
+    @_namespace.response(500, 'Error')
+    @_namespace.marshal_with(_public_student_model, as_list=True, envelope='students')
+    @authentication_required(Role.MANAGER)
+    def get(self, group_id: int, user: UserVO):
+        try:
+            return GroupStudentResource._group_service.get_students_of_group(group_id, user.id)
+        except NotFound as e:
+            abort(404, str(e))
+        except Forbidden as e:
+            abort(403, str(e))
+        except Exception as e:
+            abort(500, str(ServerError()))
+
 class GroupEndpoints:
     def __init__(self, api: Api, group_service: GroupService):
         api.add_namespace(_namespace)
@@ -190,6 +216,7 @@ class GroupEndpoints:
         JoinResource._group_service = group_service
         RequestsResource._group_service = group_service
         RequestResource._group_service = group_service
+        GroupStudentResource._group_service = group_service
 
     def register_resources(self):
         _namespace.add_resource(GroupsResource, '')
@@ -197,3 +224,4 @@ class GroupEndpoints:
         _namespace.add_resource(JoinResource, '/join')
         _namespace.add_resource(RequestsResource, '/<int:group_id>/requests')
         _namespace.add_resource(RequestResource, '/<int:group_id>/requests/<int:id>')
+        _namespace.add_resource(GroupStudentResource, '/<int:group_id>/students')
