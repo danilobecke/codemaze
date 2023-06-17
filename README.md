@@ -4,6 +4,7 @@
 - Flask
 - flask-restx
 - SQLAlchemy
+- SQLAlchemy-Utils
 - PyJWT
 
 ## Install Requirements
