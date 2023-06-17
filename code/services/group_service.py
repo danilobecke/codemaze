@@ -4,6 +4,7 @@ from repository.group_repository import GroupRepository
 from repository.dto.group import GroupDTO
 from endpoints.models.group import GroupVO
 from endpoints.models.join_request import JoinRequestVO
+from endpoints.models.user import UserVO
 from helpers.exceptions import *
 
 class GroupService:
@@ -52,3 +53,11 @@ class GroupService:
             raise Forbidden()
         dto.active = active
         self.__group_repository.update_session()
+    
+    def get_all(self, user: UserVO | None) -> list[GroupVO]:
+        dtos: list[GroupDTO]
+        if user:
+            dtos = self.__group_repository.get_groups_for_user(user.id, user.role)
+        else:
+            dtos = self.__group_repository.find_all()
+        return list(map(lambda dto: GroupVO.import_from_dto(dto), dtos))

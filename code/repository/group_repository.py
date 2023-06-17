@@ -3,6 +3,7 @@ from repository.dto.group import GroupDTO
 from repository.dto.student_group import student_group
 from repository.dto.student import StudentDTO
 from helpers.exceptions import *
+from helpers.role import Role
 from sqlalchemy import insert, select, column, update, delete
 from sqlalchemy.exc import IntegrityError
 
@@ -56,3 +57,13 @@ class GroupRepository(AbstractRepository):
         except Exception:
             self._session.rollback()
             raise ServerError()
+
+    def get_groups_for_user(self, id: int, role: Role) -> list[GroupDTO]:
+        match role:
+            case Role.MANAGER:
+                return self._session.query(GroupDTO).filter_by(manager_id=id).all()
+            case Role.STUDENT:
+                stm = select(column("group_id")).where(student_group.columns["student_id"] == id).where(student_group.columns["approved"] == True)
+                result = self._session.execute(stm)
+                groups = list(map(lambda row: row.group_id, result.all()))
+                return self._session.query(GroupDTO).filter(GroupDTO.id.in_(groups)).all()
