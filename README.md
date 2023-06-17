@@ -1,5 +1,11 @@
 # Codemaze
 
+## Technologies
+- Flask
+- flask-restx
+- SQLAlchemy
+- PyJWT
+
 ## Install Requirements
 
 Install all requirements by going to the root folder and running:
