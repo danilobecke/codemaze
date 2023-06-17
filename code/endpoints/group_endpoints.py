@@ -96,6 +96,23 @@ class GroupResource(Resource):
         except ServerError as e:
             abort(500, str(e))
 
+    @_namespace.doc(description="Get info about a group.")
+    @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
+    @_namespace.response(401, 'Error')
+    @_namespace.response(404, 'Error')
+    @_namespace.response(500, 'Error')
+    @_namespace.marshal_with(_group_model)
+    @authentication_required()
+    def get(self, id: int, user: UserVO):
+        try:
+            return GroupResource._group_service.get_group(id)
+        except Unauthorized as e:
+            abort(401, str(e))
+        except NotFound as e:
+            abort(404, str(e))
+        except ServerError as e:
+            abort(500, str(e))
+
 class JoinResource(Resource):
     _group_service: GroupService | None = None
 
