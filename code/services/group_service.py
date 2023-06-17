@@ -45,3 +45,10 @@ class GroupService:
             self.__group_repository.approve_join_request(group_id, student_id)
         else:
             self.__group_repository.remove_join_request(group_id, student_id)
+
+    def update_group_active(self, group_id: int, manager_id: int, active: bool):
+        dto: GroupDTO = self.__group_repository.find(group_id)
+        if dto.manager_id != manager_id:
+            raise Forbidden()
+        dto.active = active
+        self.__group_repository.update_session()

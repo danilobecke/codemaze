@@ -39,4 +39,11 @@ class AbstractRepository(Generic[M]):
             self._session.commit()
         except Exception as e:
             self._session.rollback()
-            raise e
+            raise ServerError()
+
+    def update_session(self):
+        try:
+            self._session.commit()
+        except Exception as e:
+            self._session.rollback()
+            raise ServerError()

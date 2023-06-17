@@ -20,6 +20,10 @@ _group_model = _namespace.model('Group', {
      'manager_id': fields.Integer(required=True)
 })
 
+_manage_group_model = _namespace.model('Manage Group', {
+    'active': fields.Boolean(required=True)
+})
+
 _join_group_model = _namespace.model('Create Join Request', {
      'code': fields.String(required=True)
 })
@@ -49,6 +53,30 @@ class GroupsResource(Resource):
             return GroupsResource._group_service.create(name, user.id)
         except Exception as e:
                 abort(500, str(e))
+
+class GroupResource(Resource):
+    _group_service: GroupService | None = None
+
+    @_namespace.doc(description="*Managers only*\nUpdate the group `active` status.")
+    @_namespace.expect(_manage_group_model, validate=True)
+    @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
+    @_namespace.response(200, 'Success')
+    @_namespace.response(401, 'Error')
+    @_namespace.response(403, 'Error')
+    @_namespace.response(404, 'Error')
+    @_namespace.response(500, 'Error')
+    @authentication_required(Role.MANAGER)
+    def patch(self, id: int, user: UserVO):
+        active = request.json['active']
+        try:
+            GroupResource._group_service.update_group_active(id, user.id, active)
+            return jsonify(message='Success')
+        except Forbidden as e:
+            abort(403, str(e))
+        except NotFound as e:
+            abort(404, str(e))
+        except ServerError as e:
+            abort(500, str(e))
 
 class JoinResource(Resource):
     _group_service: GroupService | None = None
@@ -123,12 +151,14 @@ class GroupEndpoints:
     def __init__(self, api: Api, group_service: GroupService):
         api.add_namespace(_namespace)
         GroupsResource._group_service = group_service
+        GroupResource._group_service = group_service
         JoinResource._group_service = group_service
         RequestsResource._group_service = group_service
         RequestResource._group_service = group_service
 
     def register_resources(self):
         _namespace.add_resource(GroupsResource, '')
+        _namespace.add_resource(GroupResource, '/<int:id>')
         _namespace.add_resource(JoinResource, '/join')
         _namespace.add_resource(RequestsResource, '/<int:group_id>/requests')
         _namespace.add_resource(RequestResource, '/<int:group_id>/requests/<int:id>')
