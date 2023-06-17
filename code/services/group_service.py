@@ -37,3 +37,11 @@ class GroupService:
             raise Forbidden()
         students = self.__group_repository.get_students_with_join_request(group_id)
         return list(map(lambda student: JoinRequestVO.import_from_student(student), students))
+
+    def update_join_request(self, group_id: int, student_id: int, manager_id: int, approved: bool):
+        if self.__group_repository.find(group_id).manager_id != manager_id:
+            raise Forbidden()
+        if approved:
+            self.__group_repository.approve_join_request(group_id, student_id)
+        else:
+            self.__group_repository.remove_join_request(group_id, student_id)
