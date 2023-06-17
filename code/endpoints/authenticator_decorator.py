@@ -17,7 +17,7 @@ def authentication_required(role: Role):
                 user = SessionService.shared.validate_token(token, role)
                 kwargs['user'] = user
                 return function(*args, **kwargs)
-            except (Unauthorized, NotFound, InvalidID) as e:
+            except (Unauthorized, NotFound) as e:
                 abort(401, str(Unauthorized()))
             except Exception as e:
                 abort(500, str(e))

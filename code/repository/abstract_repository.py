@@ -15,8 +15,6 @@ class AbstractRepository(Generic[M]):
         return self._session.query(self.__class).all()
 
     def find(self, id: int) -> M:
-        if id < 1:
-             raise InvalidID()
         model = self._session.query(self.__class).get(id)
         if model is None:
             raise NotFound()

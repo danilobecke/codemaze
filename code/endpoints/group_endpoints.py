@@ -34,7 +34,6 @@ class GroupsResource(Resource):
 
     @_namespace.doc(description="*Managers only*\nCreate a new group.")
     @_namespace.expect(_new_group_model, validate=True)
-    @_namespace.response(200, 'Success', _group_model)
     @_namespace.response(401, 'Error')
     @_namespace.response(500, 'Error')
     @_namespace.marshal_with(_group_model)

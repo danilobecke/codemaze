@@ -1,7 +1,3 @@
-class InvalidID(Exception):
-    def __init__(self):
-        super().__init__("The given id is invalid.")
-
 # class InvalidJSON(Exception):
 #     "Raised when the given JSON is not valid for the current context."
 
