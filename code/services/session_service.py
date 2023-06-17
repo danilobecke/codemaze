@@ -23,19 +23,25 @@ class SessionService:
                 vo.token = self.__jwt_service.create_token(vo.id)
                 return vo
 
-    def login(self, email: str, password: str) -> UserVO:
-        user_id = self.__user_service.login(email, password)
+    def __get_user(self, id: int) -> UserVO:
         vo: UserVO = None
         try:
-            vo = self.__user_service.get_manager(user_id)
+            vo = self.__user_service.get_manager(id)
         except NotFound:
-            vo = self.__user_service.get_student(user_id)
+            vo = self.__user_service.get_student(id)
+        return vo
+
+    def login(self, email: str, password: str) -> UserVO:
+        user_id = self.__user_service.login(email, password)
+        vo = self.__get_user(user_id)
         token = self.__jwt_service.create_token(user_id)
         vo.token = token
         return vo
 
-    def validate_token(self, token: str, role: Role) -> UserVO:
+    def validate_token(self, token: str, role: Role | None) -> UserVO:
         user_id = self.__jwt_service.decode_token(token)
+        if not role:
+            return self.__get_user(user_id)
         match role:
             case Role.MANAGER:
                 return self.__user_service.get_manager(user_id)

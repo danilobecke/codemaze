@@ -6,7 +6,7 @@ from helpers.exceptions import *
 
 _PATTERN = "^Bearer ((?:\.?(?:[A-Za-z0-9-_]+)){3})$"
 
-def authentication_required(role: Role):
+def authentication_required(role: Role | None = None):
     def decorator(function):
         def wrapper(*args, **kwargs):
             if "Authorization" not in request.headers:
