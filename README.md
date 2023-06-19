@@ -6,6 +6,7 @@
 - SQLAlchemy
 - SQLAlchemy-Utils
 - PyJWT
+- pytest
 
 ## Install Requirements
 
