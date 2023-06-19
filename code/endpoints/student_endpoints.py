@@ -19,7 +19,7 @@ class StudentResource(Resource):
             password = request.json['password']
             try:
                 return SessionService.shared.create_user(email, name, password, Role.STUDENT)
-            except Exception as e:
+            except ServerError as e:
                  abort(500, str(e))
 
 class StudentEndpoints:

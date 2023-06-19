@@ -71,7 +71,7 @@ class GroupsResource(Resource):
         member_of = args.get('member_of', False)
         try:
             return GroupsResource._group_service.get_all(user if member_of else None)
-        except Exception as e:
+        except ServerError as e:
             abort(500, str(e))
 
 class GroupResource(Resource):
@@ -136,7 +136,7 @@ class JoinResource(Resource):
              abort(404, str(e))
          except Internal_UniqueViolation:
              abort(409, str(Conflict()))
-         except Exception as e:
+         except ServerError as e:
              abort(500, str(e))
 
 class RequestsResource(Resource):
@@ -157,8 +157,8 @@ class RequestsResource(Resource):
             abort(404, str(e))
         except Forbidden as e:
             abort(403, str(e))
-        except Exception as e:
-            abort(500, str(ServerError()))
+        except ServerError as e:
+            abort(500, str(e))
 
 class RequestResource(Resource):
     _group_service: GroupService | None = None
@@ -181,8 +181,8 @@ class RequestResource(Resource):
             abort(404, str(e))
         except Forbidden as e:
             abort(403, str(e))
-        except Exception as e:
-            abort(500, str(ServerError()))
+        except ServerError as e:
+            abort(500, str(e))
 
 class GroupStudentResource(Resource):
     _group_service: GroupService | None = None
@@ -202,8 +202,8 @@ class GroupStudentResource(Resource):
             abort(404, str(e))
         except Forbidden as e:
             abort(403, str(e))
-        except Exception as e:
-            abort(500, str(ServerError()))
+        except ServerError as e:
+            abort(500, str(e))
 
 class GroupEndpoints:
     def __init__(self, api: Api, group_service: GroupService):

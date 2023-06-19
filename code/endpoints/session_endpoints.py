@@ -31,7 +31,7 @@ class SessionResource(Resource):
                  return SessionService.shared.login(email, password)
             except Forbidden as e:
                  abort(403, str(e))
-            except Exception as e:
+            except ServerError as e:
                  abort(500, str(e))
 
 class SessionEndpoints:
