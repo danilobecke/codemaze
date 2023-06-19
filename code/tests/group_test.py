@@ -70,6 +70,15 @@ class TestGroup:
         filtered = list(filter(lambda json: json['manager_id'] == manager_id_token[0], groups))
         assert filtered == groups
 
+    def test_manager_get_all_groups_where_member_of_when_is_not_member_should_return_empty_list(self):
+        random_token = get_random_manager_token()
+
+        response = get('/groups?member_of=true', random_token)
+
+        assert response[0] == 200
+        groups = response[1]['groups']
+        assert len(groups) == 0
+
     def test_get_all_groups_without_token_should_return_unauthorized(self):
         response = get('/groups')
 
@@ -230,3 +239,68 @@ class TestGroup:
 
         response_replay = post('/groups/join', payload, student_token)
         assert response_replay[0] == 409
+
+    def test_manager_get_requests_list_sould_return_requests(self):
+        manager_token = get_manager_id_token()[1]
+        student_id_token = get_student_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+
+        payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', payload, student_id_token[1])
+        response = get(f'groups/{group_id_code[0]}/requests', manager_token)
+
+        assert response[0] == 200
+        requests = response[1]['requests']
+        assert len(requests) == 1
+        assert requests[0]['id'] == student_id_token[0]
+        assert requests[0]['student'] == 'Student'
+    
+    def test_manager_get_requests_list_when_there_is_no_request_should_return_empty_list(self):
+        manager_token = get_manager_id_token()[1]
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+
+        response = get(f'groups/{group_id_code[0]}/requests', manager_token)
+
+        assert response[0] == 200
+        requests = response[1]['requests']
+        assert len(requests) == 0
+    
+    def test_student_get_requests_list_should_return_unauthorized(self):
+        manager_token = get_manager_id_token()[1]
+        student_id_token = get_student_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+
+        payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', payload, student_id_token[1])
+        response = get(f'groups/{group_id_code[0]}/requests', student_id_token[1])
+
+        assert response[0] == 401
+
+    def test_get_requests_list_without_token_should_return_unauthorized(self):
+        manager_token = get_manager_id_token()[1]
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+
+        response = get(f'groups/{group_id_code[0]}/requests')
+
+        assert response[0] == 401
+
+    def test_get_requests_list_when_is_not_owner_should_return_forbidden(self):
+        manager_token = get_manager_id_token()[1]
+        random_token = get_random_manager_token()
+        group_id_code = get_new_group_id_code(get_random_name(), random_token)
+
+        response = get(f'groups/{group_id_code[0]}/requests', manager_token)
+
+        assert response[0] == 403
+
+    def test_get_requests_list_with_invalid_id_should_return_not_found(self):
+        manager_token = get_manager_id_token()[1]
+        id = 999999999999999999999
+
+        response = get(f'groups/{id}/requests', manager_token)
+
+        assert response[0] == 404
