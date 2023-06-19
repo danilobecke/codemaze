@@ -455,3 +455,93 @@ class TestGroup:
 
         second_response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
         assert second_response[0] == 404
+
+    def test_manager_get_students_list_should_return_students(self):
+        manager_token = get_manager_id_token()[1]
+        student_id_token = get_student_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+
+        join_payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', join_payload, student_id_token[1])
+        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        payload = {
+            'approve': True
+        }
+        patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+        response = get(f'/groups/{group_id_code[0]}/students', manager_token)
+
+        assert response[0] == 200
+        students = response[1]['students']
+        assert len(students) == 1
+        assert students[0]['name'] == 'Student'
+        assert students[0]['email'] == 'student@email.com'
+
+    def test_manager_get_students_list_without_approved_students_should_return_empty_list(self):
+        manager_token = get_manager_id_token()[1]
+        student_id_token = get_student_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+
+        join_payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', join_payload, student_id_token[1])
+        response = get(f'/groups/{group_id_code[0]}/students', manager_token)
+
+        assert response[0] == 200
+        students = response[1]['students']
+        assert len(students) == 0
+
+    def test_student_get_students_list_should_return_unauthorized(self):
+        manager_token = get_manager_id_token()[1]
+        student_id_token = get_student_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+
+        join_payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', join_payload, student_id_token[1])
+        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        payload = {
+            'approve': True
+        }
+        patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+        response = get(f'/groups/{group_id_code[0]}/students', student_id_token[0])
+
+        assert response[0] == 401
+
+    def test_get_students_list_without_token_should_return_unauthorized(self):
+        manager_token = get_manager_id_token()[1]
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+
+        response = get(f'/groups/{group_id_code[0]}/students')
+
+        assert response[0] == 401
+
+    def test_get_students_list_when_is_not_owner_should_return_forbidden(self):
+        manager_token = get_manager_id_token()[1]
+        student_id_token = get_student_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+        random_manager_token = get_random_manager_token()
+
+        join_payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', join_payload, student_id_token[1])
+        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        payload = {
+            'approve': True
+        }
+        patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+        response = get(f'/groups/{group_id_code[0]}/students', random_manager_token)
+
+        assert response[0] == 403
+
+    def test_get_students_list_with_invalid_id_should_return_not_found(self):
+        manager_token = get_manager_id_token()[1]
+        id = 999999999999999999999
+
+        response = get(f'/groups/{id}/students', manager_token)
+
+        assert response[0] == 404
