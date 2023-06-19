@@ -19,7 +19,7 @@ def authentication_required(role: Role | None = None):
                 return function(*args, **kwargs)
             except (Unauthorized, NotFound) as e:
                 abort(401, str(Unauthorized()))
-            except Exception as e:
+            except ServerError as e:
                 abort(500, str(e))
         return wrapper
     return decorator
