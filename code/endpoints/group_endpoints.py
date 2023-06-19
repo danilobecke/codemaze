@@ -108,8 +108,6 @@ class GroupResource(Resource):
     def get(self, id: int, user: UserVO):
         try:
             return GroupResource._group_service.get_group(id)
-        except Unauthorized as e:
-            abort(401, str(e))
         except NotFound as e:
             abort(404, str(e))
         except ServerError as e:
