@@ -1,5 +1,7 @@
 # Codemaze
 
+![coverage-badge](./metadata/coverage.svg)
+
 ## Technologies
 - Flask
 - flask-restx
