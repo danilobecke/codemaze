@@ -1,0 +1,4 @@
+#!/bin/bash
+
+make code-coverage
+git add metadata/coverage.svg

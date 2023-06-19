@@ -1,5 +1,7 @@
 setup: requirements.txt
 	pip install -r requirements.txt
+	chmod 777 hooks/pre-commit
+	git config core.hooksPath hooks
 run:
 	python code/app.py
 test:
