@@ -17,6 +17,8 @@ test:
 code-coverage:
 	$(PYTEST) --ignore=code/repository --cov-report= --cov-config=.coveragerc --cov=code
 	$(COVERAGE_BADGE) -f -o metadata/coverage.svg
+freeze:
+	$(PIP) freeze > requirements.txt
 clean:
 	$(PYCLEAN) .
 	rm -rf venv
