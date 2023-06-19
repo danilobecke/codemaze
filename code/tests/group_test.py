@@ -2,19 +2,18 @@ from tests.helper import post, get, patch
 from tests.helper import get_random_name, get_manager_id_token, get_student_id_token, get_random_manager_token, get_new_group_id_code, create_expired_token
 
 class TestGroup:
-    __group_name = get_random_name()
-
     def test_create_group_should_create(self):
+        name = get_random_name()
         id_token = get_manager_id_token()
         payload = {
-            'name': self.__group_name
+            'name': name
         }
         response = post('/groups', payload, id_token[1])
 
         assert response[0] == 200
         json = response[1]
         assert json['id'] is not None
-        assert json['name'] == self.__group_name
+        assert json['name'] == name
         assert json['active'] is True
         assert json['code'] is not None
         assert json['manager_id'] == id_token[0]
@@ -507,7 +506,7 @@ class TestGroup:
             'approve': True
         }
         patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
-        response = get(f'/groups/{group_id_code[0]}/students', student_id_token[0])
+        response = get(f'/groups/{group_id_code[0]}/students', student_id_token[1])
 
         assert response[0] == 401
 
