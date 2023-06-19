@@ -20,10 +20,6 @@ _group_model = _namespace.model('Group', {
      'manager_id': fields.Integer(required=True)
 })
 
-_get_groups_model = _namespace.model('Get Groups', {
-    'member_of': fields.Boolean(required=True)
-})
-
 _manage_group_model = _namespace.model('Manage Group', {
     'active': fields.Boolean(required=True)
 })
@@ -64,14 +60,15 @@ class GroupsResource(Resource):
                 abort(500, str(e))
 
     @_namespace.doc(description="Get all groups. If `member_of = true`, get all groups where the current user is either a manager or a student.")
-    @_namespace.expect(_get_groups_model, validate=True)
+    @_namespace.param('member_of', 'true or false', 'query')
     @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(401, 'Error')
     @_namespace.response(500, 'Error')
     @_namespace.marshal_with(_group_model, as_list=True, envelope='groups')
     @authentication_required()
     def get(self, user: UserVO):
-        member_of = request.json['member_of']
+        args = request.args
+        member_of = args.get('member_of', False)
         try:
             return GroupsResource._group_service.get_all(user if member_of else None)
         except Exception as e:
