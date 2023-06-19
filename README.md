@@ -40,6 +40,12 @@ make run
 
 The environment var `TEST_DB_STRING` must be set with the testing database string or an exception will be raised.
 
+Navigate to the root folder and run:
+
+```bash
+make test
+```
+
 ## Modelling
 
 ### Entity-Relationship Diagram (ERD)
