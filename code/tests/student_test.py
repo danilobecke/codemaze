@@ -1,8 +1,7 @@
-from tests.helper import post
-import uuid
+from tests.helper import post, get_random_name
 
 class TestStudent:
-    __name = str(uuid.uuid1())
+    __name = get_random_name()
     __email = f'{__name}@email.com'
     __password = f'pass{__name}'
 

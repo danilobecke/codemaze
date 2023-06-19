@@ -29,6 +29,9 @@ def patch(path: str, payload: dict, token: str | None = None) -> HTTPResponse:
 
 # DATABSE HELPERS
 
+def get_random_name() -> str:
+    return str(uuid.uuid1())
+
 def get_manager_id_token() -> tuple[str, str]:
     manager_email = 'manager@email.com'
     manager_password = 'manager'
@@ -70,7 +73,7 @@ def get_student_id_token() -> tuple[str, str]:
     return (response[1]['id'], response[1]['token'])
 
 def get_random_manager_token() -> str:
-    random = str(uuid.uuid1())
+    random = get_random_name()
     payload = {
         'name': random,
         'email': f'{random}@email.com',
@@ -79,9 +82,9 @@ def get_random_manager_token() -> str:
     response = post('/managers', payload)
     return response[1]['token']
 
-def get_new_group_code(name: str, token: str) -> str:
+def get_new_group_id_code(name: str, token: str) -> tuple[str, str]:
     payload = {
         'name': name
     }
     response = post('/groups', payload, token)
-    return response[1]['code']
+    return (response[1]['id'], response[1]['code'])
