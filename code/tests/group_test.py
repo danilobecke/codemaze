@@ -170,3 +170,63 @@ class TestGroup:
         response = patch(f'/groups/{group_id}', payload)
 
         assert response[0] == 401
+
+    def test_student_join_group_should_work(self):
+        student_token = get_student_id_token()[1]
+        manager_token = get_manager_id_token()[1]
+        group_code = get_new_group_id_code(get_random_name(), manager_token)[1]
+
+        payload = {
+            'code': group_code
+        }
+        response = post('/groups/join', payload, student_token)
+
+        assert response[0] == 200
+    
+    def test_manager_join_group_should_return_unauthorized(self):
+        random_manager_token = get_random_manager_token()
+        manager_token = get_manager_id_token()[1]
+        group_code = get_new_group_id_code(get_random_name(), manager_token)[1]
+
+        payload = {
+            'code': group_code
+        }
+        response = post('/groups/join', payload, random_manager_token)
+
+        assert response[0] == 401
+
+    def test_join_group_without_token_should_return_unauthorized(self):
+        manager_token = get_manager_id_token()[1]
+        group_code = get_new_group_id_code(get_random_name(), manager_token)[1]
+
+        payload = {
+            'code': group_code
+        }
+        response = post('/groups/join', payload)
+
+        assert response[0] == 401
+
+    def test_join_group_with_invalid_code_should_return_not_found(self):
+        student_token = get_student_id_token()[1]
+        group_code = 'invalid'
+
+        payload = {
+            'code': group_code
+        }
+        response = post('/groups/join', payload, student_token)
+
+        assert response[0] == 404
+
+    def test_join_group_twice_should_return_conflict(self):
+        student_token = get_student_id_token()[1]
+        manager_token = get_manager_id_token()[1]
+        group_code = get_new_group_id_code(get_random_name(), manager_token)[1]
+
+        payload = {
+            'code': group_code
+        }
+        response = post('/groups/join', payload, student_token)
+        assert response[0] == 200
+
+        response_replay = post('/groups/join', payload, student_token)
+        assert response_replay[0] == 409
