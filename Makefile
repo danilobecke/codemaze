@@ -9,3 +9,5 @@ test:
 code-coverage:
 	pytest --ignore=code/repository --cov-report= --cov=code
 	coverage-badge -f -o metadata/coverage.svg
+clean:
+	pyclean .
