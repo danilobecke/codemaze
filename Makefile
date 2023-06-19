@@ -13,9 +13,9 @@ setup: requirements.txt
 run:
 	$(PYTHON) code/app.py
 test:
-	$(PYTEST) --ignore=code/repository --cov-report term-missing:skip-covered --cov=code
+	$(PYTEST) --ignore=code/repository --cov-report term-missing:skip-covered --cov-config=.coveragerc --cov=code
 code-coverage:
-	$(PYTEST) --ignore=code/repository --cov-report= --cov=code
+	$(PYTEST) --ignore=code/repository --cov-report= --cov-config=.coveragerc --cov=code
 	$(COVERAGE_BADGE) -f -o metadata/coverage.svg
 clean:
 	$(PYCLEAN) .
