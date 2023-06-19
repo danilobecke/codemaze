@@ -12,7 +12,7 @@
 Install all requirements by going to the root folder and running:
 
 ```bash
-pip install -r requirements.txt
+make setup
 ```
 
 ## Running
@@ -29,10 +29,10 @@ secrets.token_bytes(32)
 
 The environment var `DEBUG_DB_STRING` must be set with the debug database string or an exception will be raised.
 
-Navigate to code folder and run:
+Navigate to the root folder and run:
 
 ```bash
-python app.py
+make run
 ```
 
 ### Tests
