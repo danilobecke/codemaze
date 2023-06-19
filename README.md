@@ -11,6 +11,7 @@
 - pytest
 - pytest-cov
 - coverage-badge
+- pyclean
 
 ## Install Requirements
 
