@@ -304,3 +304,154 @@ class TestGroup:
         response = get(f'groups/{id}/requests', manager_token)
 
         assert response[0] == 404
+
+    def test_manager_approve_join_request_should_work(self):
+        manager_token = get_manager_id_token()[1]
+        student_id_token = get_student_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+
+        join_payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', join_payload, student_id_token[1])
+        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        payload = {
+            'approve': True
+        }
+        response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+
+        assert response[0] == 200
+        requests = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests']
+        assert len(requests) == 0
+
+    def test_manager_decline_join_request_should_work(self):
+        manager_token = get_manager_id_token()[1]
+        student_id_token = get_student_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+
+        join_payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', join_payload, student_id_token[1])
+        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        payload = {
+            'approve': False
+        }
+        response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+
+        assert response[0] == 200
+        requests = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests']
+        assert len(requests) == 0
+
+    def test_student_approve_join_request_should_return_unauthorized(self):
+        manager_token = get_manager_id_token()[1]
+        student_id_token = get_student_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+
+        join_payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', join_payload, student_id_token[1])
+        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        payload = {
+            'approve': True
+        }
+        response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, student_id_token[1])
+
+        assert response[0] == 401
+
+    def test_approve_join_request_without_token_should_return_unauthorized(self):
+        manager_token = get_manager_id_token()[1]
+        student_id_token = get_student_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+
+        join_payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', join_payload, student_id_token[1])
+        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        payload = {
+            'approve': True
+        }
+        response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload)
+
+        assert response[0] == 401
+
+    def test_approve_join_request_when_is_not_owner_should_return_forbidden(self):
+        random_manager_token = get_random_manager_token()
+        manager_token = get_manager_id_token()[1]
+        student_id_token = get_student_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), random_manager_token)
+
+        join_payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', join_payload, student_id_token[1])
+        request_id = get(f'groups/{group_id_code[0]}/requests', random_manager_token)[1]['requests'][0]['id']
+        payload = {
+            'approve': True
+        }
+        response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+
+        assert response[0] == 403
+
+    def test_approve_join_request_when_group_id_is_not_valid_should_return_not_found(self):
+        manager_token = get_manager_id_token()[1]
+        id = 999999999999999999999
+
+        payload = {
+            'approve': True
+        }
+        response = patch(f'/groups/{id}/requests/{id}', payload, manager_token)
+
+        assert response[0] == 404
+
+    def test_approve_join_request_when_request_id_is_not_valid_should_return_not_found(self):
+        manager_token = get_manager_id_token()[1]
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+        id = 999999999999999999999
+
+        payload = {
+            'approve': True
+        }
+        response = patch(f'/groups/{group_id_code[0]}/requests/{id}', payload, manager_token)
+
+        assert response[0] == 404
+
+    def test_approve_join_request_twice_should_return_not_found(self):
+        manager_token = get_manager_id_token()[1]
+        student_id_token = get_student_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+
+        join_payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', join_payload, student_id_token[1])
+        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        payload = {
+            'approve': True
+        }
+        response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+        assert response[0] == 200
+
+        second_response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+        assert second_response[0] == 404
+
+    def test_decline_join_request_twice_should_return_not_found(self):
+        manager_token = get_manager_id_token()[1]
+        student_id_token = get_student_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+
+        join_payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', join_payload, student_id_token[1])
+        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        payload = {
+            'approve': False
+        }
+        response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+        assert response[0] == 200
+
+        second_response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+        assert second_response[0] == 404
