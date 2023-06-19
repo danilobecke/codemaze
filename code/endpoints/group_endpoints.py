@@ -67,8 +67,14 @@ class GroupsResource(Resource):
     @_namespace.marshal_with(_group_model, as_list=True, envelope='groups')
     @authentication_required()
     def get(self, user: UserVO):
-        args = request.args
-        member_of = args.get('member_of', False)
+        raw_member_of = request.args.get('member_of')
+        member_of = False
+        if raw_member_of:
+            match raw_member_of:
+                case 'true' | 'True':
+                    member_of = True
+                case 'false' | 'False':
+                    member_of = False
         try:
             return GroupsResource._group_service.get_all(user if member_of else None)
         except ServerError as e:

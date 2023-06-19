@@ -2,7 +2,7 @@ from repository.database import Database
 from repository.base import Base
 from typing import TypeVar, Generic
 from helpers.exceptions import *
-from psycopg2.errors import UniqueViolation
+from sqlalchemy.exc import IntegrityError
 
 M = TypeVar('M', bound=Base)
 
@@ -25,7 +25,7 @@ class AbstractRepository(Generic[M]):
             self._session.add(model)
             self._session.commit()
             return model
-        except UniqueViolation:
+        except IntegrityError:
             self._session.rollback()
             raise Internal_UniqueViolation() if raise_unique_violation_error else ServerError()
         except Exception as e:
