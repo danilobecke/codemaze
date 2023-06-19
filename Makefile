@@ -1,13 +1,22 @@
+VENV = venv
+PYTHON = $(VENV)/bin/python
+PIP = $(VENV)/bin/pip
+PYTEST = $(VENV)/bin/pytest
+COVERAGE_BADGE = $(VENV)/bin/coverage-badge
+PYCLEAN = $(VENV)/bin/pyclean
+
 setup: requirements.txt
-	pip install -r requirements.txt
+	python -m venv $(VENV)
+	$(PIP) install -r requirements.txt
 	chmod 777 hooks/pre-commit
 	git config core.hooksPath hooks
 run:
-	python code/app.py
+	$(PYTHON) code/app.py
 test:
-	pytest --ignore=code/repository --cov-report term-missing:skip-covered --cov=code
+	$(PYTEST) --ignore=code/repository --cov-report term-missing:skip-covered --cov=code
 code-coverage:
-	pytest --ignore=code/repository --cov-report= --cov=code
-	coverage-badge -f -o metadata/coverage.svg
+	$(PYTEST) --ignore=code/repository --cov-report= --cov=code
+	$(COVERAGE_BADGE) -f -o metadata/coverage.svg
 clean:
-	pyclean .
+	$(PYCLEAN) .
+	rm -rf venv
