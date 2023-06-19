@@ -7,6 +7,8 @@
 - SQLAlchemy-Utils
 - PyJWT
 - pytest
+- pytest-cov
+- coverage-badge
 
 ## Install Requirements
 
