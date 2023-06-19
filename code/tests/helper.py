@@ -1,6 +1,10 @@
 from flask import json
 from app import run_as_test
 import uuid
+import jwt
+import datetime
+import os
+import time
 
 __app = run_as_test()
 
@@ -88,3 +92,13 @@ def get_new_group_id_code(name: str, token: str) -> tuple[str, str]:
     }
     response = post('/groups', payload, token)
     return (response[1]['id'], response[1]['code'])
+
+def create_expired_token(user_id: int) -> str:
+    payload = {
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, hours=0, minutes=0, seconds=0, milliseconds=1),
+            'iat': datetime.datetime.utcnow(),
+            'sub': user_id,
+        }
+    token = jwt.encode(payload, key=os.getenv('CODEMAZE_KEY'), algorithm='HS256')
+    time.sleep(0.2) # expire the token
+    return token

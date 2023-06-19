@@ -1,5 +1,5 @@
 from tests.helper import post, get, patch
-from tests.helper import get_random_name, get_manager_id_token, get_student_id_token, get_random_manager_token, get_new_group_id_code
+from tests.helper import get_random_name, get_manager_id_token, get_student_id_token, get_random_manager_token, get_new_group_id_code, create_expired_token
 
 class TestGroup:
     __group_name = get_random_name()
@@ -545,3 +545,39 @@ class TestGroup:
         response = get(f'/groups/{id}/students', manager_token)
 
         assert response[0] == 404
+
+    def test_student_get_all_groups_where_member_of_should_return_groups_where_is_member(self):
+        manager_id_token = get_manager_id_token()
+        student_id_token = get_student_id_token()
+        name = get_random_name()
+        group_id_code = get_new_group_id_code(name, manager_id_token[1])
+
+        join_payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', join_payload, student_id_token[1])
+        request_id = get(f'groups/{group_id_code[0]}/requests', manager_id_token[1])[1]['requests'][0]['id']
+        payload = {
+            'approve': True
+        }
+        patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_id_token[1])
+        response = get('/groups?member_of=true', student_id_token[1])
+
+        assert response[0] == 200
+        all_groups = get('/groups?member_of=false', student_id_token[1])[1]['groups']
+        assert len(all_groups) > len(response[1]['groups'])
+
+    def test_get_groups_list_with_invalid_token_should_return_unauthorized(self):
+        token ='invalid'
+
+        response = get('/groups', token)
+
+        assert response[0] == 401
+
+    def test_get_groups_list_with_expired_token_should_return_unauthorized(self):
+        manager_id = get_manager_id_token()[0]
+        token = create_expired_token(manager_id)
+
+        response = get('/groups', token)
+
+        assert response[0] == 401
