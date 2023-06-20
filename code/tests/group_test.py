@@ -566,6 +566,8 @@ class TestGroup:
         all_groups = get('/groups?member_of=false', student_id_token[1])[1]['groups']
         assert len(all_groups) > len(response[1]['groups'])
 
+    # JWT tests
+
     def test_get_groups_list_with_invalid_token_should_return_unauthorized(self):
         token ='invalid'
 
@@ -578,5 +580,12 @@ class TestGroup:
         token = create_expired_token(manager_id)
 
         response = get('/groups', token)
+
+        assert response[0] == 401
+
+    def test_get_groups_list_with_wrong_token_patter_should_return_unauthorized(self):
+        token = get_manager_id_token()[1]
+
+        response = get('/groups', custom_headers={'Authorization': f'{token}'})
 
         assert response[0] == 401

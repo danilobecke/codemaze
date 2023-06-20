@@ -19,8 +19,13 @@ def __headers(token: str | None) -> dict[str, str] | None:
         return None
     return {"Authorization": f"Bearer {token}"}
 
-def get(path: str, token: str | None = None) -> HTTPResponse:
-    response = __app.get(path, headers=__headers(token))
+def get(path: str, token: str | None = None, custom_headers: dict[str, str] | None = None) -> HTTPResponse:
+    headers = __headers(token)
+    if headers and custom_headers:
+        headers.update(custom_headers)
+    elif custom_headers:
+        headers = custom_headers
+    response = __app.get(path, headers=headers)
     return (response.status_code, json.loads(response.data.decode('utf-8')))
 
 def post(path: str, payload: dict, token: str | None = None) -> HTTPResponse:

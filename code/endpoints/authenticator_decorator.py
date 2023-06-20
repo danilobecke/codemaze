@@ -13,11 +13,14 @@ def authentication_required(role: Role | None = None):
                 abort(401, str(Unauthorized())) 
             try:
                 header = request.headers["Authorization"]
-                token = re.match(_PATTERN, header).group(1)
+                match = re.match(_PATTERN, header)
+                if not match:
+                    abort(401, str(Unauthorized()))
+                token = match.group(1)
                 user = SessionService.shared.validate_token(token, role)
                 kwargs['user'] = user
                 return function(*args, **kwargs)
-            except (Unauthorized, NotFound) as e:
+            except (Unauthorized, NotFound):
                 abort(401, str(Unauthorized()))
             except ServerError as e:
                 abort(500, str(e))
