@@ -26,7 +26,7 @@ class GroupService:
             stored = self.__group_repository.add(dto, raise_unique_violation_error=True)
             return GroupVO.import_from_dto(stored)
         except Internal_UniqueViolation:
-            self.create(name, manager_id) # retry if the same code was generated
+            return self.create(name, manager_id) # retry if the same code was generated
         except Exception as e:
             raise e
 
