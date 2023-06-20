@@ -1,4 +1,7 @@
 #!/bin/bash
 
 make code-coverage
+if [ "$?" != "0" ]; then
+    exit 1;
+fi
 git add metadata/coverage.svg
