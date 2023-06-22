@@ -1,5 +1,6 @@
 from sqlalchemy import Table, Column, ForeignKey, Integer, Boolean, DateTime
 from sqlalchemy.sql import func
+
 from repository.base import Base
 
 student_group = Table(

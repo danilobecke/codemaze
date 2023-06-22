@@ -1,4 +1,5 @@
 from typing import Self
+
 from repository.dto.user import UserDTO
 
 class JoinRequestVO:

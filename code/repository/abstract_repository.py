@@ -1,8 +1,10 @@
-from repository.database import Database
-from repository.base import Base
 from typing import TypeVar, Generic
-from helpers.exceptions import *
+
 from sqlalchemy.exc import IntegrityError
+
+from helpers.exceptions import *
+from repository.base import Base
+from repository.database import Database
 
 M = TypeVar('M', bound=Base)
 

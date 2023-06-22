@@ -1,6 +1,7 @@
-from repository.base import Base
 from sqlalchemy import Column, Integer, Sequence, String, ForeignKey, DateTime
 from sqlalchemy.sql import func
+
+from repository.base import Base
 
 class ResultDTO(Base):
     __tablename__ = 'result'

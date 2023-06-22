@@ -1,6 +1,7 @@
-import jwt
 import datetime
-from helpers.exceptions import *
+import jwt
+
+from helpers.exceptions import ServerError, Unauthorized
 
 class JWTService:
     __EXPIRATION_DELTA: datetime.timedelta = datetime.timedelta(days=0, hours=0, minutes=15)

@@ -1,6 +1,7 @@
-from repository.base import Base
 from sqlalchemy import Column, Integer, Sequence, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.sql import func
+
+from repository.base import Base
 
 class TestCaseDTO(Base):
     __tablename__ = 'test_case'

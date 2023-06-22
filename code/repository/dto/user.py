@@ -1,7 +1,8 @@
-from repository.base import Base
-from sqlalchemy_utils import force_auto_coercion, PasswordType
 from sqlalchemy import Column, Integer, Sequence, String, DateTime
 from sqlalchemy.sql import func
+from sqlalchemy_utils import force_auto_coercion, PasswordType
+
+from repository.base import Base
 
 force_auto_coercion()
 

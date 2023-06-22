@@ -1,8 +1,10 @@
-from flask import Flask
-from router import Router
-from repository.database import Database
-from services.session_service import SessionService
 import os
+
+from flask import Flask
+
+from repository.database import Database
+from router import Router
+from services.session_service import SessionService
 
 def __init_app(db_string: str, resetting_db: bool = False):
     key = __get_env('CODEMAZE_KEY')

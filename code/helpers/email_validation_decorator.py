@@ -1,5 +1,7 @@
 import re
+
 from flask import request, abort
+
 from helpers.exceptions import ParameterValidationError
 
 _PATTERN = r'^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$'

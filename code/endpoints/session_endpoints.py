@@ -1,8 +1,9 @@
-from flask_restx import Api, Resource, Namespace, fields
 from flask import request, abort
-from services.session_service import SessionService
-from helpers.exceptions import *
+from flask_restx import Api, Resource, Namespace, fields
+
 from helpers.email_validation_decorator import validate_email
+from helpers.exceptions import Forbidden, ServerError
+from services.session_service import SessionService
 
 _namespace = Namespace('session', description='')
 

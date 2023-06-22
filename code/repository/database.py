@@ -1,6 +1,8 @@
 from typing import Self
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from repository.base import Base
 import repository.table_builder
 

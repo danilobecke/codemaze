@@ -1,9 +1,10 @@
 from flask import Flask
 from flask_restx import Api
+
+from endpoints.group_endpoints import GroupEndpoints
 from endpoints.manager_endpoints import ManagerEndpoints
 from endpoints.session_endpoints import SessionEndpoints
 from endpoints.student_endpoints import StudentEndpoints
-from endpoints.group_endpoints import GroupEndpoints
 from services.group_service import GroupService
 
 class Router:

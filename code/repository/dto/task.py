@@ -1,7 +1,8 @@
-from repository.base import Base
 from sqlalchemy import Column, Integer, Sequence, String, DateTime, ForeignKey
-from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
+from repository.base import Base
 
 class TaskDTO(Base):
     __tablename__ = 'task'

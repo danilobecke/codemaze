@@ -1,5 +1,6 @@
-from repository.dto.user import UserDTO
 from typing import Self
+
+from repository.dto.user import UserDTO
 
 class UserVO:
     def __init__(self):

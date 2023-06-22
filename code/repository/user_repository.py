@@ -1,6 +1,6 @@
+from helpers.exceptions import NotFound
 from repository.abstract_repository import AbstractRepository
 from repository.dto.user import UserDTO
-from helpers.exceptions import *
 
 class UserRepository(AbstractRepository):
     def __init__(self):

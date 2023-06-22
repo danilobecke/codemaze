@@ -1,11 +1,12 @@
-from flask_restx import Api, Resource, Namespace
 from flask import request, abort
-from services.session_service import SessionService
-from helpers.role import Role
-from endpoints.session_endpoints import user_model
+from flask_restx import Api, Resource, Namespace
+
 from endpoints.manager_endpoints import signup_model
-from helpers.exceptions import *
+from endpoints.session_endpoints import user_model
 from helpers.email_validation_decorator import validate_email
+from helpers.exceptions import ServerError
+from helpers.role import Role
+from services.session_service import SessionService
 
 _namespace = Namespace('students', description='')
 

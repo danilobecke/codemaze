@@ -1,6 +1,7 @@
-from repository.dto.user import UserDTO
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
+
+from repository.dto.user import UserDTO
 
 class ManagerDTO(UserDTO):
     __tablename__ = 'manager'

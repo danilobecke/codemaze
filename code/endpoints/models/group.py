@@ -1,5 +1,6 @@
-from repository.dto.group import GroupDTO
 from typing import Self
+
+from repository.dto.group import GroupDTO
 
 class GroupVO:
     def __init__(self):
