@@ -3,7 +3,7 @@ from flask import request, abort, jsonify
 from services.group_service import GroupService
 from helpers.role import Role
 from helpers.exceptions import *
-from endpoints.authenticator_decorator import authentication_required
+from helpers.authenticator_decorator import authentication_required
 from endpoints.models.user import UserVO
 
 _namespace = Namespace('groups', description='')
