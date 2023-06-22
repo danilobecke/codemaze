@@ -4,7 +4,7 @@ from services.session_service import SessionService
 from helpers.role import Role
 from helpers.exceptions import *
 
-_PATTERN = "^Bearer ((?:\.?(?:[A-Za-z0-9-_]+)){3})$"
+_PATTERN = r'^Bearer ((?:\.?(?:[A-Za-z0-9-_]+)){3})$'
 
 def authentication_required(role: Role | None = None):
     def decorator(function):
