@@ -26,8 +26,8 @@ class GroupRepository(AbstractRepository):
             raise Internal_UniqueViolation()
         except Exception as e:
             self._session.rollback()
-            raise ServerError()
-    
+            raise ServerError() from e
+
     def get_students_with_join_request(self, group_id: int, approved: bool = False) -> list[StudentDTO]:
         stm = select(column("student_id")).where(student_group.columns["group_id"] == group_id).where(student_group.columns["approved"] == approved)
         result = self._session.execute(stm)
@@ -46,9 +46,9 @@ class GroupRepository(AbstractRepository):
             stm = update(student_group).where(student_group.columns["group_id"] == group_id).where(student_group.columns["student_id"] == student_id).where(student_group.columns["approved"] == False).values(approved=True)
             self._session.execute(stm)
             self._session.commit()
-        except Exception:
+        except Exception as e:
             self._session.rollback()
-            raise ServerError()
+            raise ServerError() from e
 
     def remove_join_request(self, group_id: int, student_id: int):
         self.__find_opened_join_request(group_id, student_id)
@@ -56,9 +56,9 @@ class GroupRepository(AbstractRepository):
             stm = delete(student_group).where(student_group.columns["group_id"] == group_id).where(student_group.columns["student_id"] == student_id).where(student_group.columns["approved"] == False)
             self._session.execute(stm)
             self._session.commit()
-        except Exception:
+        except Exception as e:
             self._session.rollback()
-            raise ServerError()
+            raise ServerError() from e
 
     def get_groups_for_user(self, id: int, role: Role) -> list[GroupDTO]:
         match role:

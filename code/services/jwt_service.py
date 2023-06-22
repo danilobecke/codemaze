@@ -6,7 +6,7 @@ from helpers.exceptions import ServerError, Unauthorized
 class JWTService:
     __EXPIRATION_DELTA: datetime.timedelta = datetime.timedelta(days=0, hours=0, minutes=15)
     __ALGORITHM: str = 'HS256'
-    
+
     def __init__(self, key:str):
         self.__key = key
 
@@ -18,17 +18,16 @@ class JWTService:
         }
         try:
             return jwt.encode(payload, key=self.__key, algorithm=JWTService.__ALGORITHM)
-        except Exception:
-            raise ServerError()
+        except Exception as e:
+            raise ServerError() from e
 
     def decode_token(self, token: str) -> str:
         try:
             payload = jwt.decode(token, key=self.__key, algorithms=JWTService.__ALGORITHM)
             return payload['sub']
-        except jwt.ExpiredSignatureError:
-            raise Unauthorized()
-        except jwt.InvalidTokenError:
-            raise Unauthorized()
-        except Exception:
-            raise ServerError()
-
+        except jwt.ExpiredSignatureError as e:
+            raise Unauthorized() from e
+        except jwt.InvalidTokenError as e:
+            raise Unauthorized() from e
+        except Exception as e:
+            raise ServerError() from e

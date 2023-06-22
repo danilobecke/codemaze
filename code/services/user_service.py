@@ -43,8 +43,8 @@ class UserService:
             raise Forbidden()
         except Forbidden as e:
             raise e
-        except Exception:
-            raise ServerError()
+        except Exception as e:
+            raise ServerError() from e
 
     def get_manager(self, id: int) -> UserVO:
         dto = self.__manager_repository.find(id)

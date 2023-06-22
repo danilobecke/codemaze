@@ -21,21 +21,21 @@ _signin_model = _namespace.model('Sign In', {
 })
 
 class SessionResource(Resource):
-        @_namespace.doc(description="Create a new session (log in).")
-        @_namespace.expect(_signin_model, validate=True)
-        @_namespace.response(403, 'Credentials error')
-        @_namespace.response(500, 'Server error')
-        @_namespace.marshal_with(user_model)
-        @validate_email()
-        def post(self):
-            email = request.json['email']
-            password = request.json['password']
-            try:
-                 return SessionService.shared.login(email, password)
-            except Forbidden as e:
-                 abort(403, str(e))
-            except ServerError as e:
-                 abort(500, str(e))
+    @_namespace.doc(description="Create a new session (log in).")
+    @_namespace.expect(_signin_model, validate=True)
+    @_namespace.response(403, 'Credentials error')
+    @_namespace.response(500, 'Server error')
+    @_namespace.marshal_with(user_model)
+    @validate_email()
+    def post(self):
+        email = request.json['email']
+        password = request.json['password']
+        try:
+            return SessionService.shared.login(email, password)
+        except Forbidden as e:
+            abort(403, str(e))
+        except ServerError as e:
+            abort(500, str(e))
 
 class SessionEndpoints:
     def __init__(self, api: Api):

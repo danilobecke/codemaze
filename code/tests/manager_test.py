@@ -35,7 +35,7 @@ class TestManager:
         assert json['email'] == self.__email
         assert json['role'] == 'manager'
         assert json['token'] is not None
-    
+
     def test_create_manager_missing_name_should_return_bad_request(self):
         payload = {
             'email': self.__email,
@@ -44,7 +44,7 @@ class TestManager:
         response = post('/managers', payload)
 
         assert response[0] == 400
-    
+
     def test_create_manager_missing_email_should_return_bad_request(self):
         payload = {
             'name': self.__name,
@@ -53,7 +53,7 @@ class TestManager:
         response = post('/managers', payload)
 
         assert response[0] == 400
-    
+
     def test_create_manager_missing_password_should_return_bad_request(self):
         payload = {
             'name': self.__name,
@@ -62,7 +62,7 @@ class TestManager:
         response = post('/managers', payload)
 
         assert response[0] == 400
-    
+
     def test_create_manager_same_email_should_return_server_error(self):
         payload = {
             'name': self.__name,

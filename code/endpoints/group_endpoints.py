@@ -57,8 +57,8 @@ class GroupsResource(Resource):
         name = request.json['name']
         try:
             return GroupsResource._group_service.create(name, user.id)
-        except Exception as e:
-                abort(500, str(e))
+        except ServerError as e:
+            abort(500, str(e))
 
     @_namespace.doc(description="Get all groups. If `member_of = true`, get all groups where the current user is either a manager or a student.")
     @_namespace.param('member_of', 'true or false', 'query')
@@ -133,16 +133,16 @@ class JoinResource(Resource):
     @_namespace.response(500, 'Error')
     @authentication_required(Role.STUDENT)
     def post(self, user: UserVO):
-         code = request.json['code']
-         try:
+        code = request.json['code']
+        try:
             JoinResource._group_service.add_join_request(code, user.id)
             return jsonify(message='Success')
-         except NotFound as e:
-             abort(404, str(e))
-         except Internal_UniqueViolation:
-             abort(409, str(Conflict()))
-         except ServerError as e:
-             abort(500, str(e))
+        except NotFound as e:
+            abort(404, str(e))
+        except Internal_UniqueViolation:
+            abort(409, str(Conflict()))
+        except ServerError as e:
+            abort(500, str(e))
 
 class RequestsResource(Resource):
     _group_service: GroupService | None = None

@@ -48,7 +48,7 @@ class SessionService:
                 return self.__user_service.get_manager(user_id)
             case Role.STUDENT:
                 return self.__user_service.get_student(user_id)
-        
+
     @staticmethod
     def initialize(key: str):
         if SessionService.shared is not None:

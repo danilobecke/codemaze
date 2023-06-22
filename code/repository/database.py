@@ -12,7 +12,7 @@ class Database:
     def __init__(self, db_string: str, resetting: bool):
         connection = self.__create_connection(db_string, resetting)
         self.session = sessionmaker(bind=connection)()
-    
+
     def __create_connection(self, db_string: str, resetting: bool):
         connection = create_engine(db_string)
         if resetting:

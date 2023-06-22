@@ -2,7 +2,7 @@ from typing import TypeVar, Generic
 
 from sqlalchemy.exc import IntegrityError
 
-from helpers.exceptions import *
+from helpers.exceptions import Internal_UniqueViolation, ServerError, NotFound
 from repository.base import Base
 from repository.database import Database
 
@@ -32,7 +32,7 @@ class AbstractRepository(Generic[M]):
             raise Internal_UniqueViolation() if raise_unique_violation_error else ServerError()
         except Exception as e:
             self._session.rollback()
-            raise ServerError()
+            raise ServerError() from e
 
     def delete(self, id: int):
         obj = self.find(id)
@@ -41,11 +41,11 @@ class AbstractRepository(Generic[M]):
             self._session.commit()
         except Exception as e:
             self._session.rollback()
-            raise ServerError()
+            raise ServerError() from e
 
     def update_session(self):
         try:
             self._session.commit()
         except Exception as e:
             self._session.rollback()
-            raise ServerError()
+            raise ServerError() from e
