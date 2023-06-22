@@ -79,3 +79,22 @@ class TestStudent:
         response = post('/students', payload)
 
         assert response[0] == 500
+
+    def test_login_with_invalid_email_should_return_bad_request(self):
+        payload = {
+            'email': 'invalid-email',
+            'password': 'password'
+        }
+        response = post('/session', payload)
+
+        assert response[0] == 400
+
+    def test_create_user_with_invalid_email_should_return_bad_request(self):
+        payload = {
+            'name': get_random_name(),
+            'email': 'invalid-email',
+            'password': 'password'
+        }
+        response = post('/students', payload)
+
+        assert response[0] == 400

@@ -2,6 +2,7 @@ from flask_restx import Api, Resource, Namespace, fields
 from flask import request, abort
 from services.session_service import SessionService
 from helpers.exceptions import *
+from helpers.email_validation_decorator import validate_email
 
 _namespace = Namespace('session', description='')
 
@@ -24,6 +25,7 @@ class SessionResource(Resource):
         @_namespace.response(403, 'Credentials error')
         @_namespace.response(500, 'Server error')
         @_namespace.marshal_with(user_model)
+        @validate_email()
         def post(self):
             email = request.json['email']
             password = request.json['password']

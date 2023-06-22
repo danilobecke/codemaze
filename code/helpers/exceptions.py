@@ -1,6 +1,3 @@
-# class InvalidJSON(Exception):
-#     "Raised when the given JSON is not valid for the current context."
-
 # class InvalidFileExtension(Exception):
 #     "Raised when the given file extension is not supported."
 
@@ -29,3 +26,7 @@ class Internal_UniqueViolation(Exception):
 class Conflict(Exception):
     def __init__(self):
         super().__init__("This request was made already.")
+
+class ParameterValidationError(Exception):
+    def __init__(self, key: str, value: str, type: str) -> None:
+        super().__init__(f'{key}: {value} is not a valid {type}')

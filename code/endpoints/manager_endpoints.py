@@ -4,6 +4,7 @@ from services.session_service import SessionService
 from helpers.role import Role
 from endpoints.session_endpoints import user_model
 from helpers.exceptions import *
+from helpers.email_validation_decorator import validate_email
 
 _namespace = Namespace('managers', description='')
 
@@ -18,6 +19,7 @@ class ManagerResource(Resource):
         @_namespace.expect(signup_model, validate=True)
         @_namespace.response(500, 'Error')
         @_namespace.marshal_with(user_model)
+        @validate_email()
         def post(self):
             name = request.json['name']
             email = request.json['email']

@@ -54,7 +54,7 @@ class TestManager:
 
         assert response[0] == 400
     
-    def test_create_manager_missing_password_shouldreturn_bad_request(self):
+    def test_create_manager_missing_password_should_return_bad_request(self):
         payload = {
             'name': self.__name,
             'email': self.__email
@@ -72,3 +72,13 @@ class TestManager:
         response = post('/managers', payload)
 
         assert response[0] == 500
+
+    def test_create_manager_with_invalid_email_should_return_bad_request(self):
+        payload = {
+            'name': get_random_name(),
+            'email': 'invalid-email',
+            'password': 'password'
+        }
+        response = post('/managers', payload)
+
+        assert response[0] == 400
