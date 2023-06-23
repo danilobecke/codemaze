@@ -1,6 +1,6 @@
 # Codemaze
 
-![coverage-badge](./metadata/coverage.svg)
+![coverage-badge](./metadata/coverage.svg) [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint)
 
 ## Technologies
 - [Flask](https://flask.palletsprojects.com/en/2.3.x/)
@@ -12,6 +12,7 @@
 - [pytest-cov](https://pytest-cov.readthedocs.io)
 - [coverage-badge](https://pypi.org/project/coverage-badge/)
 - [pyclean](https://pypi.org/project/pyclean/)
+- [pylint](https://pylint.readthedocs.io/en/latest/#)
 
 ## Install Requirements
 

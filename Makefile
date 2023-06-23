@@ -4,6 +4,7 @@ PIP = $(VENV)/bin/pip
 PYTEST = $(VENV)/bin/pytest
 COVERAGE_BADGE = $(VENV)/bin/coverage-badge
 PYCLEAN = $(VENV)/bin/pyclean
+PYLINT = $(VENV)/bin/pylint
 
 # setup, run, and test
 setup: requirements.txt
@@ -26,6 +27,9 @@ freeze:
 code-coverage:
 	$(PYTEST) --ignore=code/repository --cov-report= --cov-config=configs/.coveragerc --cov=code
 	$(COVERAGE_BADGE) -f -o metadata/coverage.svg
+lint:
+	$(PYLINT) code --rcfile=configs/.pylintrc
+
 # clear the cache and remove venv
 clean:
 	$(PYCLEAN) .
