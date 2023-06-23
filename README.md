@@ -3,15 +3,15 @@
 ![coverage-badge](./metadata/coverage.svg)
 
 ## Technologies
-- Flask
-- flask-restx
-- SQLAlchemy
-- SQLAlchemy-Utils
-- PyJWT
-- pytest
-- pytest-cov
-- coverage-badge
-- pyclean
+- [Flask](https://flask.palletsprojects.com/en/2.3.x/)
+- [flask-restx](https://flask-restx.readthedocs.io/en/latest/)
+- [SQLAlchemy](https://www.sqlalchemy.org)
+- [SQLAlchemy-Utils](https://sqlalchemy-utils.readthedocs.io/en/latest/)
+- [PyJWT](https://pyjwt.readthedocs.io/en/stable/)
+- [pytest](https://docs.pytest.org/en/7.3.x/)
+- [pytest-cov](https://pytest-cov.readthedocs.io)
+- [coverage-badge](https://pypi.org/project/coverage-badge/)
+- [pyclean](https://pypi.org/project/pyclean/)
 
 ## Install Requirements
 
