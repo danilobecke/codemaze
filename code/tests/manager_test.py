@@ -1,4 +1,4 @@
-from tests.helper import post, get_random_name
+from tests.helper import post, get_random_name, assert_user_response
 
 class TestManager:
     __name = get_random_name()
@@ -13,13 +13,7 @@ class TestManager:
         }
         response = post('/managers', payload)
 
-        assert response[0] == 200
-        json = response[1]
-        assert json['id'] is not None
-        assert json['name'] == self.__name
-        assert json['email'] == self.__email
-        assert json['role'] == 'manager'
-        assert json['token'] is not None
+        assert_user_response(response, self.__name, self.__email, 'manager')
 
     def test_login_should_work(self):
         payload = {
@@ -28,13 +22,7 @@ class TestManager:
         }
         response = post('/session', payload)
 
-        assert response[0] == 200
-        json = response[1]
-        assert json['id'] is not None
-        assert json['name'] == self.__name
-        assert json['email'] == self.__email
-        assert json['role'] == 'manager'
-        assert json['token'] is not None
+        assert_user_response(response, self.__name, self.__email, 'manager')
 
     def test_create_manager_missing_name_should_return_bad_request(self):
         payload = {

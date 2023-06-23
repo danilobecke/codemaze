@@ -21,9 +21,9 @@ class GroupRepository(AbstractRepository):
             stm = insert(student_group).values(student_id=student_id, group_id=group.id, approved=False)
             self._session.execute(stm)
             self._session.commit()
-        except IntegrityError:
+        except IntegrityError as e:
             self._session.rollback()
-            raise Internal_UniqueViolation()
+            raise Internal_UniqueViolation() from e
         except Exception as e:
             self._session.rollback()
             raise ServerError() from e

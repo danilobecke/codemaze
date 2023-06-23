@@ -29,4 +29,4 @@ class Conflict(Exception):
 
 class ParameterValidationError(Exception):
     def __init__(self, key: str, value: str, type: str) -> None:
-        super().__init__(f'{key}: {value} is not a valid {type}')
+        super().__init__(f"{key}: {value} is not a valid {type}")

@@ -11,10 +11,10 @@ _PATTERN = r'^Bearer ((?:\.?(?:[A-Za-z0-9-_]+)){3})$'
 def authentication_required(role: Role | None = None):
     def decorator(function):
         def wrapper(*args, **kwargs):
-            if "Authorization" not in request.headers:
+            if 'Authorization' not in request.headers:
                 abort(401, str(Unauthorized()))
             try:
-                header = request.headers["Authorization"]
+                header = request.headers['Authorization']
                 match = re.match(_PATTERN, header)
                 if not match:
                     abort(401, str(Unauthorized()))

@@ -27,9 +27,9 @@ class AbstractRepository(Generic[M]):
             self._session.add(model)
             self._session.commit()
             return model
-        except IntegrityError:
+        except IntegrityError as e:
             self._session.rollback()
-            raise Internal_UniqueViolation() if raise_unique_violation_error else ServerError()
+            raise Internal_UniqueViolation() if raise_unique_violation_error else ServerError() from e
         except Exception as e:
             self._session.rollback()
             raise ServerError() from e

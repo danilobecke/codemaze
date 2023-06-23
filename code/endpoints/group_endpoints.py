@@ -46,7 +46,7 @@ _public_student_model = _namespace.model('Public Student', {
 class GroupsResource(Resource):
     _group_service: GroupService | None = None
 
-    @_namespace.doc(description="*Managers only*\nCreate a new group.")
+    @_namespace.doc(description='*Managers only*\nCreate a new group.')
     @_namespace.expect(_new_group_model, validate=True)
     @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(401, 'Error')
@@ -60,7 +60,7 @@ class GroupsResource(Resource):
         except ServerError as e:
             abort(500, str(e))
 
-    @_namespace.doc(description="Get all groups. If `member_of = true`, get all groups where the current user is either a manager or a student.")
+    @_namespace.doc(description='Get all groups. If `member_of = true`, get all groups where the current user is either a manager or a student.')
     @_namespace.param('member_of', 'true or false', 'query')
     @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(401, 'Error')
@@ -84,7 +84,7 @@ class GroupsResource(Resource):
 class GroupResource(Resource):
     _group_service: GroupService | None = None
 
-    @_namespace.doc(description="*Managers only*\nUpdate the group `active` status.")
+    @_namespace.doc(description='*Managers only*\nUpdate the group `active` status.')
     @_namespace.expect(_manage_group_model, validate=True)
     @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(200, 'Success')
@@ -105,7 +105,7 @@ class GroupResource(Resource):
         except ServerError as e:
             abort(500, str(e))
 
-    @_namespace.doc(description="Get info about a group.")
+    @_namespace.doc(description='Get info about a group.')
     @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(401, 'Error')
     @_namespace.response(404, 'Error')
@@ -123,7 +123,7 @@ class GroupResource(Resource):
 class JoinResource(Resource):
     _group_service: GroupService | None = None
 
-    @_namespace.doc(description="*Students only*\nAsk to join a group.")
+    @_namespace.doc(description='*Students only*\nAsk to join a group.')
     @_namespace.expect(_join_group_model, validate=True)
     @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(200, 'Success')
@@ -147,13 +147,13 @@ class JoinResource(Resource):
 class RequestsResource(Resource):
     _group_service: GroupService | None = None
 
-    @_namespace.doc(description="*Managers only*\nRetrieve a list of join requests.")
+    @_namespace.doc(description='*Managers only*\nRetrieve a list of join requests.')
     @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(401, 'Error')
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(500, 'Error')
-    @_namespace.marshal_with(_join_request_model, as_list=True, envelope="requests")
+    @_namespace.marshal_with(_join_request_model, as_list=True, envelope='requests')
     @authentication_required(Role.MANAGER)
     def get(self, group_id: int, user: UserVO):
         try:
@@ -168,7 +168,7 @@ class RequestsResource(Resource):
 class RequestResource(Resource):
     _group_service: GroupService | None = None
 
-    @_namespace.doc(description="*Managers only*\nApprove or decline a join request.")
+    @_namespace.doc(description='*Managers only*\nApprove or decline a join request.')
     @_namespace.expect(_manage_request_model, validate=True)
     @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(200, 'Success')
@@ -192,7 +192,7 @@ class RequestResource(Resource):
 class GroupStudentResource(Resource):
     _group_service: GroupService | None = None
 
-    @_namespace.doc(description="*Managers only*\nGet a students' list of the current group.")
+    @_namespace.doc(description='*Managers only*\nGet a students\' list of the current group.')
     @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(401, 'Error')
     @_namespace.response(403, 'Error')

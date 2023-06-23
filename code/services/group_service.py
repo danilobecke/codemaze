@@ -8,15 +8,15 @@ from helpers.exceptions import Internal_UniqueViolation, Forbidden
 from repository.dto.group import GroupDTO
 from repository.group_repository import GroupRepository
 
-class GroupService:
-    __CODE_LENGTH = 6
+CODE_LENGTH = 6
 
+class GroupService:
     def __init__(self):
         self.__group_repository = GroupRepository()
 
     def __new_code(self) -> str:
         alphabet = string.ascii_uppercase + string.digits
-        return ''.join(secrets.choice(alphabet) for i in range(GroupService.__CODE_LENGTH))
+        return ''.join(secrets.choice(alphabet) for i in range(CODE_LENGTH))
 
     def create(self, name: str, manager_id: int) -> GroupVO:
         dto = GroupDTO()

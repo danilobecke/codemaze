@@ -39,8 +39,8 @@ class UserService:
             if dto.password != password:
                 raise Forbidden()
             return dto.id
-        except NotFound:
-            raise Forbidden()
+        except NotFound as e:
+            raise Forbidden() from e
         except Forbidden as e:
             raise e
         except Exception as e:

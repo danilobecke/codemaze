@@ -1,4 +1,4 @@
-from tests.helper import post, get_random_name
+from tests.helper import post, get_random_name, assert_user_response
 
 class TestStudent:
     __name = get_random_name()
@@ -13,13 +13,7 @@ class TestStudent:
         }
         response = post('/students', payload)
 
-        assert response[0] == 200
-        json = response[1]
-        assert json['id'] is not None
-        assert json['name'] == self.__name
-        assert json['email'] == self.__email
-        assert json['role'] == 'student'
-        assert json['token'] is not None
+        assert_user_response(response, self.__name, self.__email, 'student')
 
     def test_login_should_work(self):
         payload = {
@@ -28,13 +22,7 @@ class TestStudent:
         }
         response = post('/session', payload)
 
-        assert response[0] == 200
-        json = response[1]
-        assert json['id'] is not None
-        assert json['name'] == self.__name
-        assert json['email'] == self.__email
-        assert json['role'] == 'student'
-        assert json['token'] is not None
+        assert_user_response(response, self.__name, self.__email, 'student')
 
     def test_login_missing_email_should_return_bad_request(self):
         payload = {

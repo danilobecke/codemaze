@@ -19,7 +19,7 @@ HTTPResponse = tuple[StatusCode, any]
 def __headers(token: str | None) -> dict[str, str] | None:
     if not token:
         return None
-    return {"Authorization": f"Bearer {token}"}
+    return {'Authorization': f'Bearer {token}'}
 
 def get(path: str, token: str | None = None, custom_headers: dict[str, str] | None = None) -> HTTPResponse:
     headers = __headers(token)
@@ -109,3 +109,14 @@ def create_expired_token(user_id: int) -> str:
     token = jwt.encode(payload, key=os.getenv('CODEMAZE_KEY'), algorithm='HS256')
     time.sleep(0.2) # expire the token
     return token
+
+## Asserts
+
+def assert_user_response(response: HTTPResponse, name: str, email: str, role: str):
+    assert response[0] == 200
+    json = response[1]
+    assert json['id'] is not None
+    assert json['name'] == name
+    assert json['email'] == email
+    assert json['role'] == role
+    assert json['token'] is not None

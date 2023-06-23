@@ -11,7 +11,7 @@ from services.session_service import SessionService
 _namespace = Namespace('students', description='')
 
 class StudentResource(Resource):
-    @_namespace.doc(description="Create a new student.")
+    @_namespace.doc(description='Create a new student.')
     @_namespace.expect(signup_model, validate=True)
     @_namespace.response(500, 'Error')
     @_namespace.marshal_with(user_model)
