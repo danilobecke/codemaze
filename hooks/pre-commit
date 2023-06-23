@@ -1,7 +1,26 @@
 #!/bin/bash
 
+# run coverage report and create badge
 make code-coverage
 if [ "$?" != "0" ]; then
+    echo "Fix broken tests before commiting.";
     exit 1;
 fi
+
+# add badge to the current commit
 git add metadata/coverage.svg
+
+# find staged .py files and run pylint on them
+FILES=`git diff --name-only --cached --diff-filter=d`
+PY_FILES=`venv/bin/python hooks/modified_py_files.py "$FILES"`
+if [ -z "$PY_FILES" ]; then
+    echo "No files to lint."
+    exit 0;
+fi
+make lint-hook files="$PY_FILES"
+if [ "$?" != "0" ]; then
+    echo "Fix lint issues before commiting.";
+    echo "If you think it's safe to ignore them, run:";
+    echo "git commit -n"
+    exit 1;
+fi
