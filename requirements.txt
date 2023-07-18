@@ -28,6 +28,7 @@ pylint==2.17.4
 pyrsistent==0.19.3
 pytest==7.3.2
 pytest-cov==4.1.0
+python-dotenv==1.0.0
 pytz==2023.3
 SQLAlchemy==2.0.15
 SQLAlchemy-Utils==0.41.1

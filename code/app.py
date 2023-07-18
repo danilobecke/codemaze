@@ -1,5 +1,6 @@
 import os
 
+from dotenv import load_dotenv
 from flask import Flask
 
 from repository.database import Database
@@ -20,12 +21,17 @@ def __get_env(name: str):
         raise ValueError(f'Missing env var {name}')
     return var
 
+def __set_up():
+    load_dotenv()
+
 def run_as_debug():
+    __set_up()
     db_string = __get_env('DEBUG_DB_STRING')
     app = __init_app(db_string)
     app.run(port=48345, debug=True)
 
 def run_as_test():
+    __set_up()
     db_string = __get_env('TEST_DB_STRING')
     app = __init_app(db_string, resetting_db=True)
     return app.test_client()
