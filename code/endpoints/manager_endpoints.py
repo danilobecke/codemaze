@@ -18,6 +18,7 @@ signup_model = _namespace.model('Sign Up', {
 class ManagerResource(Resource):
     @_namespace.doc(description='Create a new manager.')
     @_namespace.expect(signup_model, validate=True)
+    @_namespace.response(400, 'Error')
     @_namespace.response(500, 'Error')
     @_namespace.marshal_with(user_model)
     @validate_email()

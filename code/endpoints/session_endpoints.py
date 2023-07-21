@@ -23,6 +23,7 @@ _signin_model = _namespace.model('Sign In', {
 class SessionResource(Resource):
     @_namespace.doc(description='Create a new session (log in).')
     @_namespace.expect(_signin_model, validate=True)
+    @_namespace.response(400, 'Error')
     @_namespace.response(403, 'Credentials error')
     @_namespace.response(500, 'Server error')
     @_namespace.marshal_with(user_model)
