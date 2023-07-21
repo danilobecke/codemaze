@@ -48,11 +48,11 @@ class GroupsResource(Resource):
 
     @_namespace.doc(description='*Managers only*\nCreate a new group.')
     @_namespace.expect(_new_group_model, validate=True)
-    @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(400, 'Error')
     @_namespace.response(401, 'Error')
     @_namespace.response(500, 'Error')
     @_namespace.marshal_with(_group_model)
+    @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
     def post(self, user: UserVO):
         name = request.json['name']
@@ -63,10 +63,10 @@ class GroupsResource(Resource):
 
     @_namespace.doc(description='Get all groups. If `member_of = true`, get all groups where the current user is either a manager or a student.')
     @_namespace.param('member_of', 'true or false', 'query')
-    @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(401, 'Error')
     @_namespace.response(500, 'Error')
     @_namespace.marshal_with(_group_model, as_list=True, envelope='groups')
+    @_namespace.doc(security='bearer')
     @authentication_required()
     def get(self, user: UserVO):
         raw_member_of = request.args.get('member_of')
@@ -87,13 +87,13 @@ class GroupResource(Resource):
 
     @_namespace.doc(description='*Managers only*\nUpdate the group `active` status.')
     @_namespace.expect(_manage_group_model, validate=True)
-    @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(200, 'Success')
     @_namespace.response(400, 'Error')
     @_namespace.response(401, 'Error')
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(500, 'Error')
+    @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
     def patch(self, id: int, user: UserVO):
         active = request.json['active']
@@ -108,11 +108,11 @@ class GroupResource(Resource):
             abort(500, str(e))
 
     @_namespace.doc(description='Get info about a group.')
-    @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(401, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(500, 'Error')
     @_namespace.marshal_with(_group_model)
+    @_namespace.doc(security='bearer')
     @authentication_required()
     def get(self, id: int, user: UserVO):
         try:
@@ -127,13 +127,13 @@ class JoinResource(Resource):
 
     @_namespace.doc(description='*Students only*\nAsk to join a group.')
     @_namespace.expect(_join_group_model, validate=True)
-    @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(200, 'Success')
     @_namespace.response(400, 'Error')
     @_namespace.response(401, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(409, 'Error')
     @_namespace.response(500, 'Error')
+    @_namespace.doc(security='bearer')
     @authentication_required(Role.STUDENT)
     def post(self, user: UserVO):
         code = request.json['code']
@@ -151,12 +151,12 @@ class RequestsResource(Resource):
     _group_service: GroupService | None = None
 
     @_namespace.doc(description='*Managers only*\nRetrieve a list of join requests.')
-    @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(401, 'Error')
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(500, 'Error')
     @_namespace.marshal_with(_join_request_model, as_list=True, envelope='requests')
+    @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
     def get(self, group_id: int, user: UserVO):
         try:
@@ -173,13 +173,13 @@ class RequestResource(Resource):
 
     @_namespace.doc(description='*Managers only*\nApprove or decline a join request.')
     @_namespace.expect(_manage_request_model, validate=True)
-    @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(200, 'Success')
     @_namespace.response(400, 'Error')
     @_namespace.response(401, 'Error')
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(500, 'Error')
+    @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
     def patch(self, group_id: int, id: int, user: UserVO):
         approve = request.json['approve']
@@ -197,12 +197,12 @@ class GroupStudentResource(Resource):
     _group_service: GroupService | None = None
 
     @_namespace.doc(description='*Managers only*\nGet a students\' list of the current group.')
-    @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.response(401, 'Error')
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(500, 'Error')
     @_namespace.marshal_with(_public_student_model, as_list=True, envelope='students')
+    @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
     def get(self, group_id: int, user: UserVO):
         try:

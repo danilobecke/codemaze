@@ -24,7 +24,6 @@ class TasksResource(Resource):
 
     @_namespace.doc(description='*Managers only*\nAdd a new task to the group.')
     @_namespace.expect(_new_task_parser, validate=True)
-    @_namespace.param('Authorization', 'Bearer {JWT}', 'header')
     @_namespace.param('name', _in='formData', required=True)
     @_namespace.param('max_attempts', _in='formData', type=int)
     @_namespace.param('starts_on', _in='formData')
@@ -33,6 +32,7 @@ class TasksResource(Resource):
     @_namespace.response(400, 'Error')
     @_namespace.response(401, 'Error')
     @_namespace.response(500, 'Error')
+    @_namespace.doc(security='bearer')
     # @_namespace.marshal_with(_group_model)
     @authentication_required(Role.MANAGER)
     def post(self, group_id: int, user: UserVO):

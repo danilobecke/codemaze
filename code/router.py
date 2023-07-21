@@ -17,8 +17,15 @@ class Router:
         version='1.0.0',
         title='Codemaze',
         description='',
-        format_checker=FormatChecker()
-        )
+        format_checker=FormatChecker(),
+        authorizations={
+            'bearer': {
+                'type': 'apiKey',
+                'in': 'header',
+                'name': 'Authorization',
+                'description': 'Type in the *Value* input box below: **Bearer &lt;JWT&gt;**, where &lt;JWT&gt; is the token'
+            }
+        })
         self.__group_service = GroupService()
 
     def create_routes(self):
