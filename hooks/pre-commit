@@ -1,38 +1,59 @@
 #!/bin/bash
 
+cyan_echo() {
+  CYAN='\033[0;36m'
+  NC='\033[0m' # No Color
+  echo -e "\n$CYAN$1$NC\n"
+}
+
+red_echo() {
+  RED='\033[0;31m'
+  NC='\033[0m' # No Color
+  echo -e "$RED$1$NC"
+}
+
+green_echo() {
+  GREEN='\033[0;32m'
+  NC='\033[0m' # No Color
+  echo -e "\n$GREEN${1}$NC\n"
+}
+
 # find staged .py files
 FILES=`git diff --name-only --cached --diff-filter=d`
 PY_FILES=`venv/bin/python hooks/modified_py_files.py "$FILES"`
 if [ -z "$PY_FILES" ]; then
-    echo "No .py files changed - skipping tests, pylint, and mypy."
+    green_echo "No .py files changed - skipping tests, pylint, and mypy."
     exit 0;
 fi
 
 # run coverage report and create badge
-echo "------------ 1. Run Tests ------------"
+cyan_echo "------------ 1. Run Tests ------------"
 make code-coverage
 if [ "$?" != "0" ]; then
-    echo "Fix broken tests before commiting.";
+    red_echo "\nFix broken tests before commiting.\n";
     exit 1;
 fi
 
 # add badge to the current commit
 git add metadata/coverage.svg
 
-# run pylint on staged py files
-"-------------- 2. Linter -------------"
-make lint-hook files="$PY_FILES"
+# run mypy
+cyan_echo "---------- 2. Typing Checks ----------"
+make type-check
 if [ "$?" != "0" ]; then
-    echo "Fix lint issues before commiting.";
-    echo "If you think it's safe to ignore them, run:";
-    echo "git commit -n"
+    red_echo "\nFix typing issues before commiting.\n";
     exit 1;
 fi
 
-# run mypy
-"---------- 3. Typing Checks ----------"
-make type-check
+# run pylint on staged py files
+cyan_echo "-------------- 3. Linter -------------"
+make lint-hook files="$PY_FILES"
 if [ "$?" != "0" ]; then
-    echo "Fix typing issues before commiting.";
+    red_echo "\nFix lint issues before commiting.";
+    red_echo "If you think it's safe to ignore them, run:";
+    red_echo "git commit -n\n"
     exit 1;
 fi
+
+# success
+echo -e "\n"
