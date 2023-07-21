@@ -224,10 +224,11 @@ class GroupEndpoints:
         RequestResource._group_service = group_service
         GroupStudentResource._group_service = group_service
 
-    def register_resources(self):
+    def register_resources(self) -> Namespace:
         _namespace.add_resource(GroupsResource, '')
         _namespace.add_resource(GroupResource, '/<int:id>')
         _namespace.add_resource(JoinResource, '/join')
         _namespace.add_resource(RequestsResource, '/<int:group_id>/requests')
         _namespace.add_resource(RequestResource, '/<int:group_id>/requests/<int:id>')
         _namespace.add_resource(GroupStudentResource, '/<int:group_id>/students')
+        return _namespace
