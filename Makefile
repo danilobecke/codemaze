@@ -5,6 +5,7 @@ PYTEST = $(VENV)/bin/pytest
 COVERAGE_BADGE = $(VENV)/bin/coverage-badge
 PYCLEAN = $(VENV)/bin/pyclean
 PYLINT = $(VENV)/bin/pylint
+MYPY = $(VENV)/bin/mypy
 
 # setup, run, test, and lint
 setup: requirements.txt
@@ -18,6 +19,8 @@ test:
 	$(PYTEST) --ignore=code/repository --cov-report term-missing:skip-covered --cov-config=configs/.coveragerc --cov=code
 lint:
 	$(PYLINT) code --rcfile=configs/.pylintrc
+type-check:
+	$(MYPY) code --config-file configs/mypy.ini
 
 # pip install and freeze
 add:
