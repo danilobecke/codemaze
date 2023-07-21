@@ -1,4 +1,4 @@
-from typing import Self
+from __future__ import annotations
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -7,7 +7,7 @@ from repository.base import Base
 import repository.table_builder
 
 class Database:
-    shared: Self | None = None
+    shared: Database | None = None
 
     def __init__(self, db_string: str, resetting: bool):
         connection = self.__create_connection(db_string, resetting)

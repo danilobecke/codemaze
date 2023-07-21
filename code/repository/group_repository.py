@@ -1,10 +1,10 @@
-from sqlalchemy import insert, select, column, update, delete
+from sqlalchemy import insert, select, update, delete
 from sqlalchemy.exc import IntegrityError
 
 from helpers.exceptions import NotFound, Internal_UniqueViolation, ServerError
 from helpers.role import Role
 from repository.abstract_repository import AbstractRepository
-from repository.dto.group import GroupDTO
+from repository.dto.group_dto import GroupDTO
 from repository.dto.student import StudentDTO
 from repository.dto.student_group import student_group
 
@@ -29,13 +29,13 @@ class GroupRepository(AbstractRepository):
             raise ServerError() from e
 
     def get_students_with_join_request(self, group_id: int, approved: bool = False) -> list[StudentDTO]:
-        stm = select(column("student_id")).where(student_group.columns["group_id"] == group_id).where(student_group.columns["approved"] == approved)
+        stm = select(student_group.columns).where(student_group.columns["group_id"] == group_id).where(student_group.columns["approved"] == approved)
         result = self._session.execute(stm)
         students = list(map(lambda row: row.student_id, result.all()))
         return self._session.query(StudentDTO).filter(StudentDTO.id.in_(students)).all()
 
     def __find_opened_join_request(self, group_id: int, student_id: int):
-        stm = select(student_group).where(student_group.columns["group_id"] == group_id).where(student_group.columns["student_id"] == student_id).where(student_group.columns["approved"] == False)
+        stm = select(student_group.columns).where(student_group.columns["group_id"] == group_id).where(student_group.columns["student_id"] == student_id).where(student_group.columns["approved"] == False)
         result = self._session.execute(stm)
         if len(result.all()) == 0:
             raise NotFound()
@@ -65,7 +65,7 @@ class GroupRepository(AbstractRepository):
             case Role.MANAGER:
                 return self._session.query(GroupDTO).filter_by(manager_id=id).all()
             case Role.STUDENT:
-                stm = select(column("group_id")).where(student_group.columns["student_id"] == id).where(student_group.columns["approved"] == True)
+                stm = select(student_group.columns).where(student_group.columns["student_id"] == id).where(student_group.columns["approved"] == True)
                 result = self._session.execute(stm)
                 groups = list(map(lambda row: row.group_id, result.all()))
                 return self._session.query(GroupDTO).filter(GroupDTO.id.in_(groups)).all()

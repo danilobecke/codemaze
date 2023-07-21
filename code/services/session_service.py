@@ -1,4 +1,4 @@
-from typing import Self
+from __future__ import annotations
 
 from endpoints.models.user import UserVO
 from helpers.exceptions import NotFound
@@ -7,7 +7,7 @@ from services.jwt_service import JWTService
 from services.user_service import UserService
 
 class SessionService:
-    shared: Self | None = None
+    shared: SessionService | None = None
 
     def __init__(self, key: str):
         self.__jwt_service = JWTService(key)
@@ -25,7 +25,7 @@ class SessionService:
                 return vo
 
     def __get_user(self, id: int) -> UserVO:
-        vo: UserVO = None
+        vo: UserVO | None = None
         try:
             vo = self.__user_service.get_manager(id)
         except NotFound:

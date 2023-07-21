@@ -5,6 +5,7 @@ from endpoints.models.user import UserVO
 from helpers.authenticator_decorator import authentication_required
 from helpers.exceptions import ServerError, NotFound, Forbidden, Internal_UniqueViolation, Conflict
 from helpers.role import Role
+from helpers.unwrapper import unwrap, json_unwrapped
 from services.group_service import GroupService
 
 _namespace = Namespace('groups', description='')
@@ -55,9 +56,9 @@ class GroupsResource(Resource):
     @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
     def post(self, user: UserVO):
-        name = request.json['name']
+        name = json_unwrapped()['name']
         try:
-            return GroupsResource._group_service.create(name, user.id)
+            return unwrap(GroupsResource._group_service).create(name, user.id)
         except ServerError as e:
             abort(500, str(e))
 
@@ -78,7 +79,7 @@ class GroupsResource(Resource):
                 case 'false' | 'False':
                     member_of = False
         try:
-            return GroupsResource._group_service.get_all(user if member_of else None)
+            return unwrap(GroupsResource._group_service).get_all(user if member_of else None)
         except ServerError as e:
             abort(500, str(e))
 
@@ -96,9 +97,9 @@ class GroupResource(Resource):
     @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
     def patch(self, id: int, user: UserVO):
-        active = request.json['active']
+        active: bool = json_unwrapped()['active']
         try:
-            GroupResource._group_service.update_group_active(id, user.id, active)
+            unwrap(GroupResource._group_service).update_group_active(id, user.id, active)
             return jsonify(message='Success')
         except Forbidden as e:
             abort(403, str(e))
@@ -116,7 +117,7 @@ class GroupResource(Resource):
     @authentication_required()
     def get(self, id: int, user: UserVO):
         try:
-            return GroupResource._group_service.get_group(id)
+            return unwrap(GroupResource._group_service).get_group(id)
         except NotFound as e:
             abort(404, str(e))
         except ServerError as e:
@@ -136,9 +137,9 @@ class JoinResource(Resource):
     @_namespace.doc(security='bearer')
     @authentication_required(Role.STUDENT)
     def post(self, user: UserVO):
-        code = request.json['code']
+        code = json_unwrapped()['code']
         try:
-            JoinResource._group_service.add_join_request(code, user.id)
+            unwrap(JoinResource._group_service).add_join_request(code, user.id)
             return jsonify(message='Success')
         except NotFound as e:
             abort(404, str(e))
@@ -160,7 +161,7 @@ class RequestsResource(Resource):
     @authentication_required(Role.MANAGER)
     def get(self, group_id: int, user: UserVO):
         try:
-            return RequestsResource._group_service.get_students_with_join_request(group_id, user.id)
+            return unwrap(RequestsResource._group_service).get_students_with_join_request(group_id, user.id)
         except NotFound as e:
             abort(404, str(e))
         except Forbidden as e:
@@ -182,9 +183,9 @@ class RequestResource(Resource):
     @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
     def patch(self, group_id: int, id: int, user: UserVO):
-        approve = request.json['approve']
+        approve = json_unwrapped()['approve']
         try:
-            RequestResource._group_service.update_join_request(group_id, id, user.id, approve)
+            unwrap(RequestResource._group_service).update_join_request(group_id, id, user.id, approve)
             return jsonify(message='Success')
         except NotFound as e:
             abort(404, str(e))
@@ -206,7 +207,7 @@ class GroupStudentResource(Resource):
     @authentication_required(Role.MANAGER)
     def get(self, group_id: int, user: UserVO):
         try:
-            return GroupStudentResource._group_service.get_students_of_group(group_id, user.id)
+            return unwrap(GroupStudentResource._group_service).get_students_of_group(group_id, user.id)
         except NotFound as e:
             abort(404, str(e))
         except Forbidden as e:

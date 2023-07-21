@@ -1,6 +1,6 @@
-from typing import Self
+from __future__ import annotations
 
-from repository.dto.group import GroupDTO
+from repository.dto.group_dto import GroupDTO
 
 class GroupVO:
     def __init__(self):
@@ -11,7 +11,7 @@ class GroupVO:
         self.manager_id = -1
 
     @staticmethod
-    def import_from_dto(dto: GroupDTO) -> Self:
+    def import_from_dto(dto: GroupDTO) -> GroupVO:
         vo = GroupVO()
         vo.id = dto.id
         vo.active = dto.active

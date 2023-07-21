@@ -1,6 +1,6 @@
-from typing import Self
+from __future__ import annotations
 
-from repository.dto.user import UserDTO
+from repository.dto.user_dto import UserDTO
 
 class JoinRequestVO:
     def __init__(self):
@@ -8,7 +8,7 @@ class JoinRequestVO:
         self.student = ""
 
     @staticmethod
-    def import_from_student(dto: UserDTO) -> Self:
+    def import_from_student(dto: UserDTO) -> JoinRequestVO:
         vo = JoinRequestVO()
         vo.id = dto.id
         vo.student = dto.name

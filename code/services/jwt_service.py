@@ -21,9 +21,9 @@ class JWTService:
         except Exception as e:
             raise ServerError() from e
 
-    def decode_token(self, token: str) -> str:
+    def decode_token(self, token: str) -> int:
         try:
-            payload = jwt.decode(token, key=self.__key, algorithms=ALGORITHM)
+            payload = jwt.decode(token, key=self.__key, algorithms=[ALGORITHM])
             return payload['sub']
         except jwt.ExpiredSignatureError as e:
             raise Unauthorized() from e

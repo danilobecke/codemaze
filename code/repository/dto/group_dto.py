@@ -1,9 +1,15 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import Column, Integer, Sequence, String, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from repository.base import Base
 from repository.dto.student_group import student_group
+if TYPE_CHECKING:
+    from repository.dto.manager import ManagerDTO
+    from repository.dto.student import StudentDTO
+    from repository.dto.task import TaskDTO
 
 class GroupDTO(Base):
     __tablename__ = 'group'

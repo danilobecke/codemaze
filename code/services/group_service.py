@@ -5,7 +5,7 @@ from endpoints.models.group import GroupVO
 from endpoints.models.join_request import JoinRequestVO
 from endpoints.models.user import UserVO
 from helpers.exceptions import Internal_UniqueViolation, Forbidden
-from repository.dto.group import GroupDTO
+from repository.dto.group_dto import GroupDTO
 from repository.group_repository import GroupRepository
 
 CODE_LENGTH = 6

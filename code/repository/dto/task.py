@@ -1,8 +1,13 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import Column, Integer, Sequence, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from repository.base import Base
+if TYPE_CHECKING:
+    from repository.dto.result import ResultDTO
+    from repository.dto.test_case import TestCaseDTO
 
 class TaskDTO(Base):
     __tablename__ = 'task'

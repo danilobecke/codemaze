@@ -1,6 +1,7 @@
 import datetime
 import os
 import time
+from typing import TypeAlias, Tuple, Any
 import uuid
 
 from flask import json
@@ -11,8 +12,8 @@ from app import run_as_test
 __app = run_as_test()
 
 __CONTENT_TYPE_JSON = 'application/json'
-StatusCode = int
-HTTPResponse = tuple[StatusCode, any]
+StatusCode: TypeAlias = int
+HTTPResponse = Tuple[StatusCode, Any]
 
 # HTTP METHODS
 
@@ -114,9 +115,9 @@ def create_expired_token(user_id: int) -> str:
 
 def assert_user_response(response: HTTPResponse, name: str, email: str, role: str):
     assert response[0] == 200
-    json = response[1]
-    assert json['id'] is not None
-    assert json['name'] == name
-    assert json['email'] == email
-    assert json['role'] == role
-    assert json['token'] is not None
+    data = response[1]
+    assert data['id'] is not None
+    assert data['name'] == name
+    assert data['email'] == email
+    assert data['role'] == role
+    assert data['token'] is not None
