@@ -1,20 +1,6 @@
 # Codemaze
 
-![coverage-badge](./metadata/coverage.svg) [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint)
-
-## Technologies
-- [Flask](https://flask.palletsprojects.com/en/2.3.x/)
-- [flask-restx](https://flask-restx.readthedocs.io/en/latest/)
-- [PostgreSQL](https://www.postgresql.org)
-- [SQLAlchemy](https://www.sqlalchemy.org)
-- [SQLAlchemy-Utils](https://sqlalchemy-utils.readthedocs.io/en/latest/)
-- [PyJWT](https://pyjwt.readthedocs.io/en/stable/)
-- [pytest](https://docs.pytest.org/en/7.3.x/)
-- [pytest-cov](https://pytest-cov.readthedocs.io)
-- [coverage-badge](https://pypi.org/project/coverage-badge/)
-- [pyclean](https://pypi.org/project/pyclean/)
-- [pylint](https://pylint.readthedocs.io/en/latest/#)
-- [python-dotenv](https://pypi.org/project/python-dotenv/)
+![coverage-badge](./metadata/coverage.svg) [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint) [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 
 ## Prerequisite
 
@@ -79,3 +65,18 @@ The Swagger documentation is hosted at the `/docs` URL.
 ### Data-Structure diagram (DSD)
 
 ![data-structure](./metadata/logico.png)
+
+## Technologies
+- [Flask](https://flask.palletsprojects.com/en/2.3.x/)
+- [flask-restx](https://flask-restx.readthedocs.io/en/latest/)
+- [PostgreSQL](https://www.postgresql.org)
+- [SQLAlchemy](https://www.sqlalchemy.org)
+- [SQLAlchemy-Utils](https://sqlalchemy-utils.readthedocs.io/en/latest/)
+- [PyJWT](https://pyjwt.readthedocs.io/en/stable/)
+- [pytest](https://docs.pytest.org/en/7.3.x/)
+- [pytest-cov](https://pytest-cov.readthedocs.io)
+- [coverage-badge](https://pypi.org/project/coverage-badge/)
+- [pyclean](https://pypi.org/project/pyclean/)
+- [pylint](https://pylint.readthedocs.io/en/latest/#)
+- [python-dotenv](https://pypi.org/project/python-dotenv/)
+- [mypy](https://mypy-lang.org)
