@@ -22,6 +22,6 @@ class TaskVO:
         vo.max_attempts = dto.max_attempts
         vo.starts_on = dto.starts_on
         vo.ends_on = dto.ends_on
-        vo.file_url = task_download_url(dto.group_id, dto.id)
+        vo.file_url = task_download_url(dto.id)
         vo.group_id = dto.group_id
         return vo

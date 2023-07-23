@@ -11,5 +11,5 @@ def file_extension(filename: str) -> str:
 def file_name(path: str) -> str:
     return os.path.split(path)[1]
 
-def task_download_url(group_id: int, task_id: int) -> str:
-    return url_for('groups_task_download_resource', group_id=group_id, id=task_id)
+def task_download_url(task_id: int) -> str:
+    return url_for('tasks_task_download_resource', id=task_id)

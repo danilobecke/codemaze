@@ -22,6 +22,7 @@ def _set_up_parser():
     _new_task_parser.add_argument('file', type=FileStorage, required=True, location='files')
 
 _task_model = _namespace.model('Task', {
+    'id': fields.String(required=True),
     'name': fields.String(required=True),
     'max_attempts': fields.Integer,
     'starts_on': fields.DateTime(required=True),
@@ -94,5 +95,5 @@ class TaskEndpoints:
 
     def register_resources(self) -> Namespace:
         self.__groups_namespace.add_resource(TasksResource, '/<int:group_id>/tasks')
-        self.__groups_namespace.add_resource(TaskDownloadResource, '/<int:group_id>/tasks/<int:id>/task')
+        _namespace.add_resource(TaskDownloadResource, '/<int:id>/task')
         return _namespace
