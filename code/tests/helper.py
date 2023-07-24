@@ -129,3 +129,12 @@ def assert_user_response(response: HTTPResponse, name: str, email: str, role: st
     assert data['email'] == email
     assert data['role'] == role
     assert data['token'] is not None
+
+## File helper
+
+def get_filepath_of_size(size: int) -> str:
+    full_path = os.path.join(__app.application.config['STORAGE_PATH'], get_random_name() + '.txt')
+    with open(full_path, 'wb') as file:
+        file.seek(size - 1)
+        file.write(b'\0')
+    return full_path

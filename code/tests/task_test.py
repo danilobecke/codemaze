@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from io import BytesIO
 
-from tests.helper import post, get_manager_id_token, get_random_name, get_new_group_id_code, CONTENT_TYPE_FORM_DATA, get_random_manager_token
+from tests.helper import post, get_manager_id_token, get_random_name, get_new_group_id_code, CONTENT_TYPE_FORM_DATA, get_random_manager_token, get_filepath_of_size
 
 class TestTask:
     def test_create_task_should_create(self):
@@ -117,3 +117,16 @@ class TestTask:
         response = post(f'/groups/{99999999}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 404
+
+    def test_create_task_with_invalid_file_size_should_return_invalid_file_size(self):
+        filepath = get_filepath_of_size(round(1.1 * 1024 * 1024)) # 1.1 MB
+        manager_id_token = get_manager_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
+        with open(filepath, 'rb') as file:
+            payload = {
+                'name': get_random_name(),
+                'file': (file, 'file_name.txt')
+            }
+            response = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+
+            assert response[0] == 413
