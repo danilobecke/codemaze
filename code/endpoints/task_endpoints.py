@@ -90,7 +90,7 @@ class TaskDownloadResource(Resource):
     def get(self, id: int, user: UserVO):
         try:
             user_groups = unwrap(TaskDownloadResource._group_service).get_all(user)
-            name, path = unwrap(TaskDownloadResource._task_service).get_task_name_path(id, user, user_groups)
+            name, path = unwrap(TaskDownloadResource._task_service).get_task_name_path(id, user_groups)
             return send_file(path, download_name=name)
         except Forbidden as e:
             abort(403, str(e))
