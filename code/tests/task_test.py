@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from io import BytesIO
 
-from tests.helper import post, get_manager_id_token, get_random_name, get_new_group_id_code, CONTENT_TYPE_FORM_DATA, get_random_manager_token, get_filepath_of_size, get, get_student_id_token, patch
+from tests.helper import post, get_manager_id_token, get_random_name, get_new_group_id_code, CONTENT_TYPE_FORM_DATA, get_random_manager_token, get_filepath_of_size, get, get_student_id_token, create_join_request_group_id
 
 class TestTask:
     def test_create_task_should_create(self):
@@ -131,6 +131,19 @@ class TestTask:
 
             assert response[0] == 413
 
+    def test_create_task_with_student_member_should_return_unauthorized(self):
+        manager_id_token = get_manager_id_token()
+        student_id_token = get_student_id_token()
+        group_id = create_join_request_group_id(student_id_token[1], manager_id_token[1], approve=True)
+        payload = {
+            'name': get_random_name(),
+            'file': (BytesIO(b'Random file content.'), 'file_name.txt')
+        }
+
+        response = post(f'/groups/{group_id}/tasks', payload, student_id_token[1], CONTENT_TYPE_FORM_DATA)
+
+        assert response[0] == 401
+
     def test_download_task_should_succeed(self):
         manager_id_token = get_manager_id_token()
         group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
@@ -187,23 +200,14 @@ class TestTask:
 
     def test_download_task_with_student_member_should_succeed(self):
         manager_id_token = get_manager_id_token()
-        group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
         student_id_token = get_student_id_token()
+        group_id = create_join_request_group_id(student_id_token[1], manager_id_token[1], approve=True)
         content = 'Random file content.'
         payload = {
             'name': get_random_name(),
             'file': (BytesIO(content.encode('UTF-8')), 'file_name.txt')
         }
-        task = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
-        join_payload = {
-            'code': group_id_code[1]
-        }
-        post('groups/join', join_payload, student_id_token[1])
-        request_id = get(f'groups/{group_id_code[0]}/requests', manager_id_token[1])[1]['requests'][0]['id']
-        approve_payload = {
-            'approve': True
-        }
-        patch(f'/groups/{group_id_code[0]}/requests/{request_id}', approve_payload, manager_id_token[1])
+        task = post(f'/groups/{group_id}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
 
         response = get(task['file_url'], manager_id_token[1], decode_as_json=False)
 

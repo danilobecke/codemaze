@@ -1,4 +1,4 @@
-from tests.helper import post, get, patch, get_random_name, get_manager_id_token, get_student_id_token, get_random_manager_token, get_new_group_id_code, create_expired_token
+from tests.helper import post, get, patch, get_random_name, get_manager_id_token, get_student_id_token, get_random_manager_token, get_new_group_id_code, create_expired_token, create_join_request_group_id
 
 class TestGroup:
     def test_create_group_should_create(self):
@@ -241,13 +241,9 @@ class TestGroup:
     def test_manager_get_requests_list_sould_return_requests(self):
         manager_token = get_manager_id_token()[1]
         student_id_token = get_student_id_token()
-        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+        group_id = create_join_request_group_id(student_id_token[1], manager_token)
 
-        payload = {
-            'code': group_id_code[1]
-        }
-        post('groups/join', payload, student_id_token[1])
-        response = get(f'groups/{group_id_code[0]}/requests', manager_token)
+        response = get(f'groups/{group_id}/requests', manager_token)
 
         assert response[0] == 200
         requests = response[1]['requests']
@@ -457,18 +453,9 @@ class TestGroup:
     def test_manager_get_students_list_should_return_students(self):
         manager_token = get_manager_id_token()[1]
         student_id_token = get_student_id_token()
-        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+        group_id = create_join_request_group_id(student_id_token[1], manager_token, approve=True)
 
-        join_payload = {
-            'code': group_id_code[1]
-        }
-        post('groups/join', join_payload, student_id_token[1])
-        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
-        payload = {
-            'approve': True
-        }
-        patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
-        response = get(f'/groups/{group_id_code[0]}/students', manager_token)
+        response = get(f'/groups/{group_id}/students', manager_token)
 
         assert response[0] == 200
         students = response[1]['students']
@@ -479,13 +466,9 @@ class TestGroup:
     def test_manager_get_students_list_without_approved_students_should_return_empty_list(self):
         manager_token = get_manager_id_token()[1]
         student_id_token = get_student_id_token()
-        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+        group_id = create_join_request_group_id(student_id_token[1], manager_token)
 
-        join_payload = {
-            'code': group_id_code[1]
-        }
-        post('groups/join', join_payload, student_id_token[1])
-        response = get(f'/groups/{group_id_code[0]}/students', manager_token)
+        response = get(f'/groups/{group_id}/students', manager_token)
 
         assert response[0] == 200
         students = response[1]['students']
@@ -520,19 +503,10 @@ class TestGroup:
     def test_get_students_list_when_is_not_owner_should_return_forbidden(self):
         manager_token = get_manager_id_token()[1]
         student_id_token = get_student_id_token()
-        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+        group_id = create_join_request_group_id(student_id_token[1], manager_token, approve=True)
         random_manager_token = get_random_manager_token()
 
-        join_payload = {
-            'code': group_id_code[1]
-        }
-        post('groups/join', join_payload, student_id_token[1])
-        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
-        payload = {
-            'approve': True
-        }
-        patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
-        response = get(f'/groups/{group_id_code[0]}/students', random_manager_token)
+        response = get(f'/groups/{group_id}/students', random_manager_token)
 
         assert response[0] == 403
 
@@ -547,18 +521,8 @@ class TestGroup:
     def test_student_get_all_groups_where_member_of_should_return_groups_where_is_member(self):
         manager_id_token = get_manager_id_token()
         student_id_token = get_student_id_token()
-        name = get_random_name()
-        group_id_code = get_new_group_id_code(name, manager_id_token[1])
+        create_join_request_group_id(student_id_token[1], manager_id_token[1], approve=True)
 
-        join_payload = {
-            'code': group_id_code[1]
-        }
-        post('groups/join', join_payload, student_id_token[1])
-        request_id = get(f'groups/{group_id_code[0]}/requests', manager_id_token[1])[1]['requests'][0]['id']
-        payload = {
-            'approve': True
-        }
-        patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_id_token[1])
         response = get('/groups?member_of=true', student_id_token[1])
 
         assert response[0] == 200

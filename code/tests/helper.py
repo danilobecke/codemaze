@@ -122,6 +122,21 @@ def create_expired_token(user_id: int) -> str:
     time.sleep(0.2) # expire the token
     return token
 
+def create_join_request_group_id(student_token: str, manager_token: str, approve: bool = False):
+    group_id, code = get_new_group_id_code(get_random_name(), manager_token)
+    join_payload = {
+        'code': code
+    }
+    post('groups/join', join_payload, student_token)
+    if approve is False:
+        return group_id
+
+    request_id = get(f'groups/{group_id}/requests', manager_token)[1]['requests'][0]['id']
+    approve_payload = {
+        'approve': True
+    }
+    patch(f'/groups/{group_id}/requests/{request_id}', approve_payload, manager_token)
+    return group_id
 ## Asserts
 
 def assert_user_response(response: HTTPResponse, name: str, email: str, role: str):
