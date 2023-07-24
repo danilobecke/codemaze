@@ -1,9 +1,11 @@
 import os
 
-from flask import url_for
+from flask import url_for, current_app
 
 ALLOWED_TEXT_EXTENSIONS = { '.txt', '.pdf', '.doc', '.docx', '.md', '.in', '.out' }
-STORAGE_PATH = os.path.join(os.path.realpath(os.path.curdir), 'files')
+
+def storage_path() -> str:
+    return current_app.config['STORAGE_PATH']
 
 def file_extension(filename: str) -> str:
     return os.path.splitext(filename)[1]

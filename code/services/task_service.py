@@ -24,7 +24,7 @@ class TaskService:
         if len(blob) <= 0 or (len(blob) / (1024 * 1024)) > 1:
             raise InvalidFileSize('1 MB')
         secure_filename = str(uuid.uuid4()) + file_extension
-        full_path = os.path.join(commons.STORAGE_PATH, secure_filename)
+        full_path = os.path.join(commons.storage_path(), secure_filename)
         with open(full_path, 'wb') as file:
             file.write(blob)
         dto = TaskDTO()
