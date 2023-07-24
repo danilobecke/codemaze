@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from io import BytesIO
 
-from tests.helper import post, get_manager_id_token, get_random_name, get_new_group_id_code, CONTENT_TYPE_FORM_DATA, get_random_manager_token, get_filepath_of_size
+from tests.helper import post, get_manager_id_token, get_random_name, get_new_group_id_code, CONTENT_TYPE_FORM_DATA, get_random_manager_token, get_filepath_of_size, get, get_student_id_token, patch
 
 class TestTask:
     def test_create_task_should_create(self):
@@ -130,3 +130,82 @@ class TestTask:
             response = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
             assert response[0] == 413
+
+    def test_download_task_should_succeed(self):
+        manager_id_token = get_manager_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
+        content = 'Random file content.'
+        payload = {
+            'name': get_random_name(),
+            'file': (BytesIO(content.encode('UTF-8')), 'file_name.txt')
+        }
+        task = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
+
+        response = get(task['file_url'], manager_id_token[1], decode_as_json=False)
+
+        assert response[0] == 200
+        assert response[1] == content
+
+    def test_download_task_with_non_manager_should_return_forbidden(self):
+        manager_id_token = get_manager_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
+        random_manager_token = get_random_manager_token()
+        payload = {
+            'name': get_random_name(),
+            'file': (BytesIO(b'Random file content.'), 'file_name.txt')
+        }
+        task = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
+
+        response = get(task['file_url'], random_manager_token)
+
+        assert response[0] == 403
+
+    def test_download_task_with_invalid_task_should_return_not_found(self):
+        manager_id_token = get_manager_id_token()
+
+        response = get(f'/tasks/{999999}/task', manager_id_token[1])
+
+        assert response[0] == 404
+
+    def test_download_task_with_non_member_should_return_forbidden(self):
+        manager_id_token = get_manager_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
+        student_id_token = get_student_id_token()
+        payload = {
+            'name': get_random_name(),
+            'file': (BytesIO(b'Random file content.'), 'file_name.txt')
+        }
+        task = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
+        join_payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', join_payload, student_id_token[1])
+
+        response = get(task['file_url'], student_id_token[1])
+
+        assert response[0] == 403
+
+    def test_download_task_with_student_member_should_succeed(self):
+        manager_id_token = get_manager_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
+        student_id_token = get_student_id_token()
+        content = 'Random file content.'
+        payload = {
+            'name': get_random_name(),
+            'file': (BytesIO(content.encode('UTF-8')), 'file_name.txt')
+        }
+        task = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
+        join_payload = {
+            'code': group_id_code[1]
+        }
+        post('groups/join', join_payload, student_id_token[1])
+        request_id = get(f'groups/{group_id_code[0]}/requests', manager_id_token[1])[1]['requests'][0]['id']
+        approve_payload = {
+            'approve': True
+        }
+        patch(f'/groups/{group_id_code[0]}/requests/{request_id}', approve_payload, manager_id_token[1])
+
+        response = get(task['file_url'], manager_id_token[1], decode_as_json=False)
+
+        assert response[0] == 200
+        assert response[1] == content
