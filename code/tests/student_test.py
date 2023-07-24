@@ -22,7 +22,7 @@ class TestStudent:
         }
         response = post('/session', payload)
 
-        assert_user_response(response, self.__name, self.__email, 'student')
+        assert_user_response(response, self.__name, self.__email, 'student', 200)
 
     def test_login_missing_email_should_return_bad_request(self):
         payload = {

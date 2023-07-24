@@ -58,7 +58,7 @@ class GroupsResource(Resource):
     def post(self, user: UserVO):
         name = json_unwrapped()['name']
         try:
-            return unwrap(GroupsResource._group_service).create(name, user.id)
+            return unwrap(GroupsResource._group_service).create(name, user.id), 201
         except ServerError as e:
             abort(500, str(e))
 

@@ -27,7 +27,7 @@ class ManagerResource(Resource):
         email = request.json['email']
         password = request.json['password']
         try:
-            return SessionService.shared.create_user(email, name, password, Role.MANAGER)
+            return SessionService.shared.create_user(email, name, password, Role.MANAGER), 201
         except ServerError as e:
             abort(500, str(e))
 

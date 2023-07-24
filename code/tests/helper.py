@@ -137,10 +137,11 @@ def create_join_request_group_id(student_token: str, manager_token: str, approve
     }
     patch(f'/groups/{group_id}/requests/{request_id}', approve_payload, manager_token)
     return group_id
+
 ## Asserts
 
-def assert_user_response(response: HTTPResponse, name: str, email: str, role: str):
-    assert response[0] == 200
+def assert_user_response(response: HTTPResponse, name: str, email: str, role: str, status_code: int = 201):
+    assert response[0] == status_code
     data = response[1]
     assert data['id'] is not None
     assert data['name'] == name

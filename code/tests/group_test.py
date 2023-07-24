@@ -10,7 +10,7 @@ class TestGroup:
         }
         response = post('/groups', payload, id_token[1])
 
-        assert response[0] == 200
+        assert response[0] == 201
         json = response[1]
         assert json['id'] is not None
         assert json['name'] == name

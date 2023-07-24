@@ -22,7 +22,7 @@ class TestManager:
         }
         response = post('/session', payload)
 
-        assert_user_response(response, self.__name, self.__email, 'manager')
+        assert_user_response(response, self.__name, self.__email, 'manager', 200)
 
     def test_create_manager_missing_name_should_return_bad_request(self):
         payload = {

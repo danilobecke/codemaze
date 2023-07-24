@@ -62,7 +62,7 @@ class TasksResource(Resource):
         blob = file_storage.stream.read()
         try:
             group = unwrap(TasksResource._group_service).get_group(group_id)
-            return unwrap(TasksResource._task_service).create_task(user, group, name, max_attempts, starts_on, ends_on, filename, blob)
+            return unwrap(TasksResource._task_service).create_task(user, group, name, max_attempts, starts_on, ends_on, filename, blob), 201
         except Forbidden as e:
             abort(403, str(e))
         except NotFound as e:

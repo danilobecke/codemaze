@@ -16,7 +16,7 @@ class TestTask:
         }
         response = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
-        assert response[0] == 200
+        assert response[0] == 201
         json = response[1]
         id = json['id']
         assert json['name'] == payload['name']
@@ -34,7 +34,7 @@ class TestTask:
         }
         response = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
-        assert response[0] == 200
+        assert response[0] == 201
         json = response[1]
         id = json['id']
         assert json['name'] == payload['name']
