@@ -11,7 +11,8 @@ from app import run_as_test
 
 __app = run_as_test()
 
-__CONTENT_TYPE_JSON = 'application/json'
+CONTENT_TYPE_JSON = 'application/json'
+CONTENT_TYPE_FORM_DATA = 'multipart/form-data'
 StatusCode: TypeAlias = int
 HTTPResponse = Tuple[StatusCode, Any]
 
@@ -31,12 +32,19 @@ def get(path: str, token: str | None = None, custom_headers: dict[str, str] | No
     response = __app.get(path, headers=headers)
     return (response.status_code, json.loads(response.data.decode('utf-8')))
 
-def post(path: str, payload: dict, token: str | None = None) -> HTTPResponse:
-    response = __app.post(path, data=json.dumps(payload), content_type=__CONTENT_TYPE_JSON, headers=__headers(token))
+def post(path: str, payload: dict, token: str | None = None, content_type: str = CONTENT_TYPE_JSON) -> HTTPResponse:
+    data: Any | None = None
+    if content_type == CONTENT_TYPE_JSON:
+        data = json.dumps(payload)
+    elif content_type == CONTENT_TYPE_FORM_DATA:
+        data = payload
+    else:
+        assert 1 == -1
+    response = __app.post(path, data=data, content_type=content_type, headers=__headers(token))
     return (response.status_code, json.loads(response.data.decode('utf-8')))
 
 def patch(path: str, payload: dict, token: str | None = None) -> HTTPResponse:
-    response = __app.patch(path, data=json.dumps(payload), content_type=__CONTENT_TYPE_JSON, headers=__headers(token))
+    response = __app.patch(path, data=json.dumps(payload), content_type=CONTENT_TYPE_JSON, headers=__headers(token))
     return (response.status_code, json.loads(response.data.decode('utf-8')))
 
 # DATABSE HELPERS

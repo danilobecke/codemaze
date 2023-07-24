@@ -4,7 +4,7 @@ from werkzeug.datastructures import FileStorage
 
 from endpoints.models.user import UserVO
 from helpers.authenticator_decorator import authentication_required
-from helpers.exceptions import ParameterValidationError, NotFound, ServerError, Forbidden, InvalidFileExtension, InvalidFileSize
+from helpers.exceptions import NotFound, ServerError, Forbidden, InvalidFileExtension, InvalidFileSize
 from helpers.role import Role
 from helpers.unwrapper import unwrap
 from services.group_service import GroupService
@@ -58,9 +58,7 @@ class TasksResource(Resource):
         starts_on = args.get('starts_on')
         ends_on = args.get('ends_on')
         file_storage: FileStorage = args['file']
-        filename = file_storage.filename
-        if filename is None:
-            abort(400, str(ParameterValidationError('filename', 'None', 'filename')))
+        filename = unwrap(file_storage.filename)
         blob = file_storage.stream.read()
         try:
             group = unwrap(TasksResource._group_service).get_group(group_id)
