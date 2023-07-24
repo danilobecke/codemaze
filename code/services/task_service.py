@@ -36,3 +36,10 @@ class TaskService:
         dto.file_path = full_path
         stored = self.__task_repository.add(dto)
         return TaskVO.import_from_dto(stored)
+
+    def get_task_name_path(self, task_id: int, user: UserVO, user_groups: list[GroupVO]) -> tuple[str, str]:
+        task_dto: TaskDTO = self.__task_repository.find(task_id)
+        if task_dto.group_id not in list(map(lambda group: group.id, user_groups)):
+            raise Forbidden()
+        path = task_dto.file_path
+        return (task_dto.name + commons.file_extension(path), path)

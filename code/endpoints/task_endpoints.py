@@ -1,4 +1,4 @@
-from flask import abort
+from flask import abort, send_file
 from flask_restx import Api, Resource, Namespace, inputs, fields
 from werkzeug.datastructures import FileStorage
 
@@ -80,8 +80,24 @@ class TaskDownloadResource(Resource):
     _group_service: GroupService | None = None
     _task_service: TaskService | None = None
 
-    def get(self, group_id: int, id: int, user: UserVO):
-        pass # download task
+    @_namespace.doc(description='Downloads the task.')
+    @_namespace.response(401, 'Error')
+    @_namespace.response(403, 'Error')
+    @_namespace.response(404, 'Error')
+    @_namespace.response(500, 'Error')
+    @_namespace.doc(security='bearer')
+    @authentication_required()
+    def get(self, id: int, user: UserVO):
+        try:
+            user_groups = unwrap(TaskDownloadResource._group_service).get_all(user)
+            name, path = unwrap(TaskDownloadResource._task_service).get_task_name_path(id, user, user_groups)
+            return send_file(path, download_name=name)
+        except Forbidden as e:
+            abort(403, str(e))
+        except NotFound as e:
+            abort(404, str(e))
+        except ServerError as e:
+            abort(500, str(e))
 
 class TaskEndpoints:
     def __init__(self, api: Api, groups_namespace: Namespace, group_service: GroupService, task_service: TaskService):
