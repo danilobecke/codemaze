@@ -1,5 +1,6 @@
 from tests.helper import post, get, patch, get_random_name, get_manager_id_token, get_student_id_token, get_random_manager_token, get_new_group_id_code, create_expired_token, create_join_request_group_id
 
+# pylint: disable=too-many-public-methods
 class TestGroup:
     def test_create_group_should_create(self):
         name = get_random_name()
