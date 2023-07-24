@@ -15,7 +15,7 @@ class StudentResource(Resource):
     @_namespace.expect(signup_model, validate=True)
     @_namespace.response(400, 'Error')
     @_namespace.response(500, 'Error')
-    @_namespace.marshal_with(user_model)
+    @_namespace.marshal_with(user_model, code=201)
     @validate_email()
     def post(self):
         name = request.json['name']

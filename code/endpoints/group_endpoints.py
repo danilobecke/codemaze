@@ -52,7 +52,7 @@ class GroupsResource(Resource):
     @_namespace.response(400, 'Error')
     @_namespace.response(401, 'Error')
     @_namespace.response(500, 'Error')
-    @_namespace.marshal_with(_group_model)
+    @_namespace.marshal_with(_group_model, code=201)
     @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
     def post(self, user: UserVO):

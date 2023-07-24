@@ -49,7 +49,7 @@ class TasksResource(Resource):
     @_namespace.response(422, 'Error')
     @_namespace.response(500, 'Error')
     @_namespace.doc(security='bearer')
-    @_namespace.marshal_with(_task_model)
+    @_namespace.marshal_with(_task_model, code=201)
     @authentication_required(Role.MANAGER)
     def post(self, group_id: int, user: UserVO):
         args = _new_task_parser.parse_args()
