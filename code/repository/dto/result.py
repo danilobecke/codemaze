@@ -3,6 +3,7 @@ from sqlalchemy.sql import func
 
 from repository.base import Base
 
+# pylint: disable=too-few-public-methods,not-callable
 class ResultDTO(Base):
     __tablename__ = 'result'
 

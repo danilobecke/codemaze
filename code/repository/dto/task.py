@@ -1,14 +1,9 @@
-from typing import TYPE_CHECKING
-
 from sqlalchemy import Column, Integer, Sequence, String, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from repository.base import Base
-if TYPE_CHECKING:
-    from repository.dto.result import ResultDTO
-    from repository.dto.test_case import TestCaseDTO
 
+# pylint: disable=too-few-public-methods,not-callable
 class TaskDTO(Base):
     __tablename__ = 'task'
 
@@ -21,6 +16,3 @@ class TaskDTO(Base):
     group_id = Column(Integer, ForeignKey('group.id'), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-
-    test_cases = relationship('TestCaseDTO')
-    results = relationship('ResultDTO')

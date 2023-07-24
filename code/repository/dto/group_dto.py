@@ -1,16 +1,9 @@
-from typing import TYPE_CHECKING
-
 from sqlalchemy import Column, Integer, Sequence, String, ForeignKey, DateTime, Boolean
-from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from repository.base import Base
-from repository.dto.student_group import student_group
-if TYPE_CHECKING:
-    from repository.dto.manager import ManagerDTO
-    from repository.dto.student import StudentDTO
-    from repository.dto.task import TaskDTO
 
+# pylint: disable=too-few-public-methods,not-callable
 class GroupDTO(Base):
     __tablename__ = 'group'
 
@@ -21,7 +14,3 @@ class GroupDTO(Base):
     manager_id = Column(Integer, ForeignKey('manager.id'), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-
-    manager = relationship('ManagerDTO', back_populates='groups')
-    students = relationship('StudentDTO', secondary=student_group, back_populates='groups')
-    tasks = relationship('TaskDTO')
