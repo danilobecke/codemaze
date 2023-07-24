@@ -1,7 +1,8 @@
 import datetime
+from io import BytesIO
 import os
 import time
-from typing import TypeAlias, Tuple, Any
+from typing import TypeAlias, Tuple, Any, Mapping
 import uuid
 
 from flask import json
@@ -14,7 +15,7 @@ __app = run_as_test()
 CONTENT_TYPE_JSON = 'application/json'
 CONTENT_TYPE_FORM_DATA = 'multipart/form-data'
 StatusCode: TypeAlias = int
-HTTPResponse = Tuple[StatusCode, Any]
+HTTPResponse = Tuple[StatusCode, Mapping[str, Any]]
 
 # HTTP METHODS
 
@@ -46,8 +47,15 @@ def post(path: str, payload: dict, token: str | None = None, content_type: str =
     response = __app.post(path, data=data, content_type=content_type, headers=__headers(token))
     return (response.status_code, json.loads(response.data.decode('utf-8')))
 
-def patch(path: str, payload: dict, token: str | None = None) -> HTTPResponse:
-    response = __app.patch(path, data=json.dumps(payload), content_type=CONTENT_TYPE_JSON, headers=__headers(token))
+def patch(path: str, payload: dict, token: str | None = None, content_type: str = CONTENT_TYPE_JSON) -> HTTPResponse:
+    data: Any | None = None
+    if content_type == CONTENT_TYPE_JSON:
+        data = json.dumps(payload)
+    elif content_type == CONTENT_TYPE_FORM_DATA:
+        data = payload
+    else:
+        assert 1 == -1
+    response = __app.patch(path, data=data, content_type=content_type, headers=__headers(token))
     return (response.status_code, json.loads(response.data.decode('utf-8')))
 
 # DATABSE HELPERS
@@ -137,6 +145,14 @@ def create_join_request_group_id(student_token: str, manager_token: str, approve
     }
     patch(f'/groups/{group_id}/requests/{request_id}', approve_payload, manager_token)
     return group_id
+
+def create_task_json(manager_token: str) -> Mapping[str, Any]:
+    group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+    payload = {
+        'name': get_random_name(),
+        'file': (BytesIO(b'Random file content.'), 'file.txt')
+    }
+    return post(f'/groups/{group_id_code[0]}/tasks', payload, manager_token, CONTENT_TYPE_FORM_DATA)[1]
 
 ## Asserts
 
