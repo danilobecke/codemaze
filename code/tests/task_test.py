@@ -231,7 +231,9 @@ class TestTask:
         new_content = 'New content!'
         update_payload = {
             'name': get_random_name(),
+            'max_attempts': 5,
             'starts_on': (datetime.now().astimezone() + timedelta(hours=1)).isoformat(),
+            'ends_on': (datetime.now().astimezone() + timedelta(days=10)).isoformat(),
             'file': (BytesIO(new_content.encode('UTF-8')), 'file_name.txt')
         }
         response = patch(f'/tasks/{task_id}', update_payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
@@ -241,9 +243,9 @@ class TestTask:
         id = json['id']
         assert task_id == id
         assert json['name'] == update_payload['name']
-        assert json['max_attempts'] == task['max_attempts']
+        assert json['max_attempts'] == update_payload['max_attempts']
         assert json['starts_on'] == update_payload['starts_on']
-        assert json['ends_on'] == task['ends_on']
+        assert json['ends_on'] == update_payload['ends_on']
         assert json['file_url'] == task['file_url']
 
         download_response = get(json['file_url'], manager_id_token[1], decode_as_json=False)
