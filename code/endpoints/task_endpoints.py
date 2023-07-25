@@ -77,6 +77,26 @@ class TasksResource(Resource):
         except ServerError as e:
             abort(500, str(e))
 
+    @_namespace.doc(description='Returns a list of tasks for the current group.')
+    @_namespace.response(401, 'Error')
+    @_namespace.response(403, 'Error')
+    @_namespace.response(404, 'Error')
+    @_namespace.response(500, 'Error')
+    @_namespace.doc(security='bearer')
+    @_namespace.marshal_with(_task_model, as_list=True, envelope='tasks')
+    @authentication_required()
+    def get(self, group_id: int, user: UserVO):
+        try:
+            group = unwrap(TasksResource._group_service).get_group(group_id)
+            user_groups = unwrap(TasksResource._group_service).get_all(user)
+            return unwrap(TasksResource._task_service).get_tasks(group, user_groups)
+        except Forbidden as e:
+            abort(403, str(e))
+        except NotFound as e:
+            abort(404, str(e))
+        except ServerError as e:
+            abort(500, str(e))
+
 class TaskDownloadResource(Resource):
     _group_service: GroupService | None = None
     _task_service: TaskService | None = None

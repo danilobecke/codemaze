@@ -4,9 +4,9 @@ from jsonschema import FormatChecker
 
 from endpoints.group_endpoints import GroupEndpoints
 from endpoints.manager_endpoints import ManagerEndpoints
-from endpoints.task_endpoints import TaskEndpoints
 from endpoints.session_endpoints import SessionEndpoints
 from endpoints.student_endpoints import StudentEndpoints
+from endpoints.task_endpoints import TaskEndpoints
 from services.group_service import GroupService
 from services.task_service import TaskService
 

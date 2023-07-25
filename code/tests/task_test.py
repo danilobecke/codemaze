@@ -338,3 +338,68 @@ class TestTask:
         response = patch(f'/tasks/{task_id}', {}, student_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 401
+
+    def test_get_tasks_should_succeed(self):
+        manager_token = get_manager_id_token()[1]
+        group_id = get_new_group_id_code(get_random_name(), manager_token)[0]
+        task_1 = create_task_json(manager_token, group_id)
+        task_2 = create_task_json(manager_token, group_id)
+
+        response = get(f'/groups/{group_id}/tasks', manager_token)
+
+        assert response[0] == 200
+        tasks = response[1]['tasks']
+        assert len(tasks) == 2
+        assert task_1 in tasks
+        assert task_2 in tasks
+
+    def test_get_tasks_with_user_should_succeed(self):
+        manager_token = get_manager_id_token()[1]
+        student_token = get_student_id_token()[1]
+        group_id = create_join_request_group_id(student_token, manager_token, approve=True)
+        task_1 = create_task_json(manager_token, group_id)
+        task_2 = create_task_json(manager_token, group_id)
+        create_task_json(manager_token) # another group
+
+        response = get(f'/groups/{group_id}/tasks', student_token)
+
+        assert response[0] == 200
+        tasks = response[1]['tasks']
+        assert len(tasks) == 2
+        assert task_1 in tasks
+        assert task_2 in tasks
+
+    def test_get_tasks_with_group_without_tasks_should_return_empty_array(self):
+        manager_token = get_manager_id_token()[1]
+        group_id = get_new_group_id_code(get_random_name(), manager_token)[0]
+
+        response = get(f'/groups/{group_id}/tasks', manager_token)
+
+        assert response[0] == 200
+        tasks = response[1]['tasks']
+        assert len(tasks) == 0
+
+    def test_get_tasks_with_invalid_group_should_return_not_found(self):
+        manager_token = get_manager_id_token()[1]
+
+        response = get(f'/groups/{99999999}/tasks', manager_token)
+
+        assert response[0] == 404
+
+    def test_get_tasks_with_non_manager_should_return_forbidden(self):
+        manager_token = get_manager_id_token()[1]
+        group_id = get_new_group_id_code(get_random_name(), manager_token)[0]
+        random_manager = get_random_manager_token()
+
+        response = get(f'/groups/{group_id}/tasks', random_manager)
+
+        assert response[0] == 403
+
+    def test_get_tasks_with_not_approved_student_should_return_forbidden(self):
+        manager_token = get_manager_id_token()[1]
+        student_token = get_student_id_token()[1]
+        group_id = create_join_request_group_id(student_token, manager_token)
+
+        response = get(f'/groups/{group_id}/tasks', student_token)
+
+        assert response[0] == 403

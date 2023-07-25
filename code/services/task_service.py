@@ -69,3 +69,10 @@ class TaskService:
             dto.ends_on = ends_on
         self.__task_repository.update_session()
         return TaskVO.import_from_dto(dto)
+
+    def get_tasks(self, group: GroupVO, user_groups: list[GroupVO]) -> list[TaskVO]:
+        group_id = group.id
+        if any(group_id == _group.id for _group in user_groups) is False:
+            raise Forbidden()
+        dtos = self.__task_repository.get_tasks(group_id)
+        return list(map(lambda dto: TaskVO.import_from_dto(dto), dtos))

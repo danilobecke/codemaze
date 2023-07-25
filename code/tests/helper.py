@@ -146,13 +146,14 @@ def create_join_request_group_id(student_token: str, manager_token: str, approve
     patch(f'/groups/{group_id}/requests/{request_id}', approve_payload, manager_token)
     return group_id
 
-def create_task_json(manager_token: str) -> Mapping[str, Any]:
-    group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+def create_task_json(manager_token: str, group_id: str | None = None) -> Mapping[str, Any]:
+    if group_id is None:
+        group_id = get_new_group_id_code(get_random_name(), manager_token)[0]
     payload = {
         'name': get_random_name(),
         'file': (BytesIO(b'Random file content.'), 'file.txt')
     }
-    return post(f'/groups/{group_id_code[0]}/tasks', payload, manager_token, CONTENT_TYPE_FORM_DATA)[1]
+    return post(f'/groups/{group_id}/tasks', payload, manager_token, CONTENT_TYPE_FORM_DATA)[1]
 
 ## Asserts
 
