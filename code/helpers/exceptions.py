@@ -1,6 +1,6 @@
 class InvalidFileExtension(Exception):
-    def __init__(self):
-        super().__init__("The given file extension is not supported.")
+    def __init__(self, allowed_extensions: set[str]):
+        super().__init__(f"The given file extension is not supported. Allowed: {allowed_extensions}")
 
 class InvalidFileSize(Exception):
     def __init__(self, max_allowed: str):

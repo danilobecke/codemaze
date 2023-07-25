@@ -6,6 +6,7 @@ from werkzeug.datastructures import FileStorage
 from endpoints.models.user import UserVO
 from helpers.authenticator_decorator import authentication_required
 from helpers.exceptions import NotFound, ServerError, Forbidden, InvalidFileExtension, InvalidFileSize
+from helpers.file import File
 from helpers.role import Role
 from helpers.unwrapper import unwrap
 from services.group_service import GroupService
@@ -65,7 +66,7 @@ class TasksResource(Resource):
         blob = file_storage.stream.read()
         try:
             group = unwrap(TasksResource._group_service).get_group(group_id)
-            return unwrap(TasksResource._task_service).create_task(user, group, name, max_attempts, starts_on, ends_on, filename, blob), 201
+            return unwrap(TasksResource._task_service).create_task(user, group, name, max_attempts, starts_on, ends_on, File(filename, blob)), 201
         except Forbidden as e:
             abort(403, str(e))
         except NotFound as e:
@@ -147,14 +148,12 @@ class TaskResource(Resource):
         max_attempts = args.get('max_attempts')
         starts_on = args.get('starts_on')
         ends_on = args.get('ends_on')
-        filename = None
-        blob = None
+        file: File | None = None
         file_storage: FileStorage | None = args['file']
         if file_storage is not None:
-            filename = file_storage.filename
-            blob = file_storage.stream.read()
+            file = File(unwrap(file_storage.filename), file_storage.stream.read())
         try:
-            return unwrap(TaskResource._task_service).update_task(user, unwrap(TaskResource._group_service).get_group, id, name, max_attempts, starts_on, ends_on, filename, blob)
+            return unwrap(TaskResource._task_service).update_task(user, unwrap(TaskResource._group_service).get_group, id, name, max_attempts, starts_on, ends_on, file)
         except Forbidden as e:
             abort(403, str(e))
         except NotFound as e:
