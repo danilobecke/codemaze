@@ -64,3 +64,7 @@ class TaskService:
             raise Forbidden()
         dtos = self.__task_repository.get_tasks(group_id)
         return list(map(lambda dto: TaskVO.import_from_dto(dto), dtos))
+
+    def get_task(self, task_id: int) -> TaskVO:
+        dto = self.__task_repository.find(task_id)
+        return TaskVO.import_from_dto(dto)
