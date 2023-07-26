@@ -5,7 +5,7 @@ from werkzeug.datastructures import FileStorage
 
 from endpoints.models.user import UserVO
 from helpers.authenticator_decorator import authentication_required
-from helpers.exceptions import Forbidden, NotFound, ServerError
+from helpers.exceptions import Forbidden, NotFound, ServerError, InvalidFileSize, InvalidFileExtension
 from helpers.file import File
 from helpers.role import Role
 from helpers.unwrapper import unwrap
@@ -44,7 +44,7 @@ class TestsResource(Resource):
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(500, 'Error')
-    @_namespace.marshal_with(_test_model)
+    @_namespace.marshal_with(_test_model, code=201)
     @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
     def post(self, task_id: int, user: UserVO):
@@ -57,11 +57,15 @@ class TestsResource(Resource):
             group = unwrap(TestsResource._group_service).get_group(task.group_id)
             input_file = File(unwrap(input_storage.filename), input_storage.stream.read())
             output_file = File(unwrap(output_storage.filename), output_storage.stream.read())
-            return unwrap(TestsResource._tcase_service).add_test_case(user, task, group, input_file, output_file, closed)
+            return unwrap(TestsResource._tcase_service).add_test_case(user, task, group, input_file, output_file, closed), 201
         except Forbidden as e:
             abort(403, str(e))
         except NotFound as e:
             abort(404, str(e))
+        except InvalidFileSize as e:
+            abort(413, str(e))
+        except InvalidFileExtension as e:
+            abort(422, str(e))
         except ServerError as e:
             abort(500, str(e))
 
