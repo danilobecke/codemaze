@@ -25,8 +25,8 @@ def _set_up_test_parser(parser: RequestParser):
 _test_model = _namespace.model('Test Case', {
     'id': fields.Integer(required=True),
     'closed': fields.Boolean(required=True),
-    'input_url': fields.String(required=True),
-    'output_url': fields.String(required=True)
+    'input_url': fields.String(required=False),
+    'output_url': fields.String(required=False)
 })
 
 class TestsResource(Resource):

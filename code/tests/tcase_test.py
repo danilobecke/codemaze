@@ -3,7 +3,25 @@ from io import BytesIO
 from tests.helper import get_manager_id_token, create_task_json, post, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_student_id_token, create_join_request_group_id, get_random_manager_token
 
 class TestTCase:
-    def test_add_test_case_should_succeed(self):
+    def test_add_open_test_case_should_succeed_with_urls(self):
+        manager_token = get_manager_id_token()[1]
+        task_id = create_task_json(manager_token)['id']
+        payload = {
+            'input': (BytesIO(b'Input.'), 'input.in'),
+            'output': (BytesIO(b'Output.'), 'output.out'),
+            'closed': False
+        }
+
+        response = post(f'/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
+
+        assert response[0] == 201
+        json = response[1]
+        test_id = json['id']
+        assert json['closed'] is False
+        assert json['input_url'] == f'/tests/{test_id}/in'
+        assert json['output_url'] == f'/tests/{test_id}/out'
+
+    def test_add_closed_test_case_should_succeed_without_urls(self):
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
         payload = {
@@ -16,10 +34,10 @@ class TestTCase:
 
         assert response[0] == 201
         json = response[1]
-        test_id = json['id']
+        assert json['id'] is not None
         assert json['closed'] is True
-        assert json['input_url'] == f'/tests/{test_id}/in'
-        assert json['output_url'] == f'/tests/{test_id}/out'
+        assert json['input_url'] is None
+        assert json['output_url'] is None
 
     def test_add_test_case_without_input_should_return_bad_request(self):
         manager_token = get_manager_id_token()[1]
