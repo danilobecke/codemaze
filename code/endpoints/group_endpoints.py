@@ -108,6 +108,7 @@ class GroupResource(Resource):
         except ServerError as e:
             abort(500, str(e))
 
+    # pylint: disable=unused-argument
     @_namespace.doc(description='Get info about a group.')
     @_namespace.response(401, 'Error')
     @_namespace.response(404, 'Error')

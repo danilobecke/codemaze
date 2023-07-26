@@ -1,10 +1,12 @@
+# pylint: disable=unused-import
+
 from __future__ import annotations
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from repository.base import Base
-import repository.table_builder
+import repository.table_builder # must be imported to initialize the database
 
 class Database:
     shared: Database | None = None

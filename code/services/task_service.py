@@ -11,7 +11,6 @@ from helpers.file import File
 from repository.dto.task import TaskDTO
 from repository.task_repository import TaskRepository
 
-# pylint: disable=too-many-arguments
 class TaskService:
     def __init__(self):
         self.__task_repository = TaskRepository()

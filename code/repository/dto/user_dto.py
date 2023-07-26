@@ -6,7 +6,7 @@ from repository.base import Base
 
 force_auto_coercion()
 
-# pylint: disable=too-few-public-methods,not-callable
+# pylint: disable=not-callable
 class UserDTO(Base):
     __tablename__ = 'user'
 

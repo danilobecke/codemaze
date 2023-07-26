@@ -3,7 +3,7 @@ from sqlalchemy.sql import func
 
 from repository.base import Base
 
-# pylint: disable=too-few-public-methods,not-callable
+# pylint: disable=not-callable
 class TestCaseDTO(Base):
     __tablename__ = 'test_case'
 

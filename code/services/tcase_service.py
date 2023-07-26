@@ -15,7 +15,6 @@ class TCaseService:
         if group.manager_id != user.id:
             raise Forbidden()
 
-    # pylint: disable=too-many-arguments
     def add_test_case(self, user: UserVO, task: TaskVO, group: GroupVO, input_file: File, output_file: File, closed: bool) -> TCaseVO:
         self.__assert_is_manager(user, group)
         dto = TestCaseDTO()

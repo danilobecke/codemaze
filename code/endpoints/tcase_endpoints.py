@@ -74,7 +74,6 @@ class TestDownloadOutResource(Resource):
         pass # Download output
 
 class TCaseEndpoints:
-    # pylint: disable=too-many-arguments
     def __init__(self, api: Api, tasks_namespace: Namespace, group_service: GroupService, task_service: TaskService, tcase_service: TCaseService):
         _set_up_test_parser(_new_test_parser)
         api.add_namespace(_namespace)

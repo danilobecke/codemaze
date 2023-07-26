@@ -50,7 +50,7 @@ cyan_echo "-------------- 3. Linter -------------"
 make lint-hook files="$PY_FILES"
 if [ "$?" != "0" ]; then
     red_echo "\nFix lint issues before commiting.";
-    red_echo "If you think it's safe to ignore them, run:";
+    red_echo "If you think it's safe to ignore them, either disable the rule or run:";
     red_echo "git commit -n\n"
     exit 1;
 fi

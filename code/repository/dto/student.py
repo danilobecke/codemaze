@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, ForeignKey
 
 from repository.dto.user_dto import UserDTO
 
-# pylint: disable=too-few-public-methods
 class StudentDTO(UserDTO):
     __tablename__ = 'student'
 

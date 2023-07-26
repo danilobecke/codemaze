@@ -1,3 +1,5 @@
+# pylint: disable=unused-import
+
 # Contains all DTOs to be imported before running Base.metadata.create_all()
 
 from repository.dto.group_dto import GroupDTO
