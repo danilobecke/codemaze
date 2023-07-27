@@ -20,9 +20,8 @@ class TestGroup:
 
     def test_create_group_without_name_should_return_bad_request(self):
         id_token = get_manager_id_token()
-        payload = {
-        }
-        response = post('/groups', payload, id_token[1])
+
+        response = post('/groups', {}, id_token[1])
 
         assert response[0] == 400
 

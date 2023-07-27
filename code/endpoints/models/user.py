@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from helpers.role import Role
 from repository.dto.user_dto import UserDTO
 
 class UserVO:
@@ -7,7 +8,7 @@ class UserVO:
         self.id = -1
         self.email = ''
         self.name = ''
-        self.role = None
+        self.role = Role.STUDENT
         self.token = ''
 
     @staticmethod

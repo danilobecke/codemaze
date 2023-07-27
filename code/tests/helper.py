@@ -120,7 +120,7 @@ def get_new_group_id_code(name: str, token: str) -> tuple[str, str]:
     response = post('/groups', payload, token)
     return (response[1]['id'], response[1]['code'])
 
-def create_expired_token(user_id: int) -> str:
+def create_expired_token(user_id: str) -> str:
     payload = {
             'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, hours=0, minutes=0, seconds=0, milliseconds=1),
             'iat': datetime.datetime.utcnow(),

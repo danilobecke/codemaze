@@ -1,4 +1,4 @@
-from flask import request, abort
+from flask import abort
 from flask_restx import Api, Resource, Namespace
 
 from endpoints.manager_endpoints import signup_model
@@ -6,6 +6,7 @@ from endpoints.session_endpoints import user_model
 from helpers.email_validation_decorator import validate_email
 from helpers.exceptions import ServerError
 from helpers.role import Role
+from helpers.unwrapper import json_unwrapped, unwrap
 from services.session_service import SessionService
 
 _namespace = Namespace('students', description='')
@@ -18,11 +19,11 @@ class StudentResource(Resource):
     @_namespace.marshal_with(user_model, code=201)
     @validate_email()
     def post(self):
-        name = request.json['name']
-        email = request.json['email']
-        password = request.json['password']
+        name = json_unwrapped()['name']
+        email = json_unwrapped()['email']
+        password = json_unwrapped()['password']
         try:
-            return SessionService.shared.create_user(email, name, password, Role.STUDENT), 201
+            return unwrap(SessionService.shared).create_user(email, name, password, Role.STUDENT), 201
         except ServerError as e:
             abort(500, str(e))
 

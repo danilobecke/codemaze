@@ -1,8 +1,9 @@
-from flask import request, abort
+from flask import abort
 from flask_restx import Api, Resource, Namespace, fields
 
 from helpers.email_validation_decorator import validate_email
 from helpers.exceptions import Forbidden, ServerError
+from helpers.unwrapper import json_unwrapped, unwrap
 from services.session_service import SessionService
 
 _namespace = Namespace('session', description='')
@@ -29,10 +30,10 @@ class SessionResource(Resource):
     @_namespace.marshal_with(user_model)
     @validate_email()
     def post(self):
-        email = request.json['email']
-        password = request.json['password']
+        email = json_unwrapped()['email']
+        password = json_unwrapped()['password']
         try:
-            return SessionService.shared.login(email, password)
+            return unwrap(SessionService.shared).login(email, password)
         except Forbidden as e:
             abort(403, str(e))
         except ServerError as e:

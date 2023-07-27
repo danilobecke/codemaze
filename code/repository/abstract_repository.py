@@ -3,6 +3,7 @@ from typing import TypeVar, Generic
 from sqlalchemy.exc import IntegrityError
 
 from helpers.exceptions import Internal_UniqueViolation, ServerError, NotFound
+from helpers.unwrapper import unwrap
 from repository.base import Base
 from repository.database import Database
 
@@ -11,7 +12,7 @@ M = TypeVar('M', bound=Base)
 class AbstractRepository(Generic[M]):
     def __init__(self, klass):
         self.__class = klass
-        self._session = Database.shared.session
+        self._session = unwrap(Database.shared).session
 
     def find_all(self) -> list[M]:
         return self._session.query(self.__class).all()

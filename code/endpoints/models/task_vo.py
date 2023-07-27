@@ -9,7 +9,7 @@ class TaskVO:
         self.id = -1
         self.name = ""
         self.max_attempts = None
-        self.starts_on = datetime.now()
+        self.starts_on: datetime | None = datetime.now()
         self.ends_on = None
         self.file_url = ""
         self.group_id = -1
