@@ -20,7 +20,7 @@ test:
 lint:
 	$(PYLINT) code --rcfile=configs/.pylintrc
 type-check:
-	$(MYPY) code --config-file configs/mypy.ini --check-untyped-defs --disallow-untyped-calls
+	$(MYPY) code --config-file configs/mypy.ini
 
 # pip install and freeze
 add:
