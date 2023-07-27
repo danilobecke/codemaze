@@ -3,7 +3,7 @@ from __future__ import annotations
 from repository.dto.user_dto import UserDTO
 
 class JoinRequestVO:
-    def __init__(self):
+    def __init__(self) -> None:
         self.id = -1
         self.student = ""
 

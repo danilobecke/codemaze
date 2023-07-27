@@ -3,7 +3,7 @@ from __future__ import annotations
 from repository.dto.group_dto import GroupDTO
 
 class GroupVO:
-    def __init__(self):
+    def __init__(self) -> None:
         self.id = -1
         self.active = True
         self.name = ''

@@ -13,7 +13,7 @@ from services.task_service import TaskService
 from services.tcase_service import TCaseService
 
 class Router:
-    def __init__(self, app: Flask):
+    def __init__(self, app: Flask) -> None:
         self.__api = Api(
         app=app,
         doc='/docs',
@@ -33,7 +33,7 @@ class Router:
         self.__task_service = TaskService()
         self.__tcase_service = TCaseService()
 
-    def create_routes(self):
+    def create_routes(self) -> None:
         ManagerEndpoints(self.__api).register_resources()
         SessionEndpoints(self.__api).register_resources()
         StudentEndpoints(self.__api).register_resources()

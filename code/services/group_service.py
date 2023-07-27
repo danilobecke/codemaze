@@ -11,7 +11,7 @@ from repository.group_repository import GroupRepository
 CODE_LENGTH = 6
 
 class GroupService:
-    def __init__(self):
+    def __init__(self) -> None:
         self.__group_repository = GroupRepository()
 
     def __new_code(self) -> str:

@@ -8,7 +8,7 @@ from repository.dto.test_case import TestCaseDTO
 from repository.tcase_repository import TCaseRepository
 
 class TCaseService:
-    def __init__(self):
+    def __init__(self) -> None:
         self.__tcase_repository = TCaseRepository()
 
     def __assert_is_manager(self, user: UserVO, group: GroupVO):

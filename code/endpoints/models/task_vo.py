@@ -5,12 +5,12 @@ from helpers.commons import task_download_url
 from repository.dto.task import TaskDTO
 
 class TaskVO:
-    def __init__(self):
+    def __init__(self) -> None:
         self.id = -1
         self.name = ""
-        self.max_attempts = None
+        self.max_attempts: int | None = None
         self.starts_on: datetime | None = datetime.now()
-        self.ends_on = None
+        self.ends_on: datetime | None = None
         self.file_url = ""
         self.group_id = -1
 

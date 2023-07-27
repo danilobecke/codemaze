@@ -10,7 +10,7 @@ from repository.database import Database
 M = TypeVar('M', bound=Base)
 
 class AbstractRepository(Generic[M]):
-    def __init__(self, klass):
+    def __init__(self, klass) -> None:
         self.__class = klass
         self._session = unwrap(Database.shared).session
 
@@ -23,7 +23,7 @@ class AbstractRepository(Generic[M]):
             raise NotFound()
         return model
 
-    def add(self, model: M, raise_unique_violation_error: bool = False):
+    def add(self, model: M, raise_unique_violation_error: bool = False) -> M:
         try:
             self._session.add(model)
             self._session.commit()
@@ -35,7 +35,7 @@ class AbstractRepository(Generic[M]):
             self._session.rollback()
             raise ServerError() from e
 
-    def delete(self, id: int):
+    def delete(self, id: int) -> None:
         obj = self.find(id)
         try:
             self._session.delete(obj)
@@ -44,7 +44,7 @@ class AbstractRepository(Generic[M]):
             self._session.rollback()
             raise ServerError() from e
 
-    def update_session(self):
+    def update_session(self) -> None:
         try:
             self._session.commit()
         except Exception as e:

@@ -12,7 +12,7 @@ from repository.dto.task import TaskDTO
 from repository.task_repository import TaskRepository
 
 class TaskService:
-    def __init__(self):
+    def __init__(self) -> None:
         self.__task_repository = TaskRepository()
 
     def __assert_is_manager(self, user: UserVO, group: GroupVO):

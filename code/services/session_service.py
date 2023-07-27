@@ -9,7 +9,7 @@ from services.user_service import UserService
 class SessionService:
     shared: SessionService | None = None
 
-    def __init__(self, key: str):
+    def __init__(self, key: str) -> None:
         self.__jwt_service = JWTService(key)
         self.__user_service = UserService()
 

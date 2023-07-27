@@ -33,5 +33,5 @@ class StudentEndpoints:
         _namespace.add_model('User', user_model)
         _namespace.add_model('Sign Up', signup_model)
 
-    def register_resources(self):
+    def register_resources(self) -> None:
         _namespace.add_resource(StudentResource, '')

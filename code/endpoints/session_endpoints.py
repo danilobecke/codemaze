@@ -43,5 +43,5 @@ class SessionEndpoints:
     def __init__(self, api: Api):
         api.add_namespace(_namespace)
 
-    def register_resources(self):
+    def register_resources(self) -> None:
         _namespace.add_resource(SessionResource, '')

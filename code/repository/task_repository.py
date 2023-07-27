@@ -2,7 +2,7 @@ from repository.abstract_repository import AbstractRepository
 from repository.dto.task import TaskDTO
 
 class TaskRepository(AbstractRepository):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(TaskDTO)
 
     def get_tasks(self, group_id: int) -> list[TaskDTO]:

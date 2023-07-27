@@ -7,7 +7,7 @@ EXPIRATION_DELTA: datetime.timedelta = datetime.timedelta(days=0, hours=0, minut
 ALGORITHM: str = 'HS256'
 
 class JWTService:
-    def __init__(self, key:str):
+    def __init__(self, key:str) -> None:
         self.__key = key
 
     def create_token(self, user_id: int) -> str:

@@ -4,7 +4,7 @@ from helpers.role import Role
 from repository.dto.user_dto import UserDTO
 
 class UserVO:
-    def __init__(self):
+    def __init__(self) -> None:
         self.id = -1
         self.email = ''
         self.name = ''

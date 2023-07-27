@@ -10,7 +10,7 @@ from repository.dto.student_group import student_group
 
 # pylint: disable=singleton-comparison
 class GroupRepository(AbstractRepository):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(GroupDTO)
 
     def add_join_request(self, code: str, student_id: int):

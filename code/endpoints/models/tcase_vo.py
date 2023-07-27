@@ -4,7 +4,7 @@ from helpers.commons import test_download_url_in, test_download_url_out
 from repository.dto.test_case import TestCaseDTO
 
 class TCaseVO:
-    def __init__(self):
+    def __init__(self) -> None:
         self.id = -1
         self.input_url: str | None = None
         self.output_url: str | None = None

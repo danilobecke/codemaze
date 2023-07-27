@@ -86,7 +86,7 @@ class TCaseEndpoints:
         TestsResource._task_service = task_service
         TestsResource._tcase_service = tcase_service
 
-    def register_resources(self):
+    def register_resources(self) -> None:
         self.__tasks_namespace.add_resource(TestsResource, '/<int:task_id>/tests')
         _namespace.add_resource(TestDownloadInResource, '/<int:id>/in')
         _namespace.add_resource(TestDownloadOutResource, '/<int:id>/out')

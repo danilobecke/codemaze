@@ -11,7 +11,7 @@ import repository.table_builder # must be imported to initialize the database
 class Database:
     shared: Database | None = None
 
-    def __init__(self, db_string: str, resetting: bool):
+    def __init__(self, db_string: str, resetting: bool) -> None:
         connection = self.__create_connection(db_string, resetting)
         self.session = sessionmaker(bind=connection)()
 

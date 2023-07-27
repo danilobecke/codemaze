@@ -37,5 +37,5 @@ class ManagerEndpoints:
         api.add_namespace(_namespace)
         _namespace.add_model('User', user_model)
 
-    def register_resources(self):
+    def register_resources(self) -> None:
         _namespace.add_resource(ManagerResource, '')

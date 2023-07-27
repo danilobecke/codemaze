@@ -8,7 +8,7 @@ from repository.student_repository import StudentRepository
 from repository.user_repository import UserRepository
 
 class UserService:
-    def __init__(self):
+    def __init__(self) -> None:
         self.__user_repository = UserRepository()
         self.__manager_repository = ManagerRepository()
         self.__student_repository = StudentRepository()
