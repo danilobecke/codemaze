@@ -1,6 +1,7 @@
 from flask import abort
 from flask_restx import Api, Resource, Namespace, fields
 
+from endpoints.models.user import UserVO
 from helpers.email_validation_decorator import validate_email
 from helpers.exceptions import Forbidden, ServerError
 from helpers.unwrapper import json_unwrapped, unwrap
@@ -29,7 +30,7 @@ class SessionResource(Resource):
     @_namespace.response(500, 'Server error')
     @_namespace.marshal_with(user_model)
     @validate_email()
-    def post(self):
+    def post(self) -> UserVO:
         email = json_unwrapped()['email']
         password = json_unwrapped()['password']
         try:

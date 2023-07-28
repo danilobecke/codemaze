@@ -50,7 +50,7 @@ class SessionService:
                 return self.__user_service.get_student(user_id)
 
     @staticmethod
-    def initialize(key: str):
+    def initialize(key: str) -> None:
         if SessionService.shared is not None:
             return
         SessionService.shared = SessionService(key)

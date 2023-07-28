@@ -1,6 +1,7 @@
 from flask import abort
 from flask_restx import Api, Resource, Namespace, fields
 
+from endpoints.models.user import UserVO
 from endpoints.session_endpoints import user_model
 from helpers.email_validation_decorator import validate_email
 from helpers.exceptions import ServerError
@@ -23,7 +24,7 @@ class ManagerResource(Resource):
     @_namespace.response(500, 'Error')
     @_namespace.marshal_with(user_model, code=201)
     @validate_email()
-    def post(self):
+    def post(self) -> tuple[UserVO, int]:
         name = json_unwrapped()['name']
         email = json_unwrapped()['email']
         password = json_unwrapped()['password']
@@ -33,7 +34,7 @@ class ManagerResource(Resource):
             abort(500, str(e))
 
 class ManagerEndpoints:
-    def __init__(self, api: Api):
+    def __init__(self, api: Api) -> None:
         api.add_namespace(_namespace)
         _namespace.add_model('User', user_model)
 

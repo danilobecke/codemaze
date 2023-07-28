@@ -5,7 +5,7 @@ class TestManager:
     __email = f'{__name}@email.com'
     __password = f'pass{__name}'
 
-    def test_create_manager_should_create(self):
+    def test_create_manager_should_create(self) -> None:
         payload = {
             'name': self.__name,
             'email': self.__email,
@@ -15,7 +15,7 @@ class TestManager:
 
         assert_user_response(response, self.__name, self.__email, 'manager')
 
-    def test_login_should_work(self):
+    def test_login_should_work(self) -> None:
         payload = {
             'email': self.__email,
             'password': self.__password
@@ -24,7 +24,7 @@ class TestManager:
 
         assert_user_response(response, self.__name, self.__email, 'manager', 200)
 
-    def test_create_manager_missing_name_should_return_bad_request(self):
+    def test_create_manager_missing_name_should_return_bad_request(self) -> None:
         payload = {
             'email': self.__email,
             'password': self.__password
@@ -33,7 +33,7 @@ class TestManager:
 
         assert response[0] == 400
 
-    def test_create_manager_missing_email_should_return_bad_request(self):
+    def test_create_manager_missing_email_should_return_bad_request(self) -> None:
         payload = {
             'name': self.__name,
             'password': self.__password
@@ -42,7 +42,7 @@ class TestManager:
 
         assert response[0] == 400
 
-    def test_create_manager_missing_password_should_return_bad_request(self):
+    def test_create_manager_missing_password_should_return_bad_request(self) -> None:
         payload = {
             'name': self.__name,
             'email': self.__email
@@ -51,7 +51,7 @@ class TestManager:
 
         assert response[0] == 400
 
-    def test_create_manager_same_email_should_return_server_error(self):
+    def test_create_manager_same_email_should_return_server_error(self) -> None:
         payload = {
             'name': self.__name,
             'email': self.__email,
@@ -61,7 +61,7 @@ class TestManager:
 
         assert response[0] == 500
 
-    def test_create_manager_with_invalid_email_should_return_bad_request(self):
+    def test_create_manager_with_invalid_email_should_return_bad_request(self) -> None:
         payload = {
             'name': get_random_name(),
             'email': 'invalid-email',

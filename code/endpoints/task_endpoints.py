@@ -1,8 +1,10 @@
 from flask import abort, send_file
+from flask.wrappers import Response
 from flask_restx import Api, Resource, Namespace, inputs, fields
 from flask_restx.reqparse import RequestParser
 from werkzeug.datastructures import FileStorage
 
+from endpoints.models.task_vo import TaskVO
 from endpoints.models.user import UserVO
 from helpers.authenticator_decorator import authentication_required
 from helpers.exceptions import NotFound, ServerError, Forbidden, InvalidFileExtension, InvalidFileSize
@@ -17,7 +19,7 @@ _namespace = Namespace('tasks', description='')
 _new_task_parser = _namespace.parser()
 _update_task_parser = _namespace.parser()
 
-def _set_up_task_parser(parser: RequestParser, updating: bool):
+def _set_up_task_parser(parser: RequestParser, updating: bool) -> None:
     required = not updating
     parser.add_argument('name', type=str, required=required, location='form')
     parser.add_argument('max_attempts', type=int, required=False, location='form')
@@ -55,7 +57,7 @@ class TasksResource(Resource):
     @_namespace.doc(security='bearer')
     @_namespace.marshal_with(_task_model, code=201)
     @authentication_required(Role.MANAGER)
-    def post(self, group_id: int, user: UserVO):
+    def post(self, group_id: int, user: UserVO) -> tuple[TaskVO, int]:
         args = _new_task_parser.parse_args()
         name = args['name']
         max_attempts = args.get('max_attempts')
@@ -86,7 +88,7 @@ class TasksResource(Resource):
     @_namespace.doc(security='bearer')
     @_namespace.marshal_with(_task_model, as_list=True, envelope='tasks')
     @authentication_required()
-    def get(self, group_id: int, user: UserVO):
+    def get(self, group_id: int, user: UserVO) -> list[TaskVO]:
         try:
             group = unwrap(TasksResource._group_service).get_group(group_id)
             user_groups = unwrap(TasksResource._group_service).get_all(user)
@@ -109,7 +111,7 @@ class TaskDownloadResource(Resource):
     @_namespace.response(500, 'Error')
     @_namespace.doc(security='bearer')
     @authentication_required()
-    def get(self, id: int, user: UserVO):
+    def get(self, id: int, user: UserVO) -> Response:
         try:
             user_groups = unwrap(TaskDownloadResource._group_service).get_all(user)
             name, path = unwrap(TaskDownloadResource._task_service).get_task_name_path(id, user_groups)
@@ -142,7 +144,7 @@ class TaskResource(Resource):
     @_namespace.doc(security='bearer')
     @_namespace.marshal_with(_task_model)
     @authentication_required(Role.MANAGER)
-    def patch(self, id: int, user: UserVO):
+    def patch(self, id: int, user: UserVO) -> TaskVO:
         args = _update_task_parser.parse_args()
         name = args['name']
         max_attempts = args.get('max_attempts')
@@ -166,7 +168,7 @@ class TaskResource(Resource):
             abort(500, str(e))
 
 class TaskEndpoints:
-    def __init__(self, api: Api, groups_namespace: Namespace, group_service: GroupService, task_service: TaskService):
+    def __init__(self, api: Api, groups_namespace: Namespace, group_service: GroupService, task_service: TaskService) -> None:
         _set_up_task_parser(_new_task_parser, updating=False)
         _set_up_task_parser(_update_task_parser, updating=True)
         api.add_namespace(_namespace)

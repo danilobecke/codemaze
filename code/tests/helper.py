@@ -130,7 +130,7 @@ def create_expired_token(user_id: str) -> str:
     time.sleep(0.2) # expire the token
     return token
 
-def create_join_request_group_id(student_token: str, manager_token: str, approve: bool = False):
+def create_join_request_group_id(student_token: str, manager_token: str, approve: bool = False) -> str:
     group_id, code = get_new_group_id_code(get_random_name(), manager_token)
     join_payload = {
         'code': code
@@ -157,7 +157,7 @@ def create_task_json(manager_token: str, group_id: str | None = None) -> Mapping
 
 ## Asserts
 
-def assert_user_response(response: HTTPResponse, name: str, email: str, role: str, status_code: int = 201):
+def assert_user_response(response: HTTPResponse, name: str, email: str, role: str, status_code: int = 201) -> None:
     assert response[0] == status_code
     data = response[1]
     assert data['id'] is not None

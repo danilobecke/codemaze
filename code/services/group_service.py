@@ -31,7 +31,7 @@ class GroupService:
         except Exception as e:
             raise e
 
-    def add_join_request(self, code: str, student_id: int):
+    def add_join_request(self, code: str, student_id: int) -> None:
         self.__group_repository.add_join_request(code, student_id)
 
     def get_students_with_join_request(self, group_id: int, manager_id: int) -> list[JoinRequestVO]:
@@ -40,7 +40,7 @@ class GroupService:
         students = self.__group_repository.get_students_with_join_request(group_id)
         return list(map(lambda student: JoinRequestVO.import_from_student(student), students))
 
-    def update_join_request(self, group_id: int, student_id: int, manager_id: int, approved: bool):
+    def update_join_request(self, group_id: int, student_id: int, manager_id: int, approved: bool) -> None:
         if self.__group_repository.find(group_id).manager_id != manager_id:
             raise Forbidden()
         if approved:
@@ -48,7 +48,7 @@ class GroupService:
         else:
             self.__group_repository.remove_join_request(group_id, student_id)
 
-    def update_group_active(self, group_id: int, manager_id: int, active: bool):
+    def update_group_active(self, group_id: int, manager_id: int, active: bool) -> None:
         dto: GroupDTO = self.__group_repository.find(group_id)
         if dto.manager_id != manager_id:
             raise Forbidden()

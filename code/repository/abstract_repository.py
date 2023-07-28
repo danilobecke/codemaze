@@ -10,7 +10,7 @@ from repository.database import Database
 M = TypeVar('M', bound=Base)
 
 class AbstractRepository(Generic[M]):
-    def __init__(self, klass) -> None:
+    def __init__(self, klass: M) -> None:
         self.__class = klass
         self._session = unwrap(Database.shared).session
 

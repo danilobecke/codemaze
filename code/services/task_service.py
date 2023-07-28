@@ -15,7 +15,7 @@ class TaskService:
     def __init__(self) -> None:
         self.__task_repository = TaskRepository()
 
-    def __assert_is_manager(self, user: UserVO, group: GroupVO):
+    def __assert_is_manager(self, user: UserVO, group: GroupVO) -> None:
         if group.manager_id != user.id:
             raise Forbidden()
 

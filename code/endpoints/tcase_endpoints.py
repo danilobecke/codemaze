@@ -3,6 +3,7 @@ from flask_restx import Api, Namespace, Resource, inputs, fields
 from flask_restx.reqparse import RequestParser
 from werkzeug.datastructures import FileStorage
 
+from endpoints.models.tcase_vo import TCaseVO
 from endpoints.models.user import UserVO
 from helpers.authenticator_decorator import authentication_required
 from helpers.exceptions import Forbidden, NotFound, ServerError, InvalidFileSize, InvalidFileExtension
@@ -17,7 +18,7 @@ _namespace = Namespace('tests', description='')
 
 _new_test_parser = _namespace.parser()
 
-def _set_up_test_parser(parser: RequestParser):
+def _set_up_test_parser(parser: RequestParser) -> None:
     parser.add_argument('input', type=FileStorage, required=True, location='files')
     parser.add_argument('output', type=FileStorage, required=True, location='files')
     parser.add_argument('closed', type=inputs.boolean, required=True, location='form')
@@ -47,7 +48,7 @@ class TestsResource(Resource):
     @_namespace.marshal_with(_test_model, code=201)
     @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
-    def post(self, task_id: int, user: UserVO):
+    def post(self, task_id: int, user: UserVO) -> tuple[TCaseVO, int]:
         args = _new_test_parser.parse_args()
         input_storage: FileStorage = args['input']
         output_storage: FileStorage = args['output']
@@ -70,15 +71,15 @@ class TestsResource(Resource):
             abort(500, str(e))
 
 class TestDownloadInResource(Resource):
-    def get(self, id: int):
+    def get(self, id: int) -> None:
         pass # Download input
 
 class TestDownloadOutResource(Resource):
-    def get(self, id: int):
+    def get(self, id: int) -> None:
         pass # Download output
 
 class TCaseEndpoints:
-    def __init__(self, api: Api, tasks_namespace: Namespace, group_service: GroupService, task_service: TaskService, tcase_service: TCaseService):
+    def __init__(self, api: Api, tasks_namespace: Namespace, group_service: GroupService, task_service: TaskService, tcase_service: TCaseService) -> None:
         _set_up_test_parser(_new_test_parser)
         api.add_namespace(_namespace)
         self.__tasks_namespace = tasks_namespace

@@ -3,7 +3,7 @@ from io import BytesIO
 from tests.helper import get_manager_id_token, create_task_json, post, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_student_id_token, create_join_request_group_id, get_random_manager_token
 
 class TestTCase:
-    def test_add_open_test_case_should_succeed_with_urls(self):
+    def test_add_open_test_case_should_succeed_with_urls(self) -> None:
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
         payload = {
@@ -21,7 +21,7 @@ class TestTCase:
         assert json['input_url'] == f'/tests/{test_id}/in'
         assert json['output_url'] == f'/tests/{test_id}/out'
 
-    def test_add_closed_test_case_should_succeed_without_urls(self):
+    def test_add_closed_test_case_should_succeed_without_urls(self) -> None:
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
         payload = {
@@ -39,7 +39,7 @@ class TestTCase:
         assert json['input_url'] is None
         assert json['output_url'] is None
 
-    def test_add_test_case_without_input_should_return_bad_request(self):
+    def test_add_test_case_without_input_should_return_bad_request(self) -> None:
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
         payload = {
@@ -51,7 +51,7 @@ class TestTCase:
 
         assert response[0] == 400
 
-    def test_add_test_case_without_output_should_return_bad_request(self):
+    def test_add_test_case_without_output_should_return_bad_request(self) -> None:
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
         payload = {
@@ -63,7 +63,7 @@ class TestTCase:
 
         assert response[0] == 400
 
-    def test_add_test_case_without_closed_should_return_bad_request(self):
+    def test_add_test_case_without_closed_should_return_bad_request(self) -> None:
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
         payload = {
@@ -75,7 +75,7 @@ class TestTCase:
 
         assert response[0] == 400
 
-    def test_add_test_case_with_invalid_input_extension_should_return_unprocessable_entity(self):
+    def test_add_test_case_with_invalid_input_extension_should_return_unprocessable_entity(self) -> None:
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
         payload = {
@@ -88,7 +88,7 @@ class TestTCase:
 
         assert response[0] == 422
 
-    def test_add_test_case_with_invalid_output_extension_should_return_unprocessable_entity(self):
+    def test_add_test_case_with_invalid_output_extension_should_return_unprocessable_entity(self) -> None:
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
         payload = {
@@ -101,7 +101,7 @@ class TestTCase:
 
         assert response[0] == 422
 
-    def test_add_test_case_with_invalid_input_size_should_return_invalid_file_size(self):
+    def test_add_test_case_with_invalid_input_size_should_return_invalid_file_size(self) -> None:
         filepath = get_filepath_of_size(round(1.1 * 1024 * 1024)) # 1.1 MB
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
@@ -115,7 +115,7 @@ class TestTCase:
 
             assert response[0] == 413
 
-    def test_add_test_case_with_invalid_output_size_should_return_invalid_file_size(self):
+    def test_add_test_case_with_invalid_output_size_should_return_invalid_file_size(self) -> None:
         filepath = get_filepath_of_size(round(1.1 * 1024 * 1024)) # 1.1 MB
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
@@ -129,7 +129,7 @@ class TestTCase:
 
             assert response[0] == 413
 
-    def test_add_test_case_with_invalid_id_should_return_not_found(self):
+    def test_add_test_case_with_invalid_id_should_return_not_found(self) -> None:
         manager_token = get_manager_id_token()[1]
         payload = {
             'input': (BytesIO(b'Input.'), 'input.in'),
@@ -141,7 +141,7 @@ class TestTCase:
 
         assert response[0] == 404
 
-    def test_add_test_case_with_student_should_return_unauthorized(self):
+    def test_add_test_case_with_student_should_return_unauthorized(self) -> None:
         manager_token = get_manager_id_token()[1]
         student_token = get_student_id_token()[1]
         group_id = create_join_request_group_id(student_token, manager_token, approve=True)
@@ -157,7 +157,7 @@ class TestTCase:
 
         assert response[0] == 401
 
-    def test_add_test_case_with_non_manager_should_return_forbidden(self):
+    def test_add_test_case_with_non_manager_should_return_forbidden(self) -> None:
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
         random_manager = get_random_manager_token()
