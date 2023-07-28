@@ -2,7 +2,7 @@ from helpers.exceptions import NotFound
 from repository.abstract_repository import AbstractRepository
 from repository.dto.user_dto import UserDTO
 
-class UserRepository(AbstractRepository):
+class UserRepository(AbstractRepository[UserDTO]):
     def __init__(self) -> None:
         super().__init__(UserDTO)
 

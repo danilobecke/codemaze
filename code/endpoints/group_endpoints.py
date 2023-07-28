@@ -47,7 +47,7 @@ _public_student_model = _namespace.model('Public Student', {
     'email': fields.String(required=True)
 })
 
-class GroupsResource(Resource):
+class GroupsResource(Resource): # type: ignore
     _group_service: GroupService | None = None
 
     @_namespace.doc(description='*Managers only*\nCreate a new group.')
@@ -86,7 +86,7 @@ class GroupsResource(Resource):
         except ServerError as e:
             abort(500, str(e))
 
-class GroupResource(Resource):
+class GroupResource(Resource): # type: ignore
     _group_service: GroupService | None = None
 
     @_namespace.doc(description='*Managers only*\nUpdate the group `active` status.')
@@ -127,7 +127,7 @@ class GroupResource(Resource):
         except ServerError as e:
             abort(500, str(e))
 
-class JoinResource(Resource):
+class JoinResource(Resource): # type: ignore
     _group_service: GroupService | None = None
 
     @_namespace.doc(description='*Students only*\nAsk to join a group.')
@@ -152,7 +152,7 @@ class JoinResource(Resource):
         except ServerError as e:
             abort(500, str(e))
 
-class RequestsResource(Resource):
+class RequestsResource(Resource): # type: ignore
     _group_service: GroupService | None = None
 
     @_namespace.doc(description='*Managers only*\nRetrieve a list of join requests.')
@@ -173,7 +173,7 @@ class RequestsResource(Resource):
         except ServerError as e:
             abort(500, str(e))
 
-class RequestResource(Resource):
+class RequestResource(Resource): # type: ignore
     _group_service: GroupService | None = None
 
     @_namespace.doc(description='*Managers only*\nApprove or decline a join request.')
@@ -198,7 +198,7 @@ class RequestResource(Resource):
         except ServerError as e:
             abort(500, str(e))
 
-class GroupStudentResource(Resource):
+class GroupStudentResource(Resource): # type: ignore
     _group_service: GroupService | None = None
 
     @_namespace.doc(description='*Managers only*\nGet a students\' list of the current group.')

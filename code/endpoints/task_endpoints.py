@@ -36,7 +36,7 @@ _task_model = _namespace.model('Task', {
     'file_url': fields.String(required=True),
 })
 
-class TasksResource(Resource):
+class TasksResource(Resource): # type: ignore
     _group_service: GroupService | None = None
     _task_service: TaskService | None = None
 
@@ -100,7 +100,7 @@ class TasksResource(Resource):
         except ServerError as e:
             abort(500, str(e))
 
-class TaskDownloadResource(Resource):
+class TaskDownloadResource(Resource): # type: ignore
     _group_service: GroupService | None = None
     _task_service: TaskService | None = None
 
@@ -123,7 +123,7 @@ class TaskDownloadResource(Resource):
         except ServerError as e:
             abort(500, str(e))
 
-class TaskResource(Resource):
+class TaskResource(Resource): # type: ignore
     _group_service: GroupService | None = None
     _task_service: TaskService | None = None
 

@@ -158,7 +158,7 @@ class TestTask:
         response = get(task['file_url'], manager_id_token[1], decode_as_json=False)
 
         assert response[0] == 200
-        assert response[1] == content
+        assert str(response[1]) == content
 
     def test_download_task_with_non_manager_should_return_forbidden(self) -> None:
         manager_id_token = get_manager_id_token()
@@ -213,7 +213,7 @@ class TestTask:
         response = get(task['file_url'], manager_id_token[1], decode_as_json=False)
 
         assert response[0] == 200
-        assert response[1] == content
+        assert str(response[1]) == content
 
     def test_update_task_should_update(self) -> None:
         manager_id_token = get_manager_id_token()
@@ -251,7 +251,7 @@ class TestTask:
         download_response = get(json['file_url'], manager_id_token[1], decode_as_json=False)
 
         assert download_response[0] == 200
-        assert download_response[1] == new_content
+        assert str(download_response[1]) == new_content
 
     def test_update_task_with_empty_payload_should_succeed(self) -> None:
         manager_id_token = get_manager_id_token()
@@ -279,7 +279,7 @@ class TestTask:
         download_response = get(json['file_url'], manager_id_token[1], decode_as_json=False)
 
         assert download_response[0] == 200
-        assert download_response[1] == content
+        assert str(download_response[1]) == content
 
     def test_update_task_file_with_empty_filename_should_return_unprocessable_entity(self) -> None:
         manager_id_token = get_manager_id_token()

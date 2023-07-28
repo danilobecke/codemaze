@@ -1,7 +1,7 @@
 from repository.abstract_repository import AbstractRepository
 from repository.dto.task import TaskDTO
 
-class TaskRepository(AbstractRepository):
+class TaskRepository(AbstractRepository[TaskDTO]):
     def __init__(self) -> None:
         super().__init__(TaskDTO)
 

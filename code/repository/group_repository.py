@@ -9,7 +9,7 @@ from repository.dto.student import StudentDTO
 from repository.dto.student_group import student_group
 
 # pylint: disable=singleton-comparison
-class GroupRepository(AbstractRepository):
+class GroupRepository(AbstractRepository[GroupDTO]):
     def __init__(self) -> None:
         super().__init__(GroupDTO)
 

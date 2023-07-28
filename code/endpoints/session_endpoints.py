@@ -22,7 +22,7 @@ _signin_model = _namespace.model('Sign In', {
      'password': fields.String(required=True)
 })
 
-class SessionResource(Resource):
+class SessionResource(Resource): # type: ignore
     @_namespace.doc(description='Create a new session (log in).')
     @_namespace.expect(_signin_model, validate=True)
     @_namespace.response(400, 'Error')

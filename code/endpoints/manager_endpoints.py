@@ -17,7 +17,7 @@ signup_model = _namespace.model('Sign Up', {
      'password': fields.String(required=True)
 })
 
-class ManagerResource(Resource):
+class ManagerResource(Resource): # type: ignore
     @_namespace.doc(description='Create a new manager.')
     @_namespace.expect(signup_model, validate=True)
     @_namespace.response(400, 'Error')

@@ -12,7 +12,7 @@ from services.session_service import SessionService
 
 _namespace = Namespace('students', description='')
 
-class StudentResource(Resource):
+class StudentResource(Resource): # type: ignore
     @_namespace.doc(description='Create a new student.')
     @_namespace.expect(signup_model, validate=True)
     @_namespace.response(400, 'Error')

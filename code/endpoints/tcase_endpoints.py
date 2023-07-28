@@ -30,7 +30,7 @@ _test_model = _namespace.model('Test Case', {
     'output_url': fields.String(required=False)
 })
 
-class TestsResource(Resource):
+class TestsResource(Resource): # type: ignore
     _group_service: GroupService | None
     _task_service: TaskService | None
     _tcase_service: TCaseService | None
@@ -70,11 +70,11 @@ class TestsResource(Resource):
         except ServerError as e:
             abort(500, str(e))
 
-class TestDownloadInResource(Resource):
+class TestDownloadInResource(Resource): # type: ignore
     def get(self, id: int) -> None:
         pass # Download input
 
-class TestDownloadOutResource(Resource):
+class TestDownloadOutResource(Resource): # type: ignore
     def get(self, id: int) -> None:
         pass # Download output
 
