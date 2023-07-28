@@ -1,4 +1,6 @@
 import datetime
+from typing import Any
+
 import jwt
 
 from helpers.exceptions import ServerError, Unauthorized
@@ -23,8 +25,8 @@ class JWTService:
 
     def decode_token(self, token: str) -> int:
         try:
-            payload = jwt.decode(token, key=self.__key, algorithms=[ALGORITHM])
-            return payload['sub']
+            payload: dict[str, Any] = jwt.decode(token, key=self.__key, algorithms=[ALGORITHM])
+            return int(payload['sub'])
         except jwt.ExpiredSignatureError as e:
             raise Unauthorized() from e
         except jwt.InvalidTokenError as e:

@@ -15,10 +15,11 @@ class AbstractRepository(Generic[M]):
         self._session = unwrap(Database.shared).session
 
     def find_all(self) -> list[M]:
-        return self._session.query(self.__class).all()
+        results: list[M] = self._session.query(self.__class).all()
+        return results
 
     def find(self, id: int) -> M:
-        model = self._session.query(self.__class).get(id)
+        model: M | None = self._session.query(self.__class).get(id)
         if model is None:
             raise NotFound()
         return model

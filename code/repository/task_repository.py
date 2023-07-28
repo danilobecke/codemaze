@@ -6,4 +6,5 @@ class TaskRepository(AbstractRepository):
         super().__init__(TaskDTO)
 
     def get_tasks(self, group_id: int) -> list[TaskDTO]:
-        return self._session.query(TaskDTO).filter_by(group_id=group_id).all()
+        result: list[TaskDTO] = self._session.query(TaskDTO).filter_by(group_id=group_id).all()
+        return result

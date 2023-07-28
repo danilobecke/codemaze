@@ -7,7 +7,7 @@ class UserRepository(AbstractRepository):
         super().__init__(UserDTO)
 
     def find_email(self, email: str) -> UserDTO:
-        user = self._session.query(UserDTO).filter_by(email=email).first()
+        user: UserDTO | None = self._session.query(UserDTO).filter_by(email=email).first()
         if user is None:
             raise NotFound()
         return user

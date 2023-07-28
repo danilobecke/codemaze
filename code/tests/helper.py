@@ -111,7 +111,7 @@ def get_random_manager_token() -> str:
         'password': 'password'
     }
     response = post('/managers', payload)
-    return response[1]['token']
+    return str(response[1]['token'])
 
 def get_new_group_id_code(name: str, token: str) -> tuple[str, str]:
     payload = {

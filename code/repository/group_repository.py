@@ -30,9 +30,10 @@ class GroupRepository(AbstractRepository):
 
     def get_students_with_join_request(self, group_id: int, approved: bool = False) -> list[StudentDTO]:
         stm = select(student_group.columns).where(student_group.columns["group_id"] == group_id).where(student_group.columns["approved"] == approved)
-        result = self._session.execute(stm)
-        students = list(map(lambda row: row.student_id, result.all()))
-        return self._session.query(StudentDTO).filter(StudentDTO.id.in_(students)).all()
+        join_requests = self._session.execute(stm)
+        students = list(map(lambda row: row.student_id, join_requests.all()))
+        result: list[StudentDTO] = self._session.query(StudentDTO).filter(StudentDTO.id.in_(students)).all()
+        return result
 
     def __find_opened_join_request(self, group_id: int, student_id: int) -> None:
         stm = select(student_group.columns).where(student_group.columns["group_id"] == group_id).where(student_group.columns["student_id"] == student_id).where(student_group.columns["approved"] == False)
@@ -61,11 +62,13 @@ class GroupRepository(AbstractRepository):
             raise ServerError() from e
 
     def get_groups_for_user(self, id: int, role: Role) -> list[GroupDTO]:
+        result: list[GroupDTO] = []
         match role:
             case Role.MANAGER:
-                return self._session.query(GroupDTO).filter_by(manager_id=id).all()
+                result = self._session.query(GroupDTO).filter_by(manager_id=id).all()
             case Role.STUDENT:
                 stm = select(student_group.columns).where(student_group.columns["student_id"] == id).where(student_group.columns["approved"] == True)
-                result = self._session.execute(stm)
-                groups = list(map(lambda row: row.group_id, result.all()))
-                return self._session.query(GroupDTO).filter(GroupDTO.id.in_(groups)).all()
+                join_requests = self._session.execute(stm)
+                groups = list(map(lambda row: row.group_id, join_requests.all()))
+                result = self._session.query(GroupDTO).filter(GroupDTO.id.in_(groups)).all()
+        return result
