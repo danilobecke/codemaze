@@ -52,7 +52,7 @@ Navigate to the root folder and run:
 make test
 ```
 
-### Swagger
+## Swagger
 
 The Swagger documentation is hosted at the `/docs` URL.
 
