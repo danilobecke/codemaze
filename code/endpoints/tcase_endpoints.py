@@ -24,7 +24,7 @@ def _set_up_test_parser(parser: RequestParser) -> None:
     parser.add_argument('output', type=FileStorage, required=True, location='files')
     parser.add_argument('closed', type=inputs.boolean, required=True, location='form')
 
-_test_model = _namespace.model('Test Case', {
+test_model = _namespace.model('Test Case', {
     'id': fields.Integer(required=True),
     'closed': fields.Boolean(required=True),
     'input_url': fields.String(required=False),
@@ -46,7 +46,7 @@ class TestsResource(Resource): # type: ignore
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(500, 'Error')
-    @_namespace.marshal_with(_test_model, code=201)
+    @_namespace.marshal_with(test_model, code=201)
     @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
     def post(self, task_id: int, user: UserVO) -> tuple[TCaseVO, int]:
@@ -76,7 +76,7 @@ class TestsResource(Resource): # type: ignore
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(500, 'Error')
-    @_namespace.marshal_with(_test_model, as_list=True, envelope='tests')
+    @_namespace.marshal_with(test_model, as_list=True, envelope='tests')
     @_namespace.doc(security='bearer')
     @authentication_required()
     def get(self, task_id: int, user: UserVO) -> list[TCaseVO]:

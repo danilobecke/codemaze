@@ -38,5 +38,5 @@ class Router:
         SessionEndpoints(self.__api).register_resources()
         StudentEndpoints(self.__api).register_resources()
         groups_namespace = GroupEndpoints(self.__api, self.__group_service).register_resources()
-        tasks_namespace = TaskEndpoints(self.__api, groups_namespace, self.__group_service, self.__task_service).register_resources()
+        tasks_namespace = TaskEndpoints(self.__api, groups_namespace, self.__group_service, self.__task_service, self.__tcase_service).register_resources()
         TCaseEndpoints(self.__api, tasks_namespace, self.__group_service, self.__task_service, self.__tcase_service).register_resources()

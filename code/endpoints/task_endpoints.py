@@ -4,6 +4,7 @@ from flask_restx import Api, Resource, Namespace, inputs, fields
 from flask_restx.reqparse import RequestParser
 from werkzeug.datastructures import FileStorage
 
+from endpoints.tcase_endpoints import test_model
 from endpoints.models.task_vo import TaskVO
 from endpoints.models.user import UserVO
 from helpers.authenticator_decorator import authentication_required
@@ -13,6 +14,7 @@ from helpers.role import Role
 from helpers.unwrapper import unwrap
 from services.group_service import GroupService
 from services.task_service import TaskService
+from services.tcase_service import TCaseService
 
 _namespace = Namespace('tasks', description='')
 
@@ -34,6 +36,11 @@ _task_model = _namespace.model('Task', {
     'starts_on': fields.DateTime(required=True),
     'ends_on': fields.DateTime,
     'file_url': fields.String(required=True),
+})
+
+_task_details_model = _task_model.inherit('Task Details', {
+    'open_tests': fields.Nested(test_model, as_list=True, skip_none=True, required=False),
+    'closed_tests': fields.Nested(test_model, as_list=True, skip_none=True, required=False)
 })
 
 class TasksResource(Resource): # type: ignore
@@ -126,6 +133,7 @@ class TaskDownloadResource(Resource): # type: ignore
 class TaskResource(Resource): # type: ignore
     _group_service: GroupService | None = None
     _task_service: TaskService | None = None
+    _tcase_service: TCaseService | None = None
 
     @_namespace.doc(description='*Managers only*\nUpdates a task.')
     @_namespace.expect(_update_task_parser, validate=True)
@@ -167,8 +175,29 @@ class TaskResource(Resource): # type: ignore
         except ServerError as e:
             abort(500, str(e))
 
+    @_namespace.doc(description='Returns the details for the given task - test cases included.')
+    @_namespace.response(401, 'Error')
+    @_namespace.response(403, 'Error')
+    @_namespace.response(404, 'Error')
+    @_namespace.response(500, 'Error')
+    @_namespace.marshal_with(_task_details_model)
+    @_namespace.doc(security='bearer')
+    @authentication_required()
+    def get(self, id: int, user: UserVO) -> TaskVO:
+        try:
+            user_groups = unwrap(TaskResource._group_service).get_all(user)
+            task = unwrap(TaskResource._task_service).get_task(id, user_groups)
+            tests = unwrap(TaskResource._tcase_service).get_tests(user.id, task, user_groups)
+            return task.appending_tests(tests)
+        except Forbidden as e:
+            abort(403, str(e))
+        except NotFound as e:
+            abort(404, str(e))
+        except ServerError as e:
+            abort(500, str(e))
+
 class TaskEndpoints:
-    def __init__(self, api: Api, groups_namespace: Namespace, group_service: GroupService, task_service: TaskService) -> None:
+    def __init__(self, api: Api, groups_namespace: Namespace, group_service: GroupService, task_service: TaskService, tcase_service: TCaseService) -> None:
         _set_up_task_parser(_new_task_parser, updating=False)
         _set_up_task_parser(_update_task_parser, updating=True)
         api.add_namespace(_namespace)
@@ -179,6 +208,7 @@ class TaskEndpoints:
         TaskDownloadResource._task_service = task_service
         TaskResource._group_service = group_service
         TaskResource._task_service = task_service
+        TaskResource._tcase_service = tcase_service
 
     def register_resources(self) -> Namespace:
         self.__groups_namespace.add_resource(TasksResource, '/<int:group_id>/tasks')
