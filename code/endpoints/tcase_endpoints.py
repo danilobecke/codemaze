@@ -1,4 +1,5 @@
-from flask import abort
+from flask import abort, send_file
+from flask.wrappers import Response
 from flask_restx import Api, Namespace, Resource, inputs, fields
 from flask_restx.reqparse import RequestParser
 from werkzeug.datastructures import FileStorage
@@ -71,12 +72,52 @@ class TestsResource(Resource): # type: ignore
             abort(500, str(e))
 
 class TestDownloadInResource(Resource): # type: ignore
-    def get(self, id: int) -> None:
-        pass # Download input
+    _group_service: GroupService | None
+    _task_service: TaskService | None
+    _tcase_service: TCaseService | None
+
+    @_namespace.doc(description='Downloads the test input file.')
+    @_namespace.response(401, 'Error')
+    @_namespace.response(403, 'Error')
+    @_namespace.response(404, 'Error')
+    @_namespace.response(500, 'Error')
+    @_namespace.doc(security='bearer')
+    @authentication_required()
+    def get(self, id: int, user: UserVO) -> Response:
+        try:
+            user_groups = unwrap(TestDownloadInResource._group_service).get_all(user)
+            path = unwrap(TestDownloadInResource._tcase_service).get_test_case_in_path(id, user.id, unwrap(TestDownloadInResource._task_service).get_task, user_groups)
+            return send_file(path, download_name='test.in')
+        except Forbidden as e:
+            abort(403, str(e))
+        except NotFound as e:
+            abort(404, str(e))
+        except ServerError as e:
+            abort(500, str(e))
 
 class TestDownloadOutResource(Resource): # type: ignore
-    def get(self, id: int) -> None:
-        pass # Download output
+    _group_service: GroupService | None
+    _task_service: TaskService | None
+    _tcase_service: TCaseService | None
+
+    @_namespace.doc(description='Downloads the test output file.')
+    @_namespace.response(401, 'Error')
+    @_namespace.response(403, 'Error')
+    @_namespace.response(404, 'Error')
+    @_namespace.response(500, 'Error')
+    @_namespace.doc(security='bearer')
+    @authentication_required()
+    def get(self, id: int, user: UserVO) -> Response:
+        try:
+            user_groups = unwrap(TestDownloadOutResource._group_service).get_all(user)
+            path = unwrap(TestDownloadOutResource._tcase_service).get_test_case_out_path(id, user.id, unwrap(TestDownloadOutResource._task_service).get_task, user_groups)
+            return send_file(path, download_name='test.out')
+        except Forbidden as e:
+            abort(403, str(e))
+        except NotFound as e:
+            abort(404, str(e))
+        except ServerError as e:
+            abort(500, str(e))
 
 class TCaseEndpoints:
     def __init__(self, api: Api, tasks_namespace: Namespace, group_service: GroupService, task_service: TaskService, tcase_service: TCaseService) -> None:
@@ -86,6 +127,12 @@ class TCaseEndpoints:
         TestsResource._group_service = group_service
         TestsResource._task_service = task_service
         TestsResource._tcase_service = tcase_service
+        TestDownloadInResource._group_service = group_service
+        TestDownloadInResource._task_service = task_service
+        TestDownloadInResource._tcase_service = tcase_service
+        TestDownloadOutResource._group_service = group_service
+        TestDownloadOutResource._task_service = task_service
+        TestDownloadOutResource._tcase_service = tcase_service
 
     def register_resources(self) -> None:
         self.__tasks_namespace.add_resource(TestsResource, '/<int:task_id>/tests')

@@ -1,3 +1,5 @@
+from typing import Callable
+
 from endpoints.models.group import GroupVO
 from endpoints.models.task_vo import TaskVO
 from endpoints.models.tcase_vo import TCaseVO
@@ -24,3 +26,22 @@ class TCaseService:
         dto.closed = closed
         stored = self.__tcase_repository.add(dto)
         return TCaseVO.import_from_dto(stored, is_manager=True)
+
+    def __get_test_case(self, id: int, user_id: int, get_task_func: Callable[[int], TaskVO], user_groups: list[GroupVO]) -> TestCaseDTO:
+        dto = self.__tcase_repository.find(id)
+        task = get_task_func(dto.task_id)
+        groups = list(filter(lambda _group: _group.id == task.group_id, user_groups))
+        if len(groups) == 0:
+            raise Forbidden()
+        if dto.closed is True and groups[0].manager_id != user_id:
+            # Only managers can download closed tests
+            raise Forbidden()
+        return dto
+
+    def get_test_case_in_path(self, id: int, user_id: int, get_task_func: Callable[[int], TaskVO], user_groups: list[GroupVO]) -> str:
+        dto = self.__get_test_case(id, user_id, get_task_func, user_groups)
+        return dto.input_file_path
+
+    def get_test_case_out_path(self, id: int, user_id: int, get_task_func: Callable[[int], TaskVO], user_groups: list[GroupVO]) -> str:
+        dto = self.__get_test_case(id, user_id, get_task_func, user_groups)
+        return dto.output_file_path

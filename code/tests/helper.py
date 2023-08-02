@@ -155,6 +155,15 @@ def create_task_json(manager_token: str, group_id: str | None = None) -> Mapping
     }
     return post(f'/groups/{group_id}/tasks', payload, manager_token, CONTENT_TYPE_FORM_DATA)[1]
 
+def create_test_case_json(manager_token: str, group_id: str | None = None, closed: bool = False, content_in: str = 'Input.', content_out: str = 'Output.') -> Mapping[str, Any]:
+    task_id = create_task_json(manager_token, group_id)['id']
+    payload = {
+        'input': (BytesIO(content_in.encode('UTF-8')), 'input.in'),
+        'output': (BytesIO(content_out.encode('UTF-8')), 'output.out'),
+        'closed': closed
+    }
+    return post(f'/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)[1]
+
 ## Asserts
 
 def assert_user_response(response: HTTPResponse, name: str, email: str, role: str, status_code: int = 201) -> None:
