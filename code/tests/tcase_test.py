@@ -2,6 +2,7 @@ from io import BytesIO
 
 from tests.helper import get_manager_id_token, create_task_json, post, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_student_id_token, create_join_request_group_id, get_random_manager_token, create_test_case_json, get
 
+# pylint: disable=too-many-public-methods
 class TestTCase:
     def test_add_open_test_case_should_succeed_with_urls(self) -> None:
         manager_token = get_manager_id_token()[1]
@@ -259,3 +260,77 @@ class TestTCase:
 
         assert response_in[0] == 404
         assert response_out[0] == 404
+
+    def test_get_tests_with_manager_should_succeed_with_urls(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        task_id = create_task_json(manager_token)['id']
+        create_test_case_json(manager_token, task_id=task_id, closed=False)
+        create_test_case_json(manager_token, task_id=task_id, closed=True)
+
+        response = get(f'/tasks/{task_id}/tests', manager_token)
+
+        assert response[0] == 200
+        tests = response[1]['tests']
+        assert len(tests) == 2
+        assert all(test['input_url'] is not None for test in tests) is True
+        assert all(test['output_url'] is not None for test in tests) is True
+
+    def test_get_tests_with_student_should_succeed_with_urls_on_open_tests_only(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        student_token = get_student_id_token()[1]
+        group_id = create_join_request_group_id(student_token, manager_token, approve=True)
+        task_id = create_task_json(manager_token, group_id)['id']
+        open_test_id = create_test_case_json(manager_token, task_id=task_id, closed=False)['id']
+        closed_test_id = create_test_case_json(manager_token, task_id=task_id, closed=True)['id']
+
+        response = get(f'/tasks/{task_id}/tests', student_token)
+
+        assert response[0] == 200
+        tests = response[1]['tests']
+        assert len(tests) == 2
+        open_test = list(filter(lambda test: test['id'] == open_test_id, tests))[0]
+        assert open_test['input_url'] is not None
+        assert open_test['output_url'] is not None
+        closed_test = list(filter(lambda test: test['id'] == closed_test_id, tests))[0]
+        assert closed_test['input_url'] is None
+        assert closed_test['output_url'] is None
+
+    def test_get_tests_when_task_has_no_tests_should_return_empty_list(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        student_token = get_student_id_token()[1]
+        group_id = create_join_request_group_id(student_token, manager_token, approve=True)
+        task_id = create_task_json(manager_token, group_id)['id']
+
+        response_manager = get(f'/tasks/{task_id}/tests', manager_token)
+        response_student = get(f'/tasks/{task_id}/tests', student_token)
+
+        assert response_manager[0] == 200
+        assert len(response_manager[1]['tests']) == 0
+        assert response_student[0] == 200
+        assert len(response_student[1]['tests']) == 0
+
+    def test_get_tests_with_non_manager_should_return_forbidden(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        task_id = create_task_json(manager_token)['id']
+        random_manager = get_random_manager_token()
+
+        response = get(f'/tasks/{task_id}/tests', random_manager)
+
+        assert response[0] == 403
+
+    def test_get_tests_with_student_non_member_should_return_forbidden(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        student_token = get_student_id_token()[1]
+        group_id = create_join_request_group_id(student_token, manager_token)
+        task_id = create_task_json(manager_token, group_id)['id']
+
+        response = get(f'/tasks/{task_id}/tests', student_token)
+
+        assert response[0] == 403
+
+    def test_get_tests_with_invalid_task_id_should_return_not_found(self) -> None:
+        manager_token = get_manager_id_token()[1]
+
+        response = get(f'/tasks/{999999}/tests', manager_token)
+
+        assert response[0] == 404

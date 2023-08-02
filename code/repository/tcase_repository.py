@@ -4,3 +4,7 @@ from repository.dto.test_case import TestCaseDTO
 class TCaseRepository(AbstractRepository[TestCaseDTO]):
     def __init__(self) -> None:
         super().__init__(TestCaseDTO)
+
+    def get_tests(self, task_id: int) -> list[TestCaseDTO]:
+        result: list[TestCaseDTO] = self._session.query(TestCaseDTO).filter_by(task_id=task_id).all()
+        return result

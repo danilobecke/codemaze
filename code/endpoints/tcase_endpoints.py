@@ -71,6 +71,26 @@ class TestsResource(Resource): # type: ignore
         except ServerError as e:
             abort(500, str(e))
 
+    @_namespace.doc(description='Returns a list of tests for the current task.')
+    @_namespace.response(401, 'Error')
+    @_namespace.response(403, 'Error')
+    @_namespace.response(404, 'Error')
+    @_namespace.response(500, 'Error')
+    @_namespace.marshal_with(_test_model, as_list=True, envelope='tests')
+    @_namespace.doc(security='bearer')
+    @authentication_required()
+    def get(self, task_id: int, user: UserVO) -> list[TCaseVO]:
+        try:
+            task = unwrap(TestsResource._task_service).get_task(task_id)
+            user_groups = unwrap(TestsResource._group_service).get_all(user)
+            return unwrap(TestsResource._tcase_service).get_tests(user.id, task, user_groups)
+        except Forbidden as e:
+            abort(403, str(e))
+        except NotFound as e:
+            abort(404, str(e))
+        except ServerError as e:
+            abort(500, str(e))
+
 class TestDownloadInResource(Resource): # type: ignore
     _group_service: GroupService | None
     _task_service: TaskService | None

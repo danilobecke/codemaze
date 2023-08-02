@@ -27,13 +27,17 @@ class TCaseService:
         stored = self.__tcase_repository.add(dto)
         return TCaseVO.import_from_dto(stored, is_manager=True)
 
+    def __is_manager(self, user_id: int, group_id: int, user_groups: list[GroupVO]) -> bool:
+        groups = list(filter(lambda _group: _group.id == group_id, user_groups))
+        if len(groups) == 0:
+            raise Forbidden()
+        return groups[0].manager_id == user_id
+
     def __get_test_case(self, id: int, user_id: int, get_task_func: Callable[[int], TaskVO], user_groups: list[GroupVO]) -> TestCaseDTO:
         dto = self.__tcase_repository.find(id)
         task = get_task_func(dto.task_id)
-        groups = list(filter(lambda _group: _group.id == task.group_id, user_groups))
-        if len(groups) == 0:
-            raise Forbidden()
-        if dto.closed is True and groups[0].manager_id != user_id:
+        is_manager = self.__is_manager(user_id, task.group_id, user_groups)
+        if dto.closed is True and is_manager is False:
             # Only managers can download closed tests
             raise Forbidden()
         return dto
@@ -45,3 +49,8 @@ class TCaseService:
     def get_test_case_out_path(self, id: int, user_id: int, get_task_func: Callable[[int], TaskVO], user_groups: list[GroupVO]) -> str:
         dto = self.__get_test_case(id, user_id, get_task_func, user_groups)
         return dto.output_file_path
+
+    def get_tests(self, user_id: int, task: TaskVO, user_groups: list[GroupVO]) -> list[TCaseVO]:
+        is_manager = self.__is_manager(user_id, task.group_id, user_groups)
+        dtos = self.__tcase_repository.get_tests(task.id)
+        return list(map(lambda dto: TCaseVO.import_from_dto(dto, is_manager), dtos))

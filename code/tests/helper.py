@@ -155,8 +155,11 @@ def create_task_json(manager_token: str, group_id: str | None = None) -> Mapping
     }
     return post(f'/groups/{group_id}/tasks', payload, manager_token, CONTENT_TYPE_FORM_DATA)[1]
 
-def create_test_case_json(manager_token: str, group_id: str | None = None, closed: bool = False, content_in: str = 'Input.', content_out: str = 'Output.') -> Mapping[str, Any]:
-    task_id = create_task_json(manager_token, group_id)['id']
+def create_test_case_json(manager_token: str, task_id: int | None = None, group_id: str | None = None, closed: bool = False, content_in: str = 'Input.', content_out: str = 'Output.') -> Mapping[str, Any]:
+    if task_id is None:
+        task_id = create_task_json(manager_token, group_id)['id']
+    else:
+        assert group_id is None
     payload = {
         'input': (BytesIO(content_in.encode('UTF-8')), 'input.in'),
         'output': (BytesIO(content_out.encode('UTF-8')), 'output.out'),
