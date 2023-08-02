@@ -32,7 +32,7 @@ class GroupRepository(AbstractRepository[GroupDTO]):
         stm = select(student_group.columns).where(student_group.columns["group_id"] == group_id).where(student_group.columns["approved"] == approved)
         join_requests = self._session.execute(stm)
         students = list(map(lambda row: row.student_id, join_requests.all()))
-        result: list[StudentDTO] = self._session.query(StudentDTO).filter(StudentDTO.id.in_(students)).all()
+        result: list[StudentDTO] = self._session.query(StudentDTO).filter(StudentDTO.id.in_(students)).order_by(StudentDTO.created_at).all()
         return result
 
     def __find_opened_join_request(self, group_id: int, student_id: int) -> None:
@@ -65,10 +65,10 @@ class GroupRepository(AbstractRepository[GroupDTO]):
         result: list[GroupDTO] = []
         match role:
             case Role.MANAGER:
-                result = self._session.query(GroupDTO).filter_by(manager_id=id).all()
+                result = self._session.query(GroupDTO).filter_by(manager_id=id).order_by(GroupDTO.created_at).all()
             case Role.STUDENT:
                 stm = select(student_group.columns).where(student_group.columns["student_id"] == id).where(student_group.columns["approved"] == True)
                 join_requests = self._session.execute(stm)
                 groups = list(map(lambda row: row.group_id, join_requests.all()))
-                result = self._session.query(GroupDTO).filter(GroupDTO.id.in_(groups)).all()
+                result = self._session.query(GroupDTO).filter(GroupDTO.id.in_(groups)).order_by(GroupDTO.created_at).all()
         return result

@@ -1,10 +1,9 @@
-from sqlalchemy import Column, Integer, Sequence, String, ForeignKey, DateTime, Boolean
-from sqlalchemy.sql import func
+from sqlalchemy import Column, Integer, Sequence, String, ForeignKey, Boolean
 
 from repository.base import Base
+from repository.dto.base_dto import BaseDTO
 
-# pylint: disable=not-callable
-class GroupDTO(Base):
+class GroupDTO(Base, BaseDTO):
     __tablename__ = 'group'
 
     id = Column(Integer, Sequence('sq_group_pk'), primary_key=True, autoincrement=True)
@@ -12,5 +11,3 @@ class GroupDTO(Base):
     name = Column(String, nullable=False)
     code = Column(String(6), nullable=False, unique=True)
     manager_id = Column(Integer, ForeignKey('manager.id'), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())

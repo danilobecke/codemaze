@@ -4,10 +4,10 @@ from sqlalchemy.exc import IntegrityError
 
 from helpers.exceptions import Internal_UniqueViolation, ServerError, NotFound
 from helpers.unwrapper import unwrap
-from repository.base import Base
+from repository.dto.base_dto import BaseDTO
 from repository.database import Database
 
-M = TypeVar('M', bound=Base)
+M = TypeVar('M', bound=BaseDTO)
 
 class AbstractRepository(Generic[M]):
     def __init__(self, klass: type[M]) -> None:
@@ -15,7 +15,7 @@ class AbstractRepository(Generic[M]):
         self._session = unwrap(Database.shared).session
 
     def find_all(self) -> list[M]:
-        results: list[M] = self._session.query(self.__class).all()
+        results: list[M] = self._session.query(self.__class).order_by(self.__class.created_at).all()
         return results
 
     def find(self, id: int) -> M:
