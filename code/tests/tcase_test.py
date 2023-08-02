@@ -21,7 +21,7 @@ class TestTCase:
         assert json['input_url'] == f'/tests/{test_id}/in'
         assert json['output_url'] == f'/tests/{test_id}/out'
 
-    def test_add_closed_test_case_should_succeed_without_urls(self) -> None:
+    def test_add_closed_test_case_should_succeed_with_urls(self) -> None:
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
         payload = {
@@ -34,10 +34,10 @@ class TestTCase:
 
         assert response[0] == 201
         json = response[1]
-        assert json['id'] is not None
+        test_id = json['id']
         assert json['closed'] is True
-        assert json['input_url'] is None
-        assert json['output_url'] is None
+        assert json['input_url'] == f'/tests/{test_id}/in'
+        assert json['output_url'] == f'/tests/{test_id}/out'
 
     def test_add_test_case_without_input_should_return_bad_request(self) -> None:
         manager_token = get_manager_id_token()[1]

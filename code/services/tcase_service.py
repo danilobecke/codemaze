@@ -23,4 +23,4 @@ class TCaseService:
         dto.output_file_path = output_file.save()
         dto.closed = closed
         stored = self.__tcase_repository.add(dto)
-        return TCaseVO.import_from_dto(stored)
+        return TCaseVO.import_from_dto(stored, is_manager=True)

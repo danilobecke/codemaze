@@ -11,11 +11,12 @@ class TCaseVO:
         self.closed = False
 
     @staticmethod
-    def import_from_dto(dto: TestCaseDTO) -> TCaseVO:
+    def import_from_dto(dto: TestCaseDTO, is_manager: bool) -> TCaseVO:
         vo = TCaseVO()
         vo.id = dto.id
         vo.closed = dto.closed
-        if vo.closed is False:
+        if vo.closed is False or is_manager is True:
+            # The manager can download the files
             vo.input_url = test_download_url_in(dto.id)
             vo.output_url = test_download_url_out(dto.id)
         return vo
