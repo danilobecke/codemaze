@@ -4,6 +4,7 @@ from typing import Optional, Callable
 
 from endpoints.models.group import GroupVO
 from endpoints.models.task_vo import TaskVO
+from endpoints.models.tcase_vo import TCaseVO
 from endpoints.models.user import UserVO
 from helpers import commons
 from helpers.exceptions import Forbidden
@@ -64,6 +65,9 @@ class TaskService:
         dtos = self.__task_repository.get_tasks(group_id)
         return list(map(lambda dto: TaskVO.import_from_dto(dto), dtos))
 
-    def get_task(self, task_id: int) -> TaskVO:
+    # pylint: disable=dangerous-default-value
+    def get_task(self, task_id: int, user_groups: list[GroupVO], tests: list[TCaseVO] = []) -> TaskVO:
         dto = self.__task_repository.find(task_id)
-        return TaskVO.import_from_dto(dto)
+        if dto.group_id not in map(lambda group: group.id, user_groups):
+            raise Forbidden()
+        return TaskVO.import_from_dto(dto).appending_tests(tests)

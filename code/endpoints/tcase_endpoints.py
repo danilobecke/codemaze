@@ -55,11 +55,11 @@ class TestsResource(Resource): # type: ignore
         output_storage: FileStorage = args['output']
         closed = args['closed']
         try:
-            task = unwrap(TestsResource._task_service).get_task(task_id)
-            group = unwrap(TestsResource._group_service).get_group(task.group_id)
+            user_groups = unwrap(TestsResource._group_service).get_all(user)
+            task = unwrap(TestsResource._task_service).get_task(task_id, user_groups)
             input_file = File(unwrap(input_storage.filename), input_storage.stream.read())
             output_file = File(unwrap(output_storage.filename), output_storage.stream.read())
-            return unwrap(TestsResource._tcase_service).add_test_case(user, task, group, input_file, output_file, closed), 201
+            return unwrap(TestsResource._tcase_service).add_test_case(task, input_file, output_file, closed), 201
         except Forbidden as e:
             abort(403, str(e))
         except NotFound as e:
@@ -81,8 +81,8 @@ class TestsResource(Resource): # type: ignore
     @authentication_required()
     def get(self, task_id: int, user: UserVO) -> list[TCaseVO]:
         try:
-            task = unwrap(TestsResource._task_service).get_task(task_id)
             user_groups = unwrap(TestsResource._group_service).get_all(user)
+            task = unwrap(TestsResource._task_service).get_task(task_id, user_groups)
             return unwrap(TestsResource._tcase_service).get_tests(user.id, task, user_groups)
         except Forbidden as e:
             abort(403, str(e))
