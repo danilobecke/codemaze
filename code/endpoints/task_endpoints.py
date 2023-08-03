@@ -36,7 +36,7 @@ _task_model = _namespace.model('Task', {
     'starts_on': fields.DateTime(required=True),
     'ends_on': fields.DateTime,
     'file_url': fields.String(required=True),
-})
+}, skipNone=True)
 
 _task_details_model = _task_model.inherit('Task Details', {
     'open_tests': fields.Nested(test_model, as_list=True, skip_none=True, required=False),
@@ -200,6 +200,7 @@ class TaskEndpoints:
     def __init__(self, api: Api, groups_namespace: Namespace, group_service: GroupService, task_service: TaskService, tcase_service: TCaseService) -> None:
         _set_up_task_parser(_new_task_parser, updating=False)
         _set_up_task_parser(_update_task_parser, updating=True)
+        _namespace.add_model('Task Details', _task_details_model)
         api.add_namespace(_namespace)
         self.__groups_namespace = groups_namespace
         TasksResource._group_service = group_service

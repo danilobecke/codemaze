@@ -29,7 +29,7 @@ test_model = _namespace.model('Test Case', {
     'closed': fields.Boolean(required=True),
     'input_url': fields.String(required=False),
     'output_url': fields.String(required=False)
-})
+}, skipNone=True)
 
 class TestsResource(Resource): # type: ignore
     _group_service: GroupService | None
