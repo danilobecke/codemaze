@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from io import BytesIO
 
-from tests.helper import post, get_manager_id_token, get_random_name, get_new_group_id_code, CONTENT_TYPE_FORM_DATA, get_random_manager_token, get_filepath_of_size, get, get_student_id_token, create_join_request_group_id, patch, create_task_json
+from tests.helper import post, get_manager_id_token, get_random_name, get_new_group_id_code, CONTENT_TYPE_FORM_DATA, get_random_manager_token, get_filepath_of_size, get, get_student_id_token, create_join_request_group_id, patch, create_task_json, create_test_case_json
 
 # pylint: disable=too-many-public-methods
 class TestTask:
@@ -405,3 +405,94 @@ class TestTask:
         response = get(f'/groups/{group_id}/tasks', student_token)
 
         assert response[0] == 403
+
+    def test_get_task_details_with_manager_should_succeed(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        task_id = create_task_json(manager_token)['id']
+        open_test = create_test_case_json(manager_token, task_id, closed=False)
+        closed_test = create_test_case_json(manager_token, task_id, closed=True)
+
+        response = get(f'/tasks/{task_id}', manager_token)
+
+        assert response[0] == 200
+        task = response[1]
+        assert task['id'] == task_id
+        assert task['name'] is not None
+        assert task['starts_on'] is not None
+        assert task['file_url'] is not None
+        open_tests = task['open_tests']
+        assert len(open_tests) == 1
+        assert open_tests[0] == open_test
+        assert open_tests[0]['input_url'] is not None
+        assert open_tests[0]['output_url'] is not None
+        closed_tests = task['closed_tests']
+        assert len(closed_tests) == 1
+        assert closed_tests[0] == closed_test
+        assert closed_tests[0]['input_url'] is not None
+        assert closed_tests[0]['output_url'] is not None
+
+    def test_get_task_details_with_student_should_succeed(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        student_token = get_student_id_token()[1]
+        group_id = create_join_request_group_id(student_token, manager_token, approve=True)
+        task_id = create_task_json(manager_token, group_id)['id']
+        open_test = create_test_case_json(manager_token, task_id, closed=False)
+        closed_test = create_test_case_json(manager_token, task_id, closed=True)
+
+        response = get(f'/tasks/{task_id}', student_token)
+
+        assert response[0] == 200
+        task = response[1]
+        assert task['id'] == task_id
+        assert task['name'] is not None
+        assert task['starts_on'] is not None
+        assert task['file_url'] is not None
+        open_tests = task['open_tests']
+        assert len(open_tests) == 1
+        assert open_tests[0] == open_test
+        assert open_tests[0]['input_url'] is not None
+        assert open_tests[0]['output_url'] is not None
+        closed_tests = task['closed_tests']
+        assert len(closed_tests) == 1
+        assert closed_tests[0].get('input_url') is None
+        assert closed_tests[0].get('output_url') is None
+        del closed_test['input_url']
+        del closed_test['output_url']
+        assert closed_tests[0] == closed_test
+
+    def test_get_task_details_when_there_are_no_tests_should_return_empty_array(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        task_id = create_task_json(manager_token)['id']
+
+        response = get(f'/tasks/{task_id}', manager_token)
+
+        assert response[0] == 200
+        task = response[1]
+        assert len(task['open_tests']) == 0
+        assert len(task['closed_tests']) == 0
+
+    def test_get_task_details_with_non_manager_should_return_forbidden(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        task_id = create_task_json(manager_token)['id']
+        random_manager = get_random_manager_token()
+
+        response = get(f'/tasks/{task_id}', random_manager)
+
+        assert response[0] == 403
+
+    def test_get_task_details_with_student_not_member_should_return_forbidden(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        student_token = get_student_id_token()[1]
+        group_id = create_join_request_group_id(student_token, manager_token, approve=False)
+        task_id = create_task_json(manager_token, group_id)['id']
+
+        response = get(f'/tasks/{task_id}', student_token)
+
+        assert response[0] == 403
+
+    def test_get_task_details_with_invalid_id_should_return_not_found(self) -> None:
+        manager_token = get_manager_id_token()[1]
+
+        response = get(f'/tasks/{999999}', manager_token)
+
+        assert response[0] == 404

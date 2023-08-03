@@ -2,7 +2,7 @@ import datetime
 from io import BytesIO
 import os
 import time
-from typing import TypeAlias, Tuple, Any, Mapping
+from typing import TypeAlias, Tuple, Any, Dict
 import uuid
 
 from flask import json
@@ -15,7 +15,7 @@ __app = run_as_test()
 CONTENT_TYPE_JSON = 'application/json'
 CONTENT_TYPE_FORM_DATA = 'multipart/form-data'
 StatusCode: TypeAlias = int
-HTTPResponse = Tuple[StatusCode, Mapping[str, Any]]
+HTTPResponse = Tuple[StatusCode, Dict[str, Any]]
 
 # HTTP METHODS
 
@@ -146,7 +146,7 @@ def create_join_request_group_id(student_token: str, manager_token: str, approve
     patch(f'/groups/{group_id}/requests/{request_id}', approve_payload, manager_token)
     return group_id
 
-def create_task_json(manager_token: str, group_id: str | None = None) -> Mapping[str, Any]:
+def create_task_json(manager_token: str, group_id: str | None = None) -> Dict[str, Any]:
     if group_id is None:
         group_id = get_new_group_id_code(get_random_name(), manager_token)[0]
     payload = {
@@ -155,7 +155,7 @@ def create_task_json(manager_token: str, group_id: str | None = None) -> Mapping
     }
     return post(f'/groups/{group_id}/tasks', payload, manager_token, CONTENT_TYPE_FORM_DATA)[1]
 
-def create_test_case_json(manager_token: str, task_id: int | None = None, group_id: str | None = None, closed: bool = False, content_in: str = 'Input.', content_out: str = 'Output.') -> Mapping[str, Any]:
+def create_test_case_json(manager_token: str, task_id: int | None = None, group_id: str | None = None, closed: bool = False, content_in: str = 'Input.', content_out: str = 'Output.') -> Dict[str, Any]:
     if task_id is None:
         task_id = create_task_json(manager_token, group_id)['id']
     else:
