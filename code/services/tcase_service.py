@@ -46,3 +46,8 @@ class TCaseService:
         is_manager = self.__is_manager(user_id, task.group_id, user_groups)
         dtos = self.__tcase_repository.get_tests(task.id)
         return list(map(lambda dto: TCaseVO.import_from_dto(dto, is_manager), dtos))
+
+    def delete_test(self, id: int, get_task_func: Callable[[int, list[GroupVO]], TaskVO], user_groups: list[GroupVO]) -> None:
+        dto = self.__tcase_repository.find(id)
+        get_task_func(dto.task_id, user_groups) # if has access to the task, is the manager - this is a manager only function
+        self.__tcase_repository.delete(id)

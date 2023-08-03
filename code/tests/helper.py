@@ -58,6 +58,10 @@ def patch(path: str, payload: dict[str, Any], token: str | None = None, content_
     response = __app.patch(path, data=data, content_type=content_type, headers=__headers(token))
     return (response.status_code, json.loads(response.data.decode('utf-8')))
 
+def delete(path: str, token: str | None = None) -> HTTPResponse:
+    response = __app.delete(path, headers=__headers(token))
+    return (response.status_code, json.loads(response.data.decode('utf-8')))
+
 # DATABSE HELPERS
 
 def get_random_name() -> str:

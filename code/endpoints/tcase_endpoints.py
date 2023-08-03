@@ -1,4 +1,4 @@
-from flask import abort, send_file
+from flask import abort, send_file, jsonify
 from flask.wrappers import Response
 from flask_restx import Api, Namespace, Resource, inputs, fields
 from flask_restx.reqparse import RequestParser
@@ -91,6 +91,30 @@ class TestsResource(Resource): # type: ignore
         except ServerError as e:
             abort(500, str(e))
 
+class TestResource(Resource): # type: ignore
+    _group_service: GroupService | None
+    _task_service: TaskService | None
+    _tcase_service: TCaseService | None
+
+    @_namespace.doc(description='*Managers only*\nDeletes the test case.')
+    @_namespace.response(401, 'Error')
+    @_namespace.response(403, 'Error')
+    @_namespace.response(404, 'Error')
+    @_namespace.response(500, 'Error')
+    @_namespace.doc(security='bearer')
+    @authentication_required(role=Role.MANAGER)
+    def delete(self, id: int, user: UserVO) -> Response:
+        try:
+            user_groups = unwrap(TestResource._group_service).get_all(user)
+            unwrap(TestResource._tcase_service).delete_test(id, unwrap(TestResource._task_service).get_task, user_groups)
+            return jsonify(message='Success')
+        except Forbidden as e:
+            abort(403, str(e))
+        except NotFound as e:
+            abort(404, str(e))
+        except ServerError as e:
+            abort(500, str(e))
+
 class TestDownloadInResource(Resource): # type: ignore
     _group_service: GroupService | None
     _task_service: TaskService | None
@@ -147,6 +171,9 @@ class TCaseEndpoints:
         TestsResource._group_service = group_service
         TestsResource._task_service = task_service
         TestsResource._tcase_service = tcase_service
+        TestResource._group_service = group_service
+        TestResource._task_service = task_service
+        TestResource._tcase_service = tcase_service
         TestDownloadInResource._group_service = group_service
         TestDownloadInResource._task_service = task_service
         TestDownloadInResource._tcase_service = tcase_service
@@ -156,5 +183,6 @@ class TCaseEndpoints:
 
     def register_resources(self) -> None:
         self.__tasks_namespace.add_resource(TestsResource, '/<int:task_id>/tests')
+        _namespace.add_resource(TestResource, '/<int:id>')
         _namespace.add_resource(TestDownloadInResource, '/<int:id>/in')
         _namespace.add_resource(TestDownloadOutResource, '/<int:id>/out')

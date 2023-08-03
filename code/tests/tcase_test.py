@@ -1,6 +1,6 @@
 from io import BytesIO
 
-from tests.helper import get_manager_id_token, create_task_json, post, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_student_id_token, create_join_request_group_id, get_random_manager_token, create_test_case_json, get
+from tests.helper import get_manager_id_token, create_task_json, post, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_student_id_token, create_join_request_group_id, get_random_manager_token, create_test_case_json, get, delete
 
 # pylint: disable=too-many-public-methods
 class TestTCase:
@@ -332,5 +332,53 @@ class TestTCase:
         manager_token = get_manager_id_token()[1]
 
         response = get(f'/api/v1/tasks/{999999}/tests', manager_token)
+
+        assert response[0] == 404
+
+    def test_delete_test_with_manager_should_work(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        task_id = create_task_json(manager_token)['id']
+        open_test_id = create_test_case_json(manager_token, task_id, closed=False)['id']
+        closed_test_id = create_test_case_json(manager_token, task_id, closed=True)['id']
+
+        assert len(get(f'/api/v1/tasks/{task_id}/tests', manager_token)[1]['tests']) == 2
+
+        response_1 = delete(f'/api/v1/tests/{open_test_id}', manager_token)
+        response_2 = delete(f'/api/v1/tests/{closed_test_id}', manager_token)
+
+        assert response_1[0] == 200
+        assert response_2[0] == 200
+
+        assert len(get(f'/api/v1/tasks/{task_id}/tests', manager_token)[1]['tests']) == 0
+
+    def test_delete_test_with_non_manager_should_return_forbidden(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        task_id = create_task_json(manager_token)['id']
+        test_id = create_test_case_json(manager_token, task_id)['id']
+        random_manager = get_random_manager_token()
+
+        response = delete(f'/api/v1/tests/{test_id}', random_manager)
+
+        assert response[0] == 403
+
+        assert len(get(f'/api/v1/tasks/{task_id}/tests', manager_token)[1]['tests']) == 1
+
+    def test_delete_test_with_student_should_return_unauthorized(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        student_token = get_student_id_token()[1]
+        group_id = create_join_request_group_id(student_token, manager_token, approve=True)
+        task_id = create_task_json(manager_token, group_id)['id']
+        test_id = create_test_case_json(manager_token, task_id)['id']
+
+        response = delete(f'/api/v1/tests/{test_id}', student_token)
+
+        assert response[0] == 401
+
+        assert len(get(f'/api/v1/tasks/{task_id}/tests', manager_token)[1]['tests']) == 1
+
+    def test_delete_test_with_invalid_id_should_return_not_found(self) -> None:
+        manager_token = get_manager_id_token()[1]
+
+        response = delete(f'/api/v1/tests/{99999999}', manager_token)
 
         assert response[0] == 404
