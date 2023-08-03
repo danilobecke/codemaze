@@ -25,20 +25,20 @@ class TCaseService:
         group = next(filter(lambda _group: _group.id == group_id, user_groups))
         return group.manager_id == user_id
 
-    def __get_test_case(self, id: int, user_id: int, get_task_func: Callable[[int, list[GroupVO]], TaskVO], user_groups: list[GroupVO]) -> TestCaseDTO:
+    def __get_test_case(self, id: int, user_id: int, get_task_func: Callable[[int, int, list[GroupVO]], TaskVO], user_groups: list[GroupVO]) -> TestCaseDTO:
         dto = self.__tcase_repository.find(id)
-        task = get_task_func(dto.task_id, user_groups)
+        task = get_task_func(dto.task_id, user_id, user_groups)
         is_manager = self.__is_manager(user_id, task.group_id, user_groups)
         if dto.closed is True and is_manager is False:
             # Only managers can download closed tests
             raise Forbidden()
         return dto
 
-    def get_test_case_in_path(self, id: int, user_id: int, get_task_func: Callable[[int, list[GroupVO]], TaskVO], user_groups: list[GroupVO]) -> str:
+    def get_test_case_in_path(self, id: int, user_id: int, get_task_func: Callable[[int, int, list[GroupVO]], TaskVO], user_groups: list[GroupVO]) -> str:
         dto = self.__get_test_case(id, user_id, get_task_func, user_groups)
         return dto.input_file_path
 
-    def get_test_case_out_path(self, id: int, user_id: int, get_task_func: Callable[[int, list[GroupVO]], TaskVO], user_groups: list[GroupVO]) -> str:
+    def get_test_case_out_path(self, id: int, user_id: int, get_task_func: Callable[[int, int, list[GroupVO]], TaskVO], user_groups: list[GroupVO]) -> str:
         dto = self.__get_test_case(id, user_id, get_task_func, user_groups)
         return dto.output_file_path
 
@@ -47,7 +47,7 @@ class TCaseService:
         dtos = self.__tcase_repository.get_tests(task.id)
         return list(map(lambda dto: TCaseVO.import_from_dto(dto, is_manager), dtos))
 
-    def delete_test(self, id: int, get_task_func: Callable[[int, list[GroupVO]], TaskVO], user_groups: list[GroupVO]) -> None:
+    def delete_test(self, id: int, user_id: int, get_task_func: Callable[[int, int, list[GroupVO]], TaskVO], user_groups: list[GroupVO]) -> None:
         dto = self.__tcase_repository.find(id)
-        get_task_func(dto.task_id, user_groups) # if has access to the task, is the manager - this is a manager only function
+        get_task_func(dto.task_id, user_id, user_groups) # if has access to the task, is the manager - this is a manager only function
         self.__tcase_repository.delete(id)

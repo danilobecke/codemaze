@@ -56,7 +56,7 @@ class TestsResource(Resource): # type: ignore
         closed = args['closed']
         try:
             user_groups = unwrap(TestsResource._group_service).get_all(user)
-            task = unwrap(TestsResource._task_service).get_task(task_id, user_groups)
+            task = unwrap(TestsResource._task_service).get_task(task_id, user.id, user_groups)
             input_file = File(unwrap(input_storage.filename), input_storage.stream.read())
             output_file = File(unwrap(output_storage.filename), output_storage.stream.read())
             return unwrap(TestsResource._tcase_service).add_test_case(task, input_file, output_file, closed), 201
@@ -82,7 +82,7 @@ class TestsResource(Resource): # type: ignore
     def get(self, task_id: int, user: UserVO) -> list[TCaseVO]:
         try:
             user_groups = unwrap(TestsResource._group_service).get_all(user)
-            task = unwrap(TestsResource._task_service).get_task(task_id, user_groups)
+            task = unwrap(TestsResource._task_service).get_task(task_id, user.id, user_groups)
             return unwrap(TestsResource._tcase_service).get_tests(user.id, task, user_groups)
         except Forbidden as e:
             abort(403, str(e))
@@ -106,7 +106,7 @@ class TestResource(Resource): # type: ignore
     def delete(self, id: int, user: UserVO) -> Response:
         try:
             user_groups = unwrap(TestResource._group_service).get_all(user)
-            unwrap(TestResource._tcase_service).delete_test(id, unwrap(TestResource._task_service).get_task, user_groups)
+            unwrap(TestResource._tcase_service).delete_test(id, user.id, unwrap(TestResource._task_service).get_task, user_groups)
             return jsonify(message='Success')
         except Forbidden as e:
             abort(403, str(e))

@@ -8,6 +8,7 @@ from endpoints.models.user import UserVO
 from helpers import commons
 from helpers.exceptions import Forbidden
 from helpers.file import File
+from helpers.unwrapper import unwrap
 from repository.dto.task import TaskDTO
 from repository.task_repository import TaskRepository
 
@@ -57,15 +58,22 @@ class TaskService:
         self.__task_repository.update_session()
         return TaskVO.import_from_dto(dto)
 
-    def get_tasks(self, group: GroupVO, user_groups: list[GroupVO]) -> list[TaskVO]:
+    def get_tasks(self, user_id: int, group: GroupVO, user_groups: list[GroupVO]) -> list[TaskVO]:
         group_id = group.id
         if any(group_id == _group.id for _group in user_groups) is False:
             raise Forbidden()
-        dtos = self.__task_repository.get_tasks(group_id)
+        started_only = user_id != group.manager_id # only managers can retrieve upcoming tasks
+        dtos = self.__task_repository.get_tasks(group_id, started_only)
         return list(map(lambda dto: TaskVO.import_from_dto(dto), dtos))
 
-    def get_task(self, task_id: int, user_groups: list[GroupVO]) -> TaskVO:
+    def get_task(self, task_id: int, user_id: int, user_groups: list[GroupVO]) -> TaskVO:
         dto = self.__task_repository.find(task_id)
-        if dto.group_id not in map(lambda group: group.id, user_groups):
+        try:
+            group = next(filter(lambda _group: _group.id == dto.group_id, user_groups))
+            if unwrap(dto.starts_on) > datetime.now().astimezone() and group.manager_id != user_id:
+                raise Forbidden() # only managers can retrieve upcoming tasks
+            return TaskVO.import_from_dto(dto)
+        except StopIteration:
+            # next exception
+            # pylint: disable=raise-missing-from
             raise Forbidden()
-        return TaskVO.import_from_dto(dto)

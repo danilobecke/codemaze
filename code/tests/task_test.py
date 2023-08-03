@@ -341,11 +341,11 @@ class TestTask:
 
         assert response[0] == 401
 
-    def test_get_tasks_should_succeed(self) -> None:
+    def test_get_tasks_with_manager_should_succeed_and_return_all_tasks(self) -> None:
         manager_token = get_manager_id_token()[1]
         group_id = get_new_group_id_code(get_random_name(), manager_token)[0]
         task_1 = create_task_json(manager_token, group_id)
-        task_2 = create_task_json(manager_token, group_id)
+        task_2 = create_task_json(manager_token, group_id, (datetime.now().astimezone() + timedelta(days=1)).isoformat())
 
         response = get(f'/api/v1/groups/{group_id}/tasks', manager_token)
 
@@ -355,21 +355,21 @@ class TestTask:
         assert task_1 in tasks
         assert task_2 in tasks
 
-    def test_get_tasks_with_user_should_succeed(self) -> None:
+    def test_get_tasks_with_student_should_succeed_and_return_started_tasks_only(self) -> None:
         manager_token = get_manager_id_token()[1]
         student_token = get_student_id_token()[1]
         group_id = create_join_request_group_id(student_token, manager_token, approve=True)
         task_1 = create_task_json(manager_token, group_id)
-        task_2 = create_task_json(manager_token, group_id)
+        task_2 = create_task_json(manager_token, group_id, (datetime.now().astimezone() + timedelta(days=1)).isoformat())
         create_task_json(manager_token) # another group
 
         response = get(f'/api/v1/groups/{group_id}/tasks', student_token)
 
         assert response[0] == 200
         tasks = response[1]['tasks']
-        assert len(tasks) == 2
+        assert len(tasks) == 1
         assert task_1 in tasks
-        assert task_2 in tasks
+        assert task_2 not in tasks
 
     def test_get_tasks_with_group_without_tasks_should_return_empty_array(self) -> None:
         manager_token = get_manager_id_token()[1]
@@ -496,3 +496,32 @@ class TestTask:
         response = get(f'/api/v1/tasks/{999999}', manager_token)
 
         assert response[0] == 404
+
+    def test_get_task_details_with_manager_with_future_task_should_succeed(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        task_id = create_task_json(manager_token, starts_on=(datetime.now().astimezone() + timedelta(days=1)).isoformat())['id']
+        open_test = create_test_case_json(manager_token, task_id, closed=False)
+
+        response = get(f'/api/v1/tasks/{task_id}', manager_token)
+
+        assert response[0] == 200
+        task = response[1]
+        assert task['id'] == task_id
+        assert task['name'] is not None
+        assert task['starts_on'] is not None
+        assert task['file_url'] is not None
+        open_tests = task['open_tests']
+        assert len(open_tests) == 1
+        assert open_tests[0] == open_test
+        assert open_tests[0]['input_url'] is not None
+        assert open_tests[0]['output_url'] is not None
+
+    def test_get_task_details_with_student_with_future_task_should_return_forbidden(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        student_token = get_student_id_token()[1]
+        group_id = create_join_request_group_id(student_token, manager_token, approve=True)
+        task_id = create_task_json(manager_token, group_id, (datetime.now().astimezone() + timedelta(days=1)).isoformat())['id']
+
+        response = get(f'/api/v1/tasks/{task_id}', student_token)
+
+        assert response[0] == 403

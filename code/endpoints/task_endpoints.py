@@ -99,7 +99,7 @@ class TasksResource(Resource): # type: ignore
         try:
             group = unwrap(TasksResource._group_service).get_group(group_id)
             user_groups = unwrap(TasksResource._group_service).get_all(user)
-            return unwrap(TasksResource._task_service).get_tasks(group, user_groups)
+            return unwrap(TasksResource._task_service).get_tasks(user.id, group, user_groups)
         except Forbidden as e:
             abort(403, str(e))
         except NotFound as e:
@@ -186,7 +186,7 @@ class TaskResource(Resource): # type: ignore
     def get(self, id: int, user: UserVO) -> TaskVO:
         try:
             user_groups = unwrap(TaskResource._group_service).get_all(user)
-            task = unwrap(TaskResource._task_service).get_task(id, user_groups)
+            task = unwrap(TaskResource._task_service).get_task(id, user.id, user_groups)
             tests = unwrap(TaskResource._tcase_service).get_tests(user.id, task, user_groups)
             return task.appending_tests(tests)
         except Forbidden as e:
