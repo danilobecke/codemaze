@@ -52,9 +52,9 @@ Navigate to the root folder and run:
 make test
 ```
 
-## Swagger
+## Swagger - v1
 
-The Swagger documentation is hosted at the `/docs` URL.
+The Swagger documentation is hosted at the `/api/v1/docs` URL.
 
 ## Modelling
 
