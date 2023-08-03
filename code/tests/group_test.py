@@ -132,7 +132,8 @@ class TestGroup:
 
     def test_update_group_active_should_update(self) -> None:
         manager_id_token = get_manager_id_token()
-        group_id = get_new_group_id_code(get_random_name(), manager_id_token[1])[0]
+        name = get_random_name()
+        group_id, code = get_new_group_id_code(name, manager_id_token[1])
 
         payload = {
             'active': False
@@ -140,9 +141,60 @@ class TestGroup:
         response = patch(f'/groups/{group_id}', payload, manager_id_token[1])
 
         assert response[0] == 200
-
-        group = get(f'/groups/{group_id}', manager_id_token[1])[1]
+        group = response[1]
         assert group['active'] is False
+        assert group['id'] == group_id
+        assert group['name'] == name
+        assert group['code'] == code
+
+    def test_update_group_name_should_update(self) -> None:
+        manager_id_token = get_manager_id_token()
+        group_id, code = get_new_group_id_code(get_random_name(), manager_id_token[1])
+        new_name = 'New name!'
+
+        payload = {
+            'name': new_name
+        }
+        response = patch(f'/groups/{group_id}', payload, manager_id_token[1])
+
+        assert response[0] == 200
+        group = response[1]
+        assert group['active'] is True
+        assert group['id'] == group_id
+        assert group['name'] == new_name
+        assert group['code'] == code
+
+    def test_update_group_name_active_should_update(self) -> None:
+        manager_id_token = get_manager_id_token()
+        group_id, code = get_new_group_id_code(get_random_name(), manager_id_token[1])
+        new_name = 'New name!'
+
+        payload = {
+            'name': new_name,
+            'active': False
+        }
+        response = patch(f'/groups/{group_id}', payload, manager_id_token[1])
+
+        assert response[0] == 200
+        group = response[1]
+        assert group['active'] is False
+        assert group['id'] == group_id
+        assert group['name'] == new_name
+        assert group['code'] == code
+
+    def test_update_group_with_empty_payload_should_work_and_not_update(self) -> None:
+        manager_id_token = get_manager_id_token()
+        name = get_random_name()
+        group_id, code = get_new_group_id_code(name, manager_id_token[1])
+
+        response = patch(f'/groups/{group_id}', {}, manager_id_token[1])
+
+        assert response[0] == 200
+        group = response[1]
+        assert group['active'] is True
+        assert group['id'] == group_id
+        assert group['name'] == name
+        assert group['code'] == code
 
     def test_update_group_active_with_invalid_id_should_return_not_found(self) -> None:
         manager_token = get_manager_id_token()[1]

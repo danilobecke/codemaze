@@ -25,8 +25,9 @@ _group_model = _namespace.model('Group', {
      'manager_id': fields.Integer(required=True)
 })
 
-_manage_group_model = _namespace.model('Manage Group', {
-    'active': fields.Boolean(required=True)
+_update_group_model = _namespace.model('Update Group', {
+    'name': fields.String(required=False),
+    'active': fields.Boolean(required=False)
 })
 
 _join_group_model = _namespace.model('Create Join Request', {
@@ -89,21 +90,21 @@ class GroupsResource(Resource): # type: ignore
 class GroupResource(Resource): # type: ignore
     _group_service: GroupService | None = None
 
-    @_namespace.doc(description='*Managers only*\nUpdate the group `active` status.')
-    @_namespace.expect(_manage_group_model, validate=True)
-    @_namespace.response(200, 'Success')
+    @_namespace.doc(description='*Managers only*\nUpdate the group `active` status and/or `name`.')
+    @_namespace.expect(_update_group_model, validate=True)
     @_namespace.response(400, 'Error')
     @_namespace.response(401, 'Error')
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(500, 'Error')
+    @_namespace.marshal_with(_group_model)
     @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
-    def patch(self, id: int, user: UserVO) -> Response:
-        active: bool = json_unwrapped()['active']
+    def patch(self, id: int, user: UserVO) -> GroupVO:
+        active: bool | None = json_unwrapped().get('active')
+        name: str | None = json_unwrapped().get('name')
         try:
-            unwrap(GroupResource._group_service).update_group_active(id, user.id, active)
-            return jsonify(message='Success')
+            return unwrap(GroupResource._group_service).update_group(id, user.id, active, name)
         except Forbidden as e:
             abort(403, str(e))
         except NotFound as e:

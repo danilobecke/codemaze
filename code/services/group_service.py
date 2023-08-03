@@ -48,12 +48,16 @@ class GroupService:
         else:
             self.__group_repository.remove_join_request(group_id, student_id)
 
-    def update_group_active(self, group_id: int, manager_id: int, active: bool) -> None:
+    def update_group(self, group_id: int, manager_id: int, active: bool | None, name: str | None) -> GroupVO:
         dto: GroupDTO = self.__group_repository.find(group_id)
         if dto.manager_id != manager_id:
             raise Forbidden()
-        dto.active = active
+        if active is not None:
+            dto.active = active
+        if name is not None:
+            dto.name = name
         self.__group_repository.update_session()
+        return GroupVO.import_from_dto(dto)
 
     def get_all(self, user: UserVO | None) -> list[GroupVO]:
         dtos: list[GroupDTO]
