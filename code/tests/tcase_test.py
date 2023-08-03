@@ -13,14 +13,14 @@ class TestTCase:
             'closed': False
         }
 
-        response = post(f'/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 201
         json = response[1]
         test_id = json['id']
         assert json['closed'] is False
-        assert json['input_url'] == f'/tests/{test_id}/in'
-        assert json['output_url'] == f'/tests/{test_id}/out'
+        assert json['input_url'] == f'/api/v1/tests/{test_id}/in'
+        assert json['output_url'] == f'/api/v1/tests/{test_id}/out'
 
     def test_add_closed_test_case_should_succeed_with_urls(self) -> None:
         manager_token = get_manager_id_token()[1]
@@ -31,14 +31,14 @@ class TestTCase:
             'closed': True
         }
 
-        response = post(f'/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 201
         json = response[1]
         test_id = json['id']
         assert json['closed'] is True
-        assert json['input_url'] == f'/tests/{test_id}/in'
-        assert json['output_url'] == f'/tests/{test_id}/out'
+        assert json['input_url'] == f'/api/v1/tests/{test_id}/in'
+        assert json['output_url'] == f'/api/v1/tests/{test_id}/out'
 
     def test_add_test_case_without_input_should_return_bad_request(self) -> None:
         manager_token = get_manager_id_token()[1]
@@ -48,7 +48,7 @@ class TestTCase:
             'closed': True
         }
 
-        response = post(f'/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 400
 
@@ -60,7 +60,7 @@ class TestTCase:
             'closed': True
         }
 
-        response = post(f'/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 400
 
@@ -72,7 +72,7 @@ class TestTCase:
             'output': (BytesIO(b'Output.'), 'output.out')
         }
 
-        response = post(f'/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 400
 
@@ -85,7 +85,7 @@ class TestTCase:
             'closed': True
         }
 
-        response = post(f'/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 422
 
@@ -98,7 +98,7 @@ class TestTCase:
             'closed': True
         }
 
-        response = post(f'/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 422
 
@@ -112,7 +112,7 @@ class TestTCase:
                 'output': (BytesIO(b'Output.'), 'output.out'),
                 'closed': True
             }
-            response = post(f'/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
+            response = post(f'/api/v1/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
 
             assert response[0] == 413
 
@@ -126,7 +126,7 @@ class TestTCase:
                 'output': (file, 'output.out'),
                 'closed': True
             }
-            response = post(f'/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
+            response = post(f'/api/v1/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
 
             assert response[0] == 413
 
@@ -138,7 +138,7 @@ class TestTCase:
             'closed': False
         }
 
-        response = post(f'/tasks/{99999999}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/tasks/{99999999}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 404
 
@@ -154,7 +154,7 @@ class TestTCase:
             'closed': False
         }
 
-        response = post(f'/tasks/{task_id}/tests', payload, student_token, CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/tasks/{task_id}/tests', payload, student_token, CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 401
 
@@ -169,7 +169,7 @@ class TestTCase:
             'closed': False
         }
 
-        response = post(f'/tasks/{task_id}/tests', payload, random_manager, CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/tasks/{task_id}/tests', payload, random_manager, CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 403
 
@@ -223,8 +223,8 @@ class TestTCase:
         group_id = create_join_request_group_id(student_token, manager_id_token[1], approve=True)
         test_case_id = create_test_case_json(manager_id_token[1], group_id=group_id, closed=True)['id']
 
-        response_in = get(f'/tests/{test_case_id}/in', student_token)
-        response_out = get(f'/tests/{test_case_id}/out', student_token)
+        response_in = get(f'/api/v1/tests/{test_case_id}/in', student_token)
+        response_out = get(f'/api/v1/tests/{test_case_id}/out', student_token)
 
         assert response_in[0] == 403
         assert response_out[0] == 403
@@ -255,8 +255,8 @@ class TestTCase:
     def test_download_input_output_with_invalid_id_should_return_not_found(self) -> None:
         manager_id_token = get_manager_id_token()
 
-        response_in = get(f'tests/{999999}/in', manager_id_token[1])
-        response_out = get(f'tests/{999999}/out', manager_id_token[1])
+        response_in = get(f'/api/v1/tests/{999999}/in', manager_id_token[1])
+        response_out = get(f'/api/v1/tests/{999999}/out', manager_id_token[1])
 
         assert response_in[0] == 404
         assert response_out[0] == 404
@@ -267,7 +267,7 @@ class TestTCase:
         create_test_case_json(manager_token, task_id=task_id, closed=False)
         create_test_case_json(manager_token, task_id=task_id, closed=True)
 
-        response = get(f'/tasks/{task_id}/tests', manager_token)
+        response = get(f'/api/v1/tasks/{task_id}/tests', manager_token)
 
         assert response[0] == 200
         tests = response[1]['tests']
@@ -283,7 +283,7 @@ class TestTCase:
         open_test_id = create_test_case_json(manager_token, task_id=task_id, closed=False)['id']
         closed_test_id = create_test_case_json(manager_token, task_id=task_id, closed=True)['id']
 
-        response = get(f'/tasks/{task_id}/tests', student_token)
+        response = get(f'/api/v1/tasks/{task_id}/tests', student_token)
 
         assert response[0] == 200
         tests = response[1]['tests']
@@ -301,8 +301,8 @@ class TestTCase:
         group_id = create_join_request_group_id(student_token, manager_token, approve=True)
         task_id = create_task_json(manager_token, group_id)['id']
 
-        response_manager = get(f'/tasks/{task_id}/tests', manager_token)
-        response_student = get(f'/tasks/{task_id}/tests', student_token)
+        response_manager = get(f'/api/v1/tasks/{task_id}/tests', manager_token)
+        response_student = get(f'/api/v1/tasks/{task_id}/tests', student_token)
 
         assert response_manager[0] == 200
         assert len(response_manager[1]['tests']) == 0
@@ -314,7 +314,7 @@ class TestTCase:
         task_id = create_task_json(manager_token)['id']
         random_manager = get_random_manager_token()
 
-        response = get(f'/tasks/{task_id}/tests', random_manager)
+        response = get(f'/api/v1/tasks/{task_id}/tests', random_manager)
 
         assert response[0] == 403
 
@@ -324,13 +324,13 @@ class TestTCase:
         group_id = create_join_request_group_id(student_token, manager_token)
         task_id = create_task_json(manager_token, group_id)['id']
 
-        response = get(f'/tasks/{task_id}/tests', student_token)
+        response = get(f'/api/v1/tasks/{task_id}/tests', student_token)
 
         assert response[0] == 403
 
     def test_get_tests_with_invalid_task_id_should_return_not_found(self) -> None:
         manager_token = get_manager_id_token()[1]
 
-        response = get(f'/tasks/{999999}/tests', manager_token)
+        response = get(f'/api/v1/tasks/{999999}/tests', manager_token)
 
         assert response[0] == 404

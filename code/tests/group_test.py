@@ -8,7 +8,7 @@ class TestGroup:
         payload = {
             'name': name
         }
-        response = post('/groups', payload, id_token[1])
+        response = post('/api/v1/groups', payload, id_token[1])
 
         assert response[0] == 201
         json = response[1]
@@ -21,7 +21,7 @@ class TestGroup:
     def test_create_group_without_name_should_return_bad_request(self) -> None:
         id_token = get_manager_id_token()
 
-        response = post('/groups', {}, id_token[1])
+        response = post('/api/v1/groups', {}, id_token[1])
 
         assert response[0] == 400
 
@@ -30,7 +30,7 @@ class TestGroup:
         payload = {
             'name': get_random_name()
         }
-        response = post('/groups', payload, id_token[1])
+        response = post('/api/v1/groups', payload, id_token[1])
 
         assert response[0] == 401
 
@@ -38,7 +38,7 @@ class TestGroup:
         payload = {
             'name': get_random_name()
         }
-        response = post('/groups', payload)
+        response = post('/api/v1/groups', payload)
 
         assert response[0] == 401
 
@@ -48,7 +48,7 @@ class TestGroup:
         get_new_group_id_code(name, random_token)
         manager_id_token = get_manager_id_token()
 
-        response = get('/groups', manager_id_token[1])
+        response = get('/api/v1/groups', manager_id_token[1])
 
         assert response[0] == 200
         groups = response[1]['groups']
@@ -59,7 +59,7 @@ class TestGroup:
     def test_manager_get_all_groups_where_member_of_should_return_groups_where_is_member(self) -> None:
         manager_id_token = get_manager_id_token()
 
-        response = get('/groups?member_of=true', manager_id_token[1])
+        response = get('/api/v1/groups?member_of=true', manager_id_token[1])
 
         assert response[0] == 200
         groups = response[1]['groups']
@@ -71,14 +71,14 @@ class TestGroup:
     def test_manager_get_all_groups_where_member_of_when_is_not_member_should_return_empty_list(self) -> None:
         random_token = get_random_manager_token()
 
-        response = get('/groups?member_of=true', random_token)
+        response = get('/api/v1/groups?member_of=true', random_token)
 
         assert response[0] == 200
         groups = response[1]['groups']
         assert len(groups) == 0
 
     def test_get_all_groups_without_token_should_return_unauthorized(self) -> None:
-        response = get('/groups')
+        response = get('/api/v1/groups')
 
         assert response[0] == 401
 
@@ -88,7 +88,7 @@ class TestGroup:
         random_group_id = get_new_group_id_code(name, random_manager_token)[0]
         manager_token = get_manager_id_token()[1]
 
-        response = get(f'/groups/{random_group_id}', manager_token)
+        response = get(f'/api/v1/groups/{random_group_id}', manager_token)
 
         assert response[0] == 200
         json = response[1]
@@ -104,7 +104,7 @@ class TestGroup:
         random_group_id = get_new_group_id_code(name, random_manager_token)[0]
         student_token = get_student_id_token()[1]
 
-        response = get(f'/groups/{random_group_id}', student_token)
+        response = get(f'/api/v1/groups/{random_group_id}', student_token)
 
         assert response[0] == 200
         json = response[1]
@@ -118,7 +118,7 @@ class TestGroup:
         manager_token = get_manager_id_token()[1]
         id = 999999999999999999999
 
-        response = get(f'/groups/{id}', manager_token)
+        response = get(f'/api/v1/groups/{id}', manager_token)
 
         assert response[0] == 404
 
@@ -126,7 +126,7 @@ class TestGroup:
         random_manager_token = get_random_manager_token()
         id = get_new_group_id_code(get_random_name(), random_manager_token)[0]
 
-        response = get(f'/groups/{id}')
+        response = get(f'/api/v1/groups/{id}')
 
         assert response[0] == 401
 
@@ -138,7 +138,7 @@ class TestGroup:
         payload = {
             'active': False
         }
-        response = patch(f'/groups/{group_id}', payload, manager_id_token[1])
+        response = patch(f'/api/v1/groups/{group_id}', payload, manager_id_token[1])
 
         assert response[0] == 200
         group = response[1]
@@ -155,7 +155,7 @@ class TestGroup:
         payload = {
             'name': new_name
         }
-        response = patch(f'/groups/{group_id}', payload, manager_id_token[1])
+        response = patch(f'/api/v1/groups/{group_id}', payload, manager_id_token[1])
 
         assert response[0] == 200
         group = response[1]
@@ -173,7 +173,7 @@ class TestGroup:
             'name': new_name,
             'active': False
         }
-        response = patch(f'/groups/{group_id}', payload, manager_id_token[1])
+        response = patch(f'/api/v1/groups/{group_id}', payload, manager_id_token[1])
 
         assert response[0] == 200
         group = response[1]
@@ -187,7 +187,7 @@ class TestGroup:
         name = get_random_name()
         group_id, code = get_new_group_id_code(name, manager_id_token[1])
 
-        response = patch(f'/groups/{group_id}', {}, manager_id_token[1])
+        response = patch(f'/api/v1/groups/{group_id}', {}, manager_id_token[1])
 
         assert response[0] == 200
         group = response[1]
@@ -203,7 +203,7 @@ class TestGroup:
         payload = {
             'active': False
         }
-        response = patch(f'/groups/{id}', payload, manager_token)
+        response = patch(f'/api/v1/groups/{id}', payload, manager_token)
 
         assert response[0] == 404
 
@@ -215,7 +215,7 @@ class TestGroup:
         payload = {
             'active': False
         }
-        response = patch(f'/groups/{group_id}', payload, manager_token)
+        response = patch(f'/api/v1/groups/{group_id}', payload, manager_token)
 
         assert response[0] == 403
 
@@ -226,7 +226,7 @@ class TestGroup:
         payload = {
             'active': False
         }
-        response = patch(f'/groups/{group_id}', payload)
+        response = patch(f'/api/v1/groups/{group_id}', payload)
 
         assert response[0] == 401
 
@@ -238,7 +238,7 @@ class TestGroup:
         payload = {
             'code': group_code
         }
-        response = post('/groups/join', payload, student_token)
+        response = post('/api/v1/groups/join', payload, student_token)
 
         assert response[0] == 200
 
@@ -250,7 +250,7 @@ class TestGroup:
         payload = {
             'code': group_code
         }
-        response = post('/groups/join', payload, random_manager_token)
+        response = post('/api/v1/groups/join', payload, random_manager_token)
 
         assert response[0] == 401
 
@@ -261,7 +261,7 @@ class TestGroup:
         payload = {
             'code': group_code
         }
-        response = post('/groups/join', payload)
+        response = post('/api/v1/groups/join', payload)
 
         assert response[0] == 401
 
@@ -272,7 +272,7 @@ class TestGroup:
         payload = {
             'code': group_code
         }
-        response = post('/groups/join', payload, student_token)
+        response = post('/api/v1/groups/join', payload, student_token)
 
         assert response[0] == 404
 
@@ -284,10 +284,10 @@ class TestGroup:
         payload = {
             'code': group_code
         }
-        response = post('/groups/join', payload, student_token)
+        response = post('/api/v1/groups/join', payload, student_token)
         assert response[0] == 200
 
-        response_replay = post('/groups/join', payload, student_token)
+        response_replay = post('/api/v1/groups/join', payload, student_token)
         assert response_replay[0] == 409
 
     def test_manager_get_requests_list_sould_return_requests(self) -> None:
@@ -295,7 +295,7 @@ class TestGroup:
         student_id_token = get_student_id_token()
         group_id = create_join_request_group_id(student_id_token[1], manager_token)
 
-        response = get(f'groups/{group_id}/requests', manager_token)
+        response = get(f'/api/v1/groups/{group_id}/requests', manager_token)
 
         assert response[0] == 200
         requests = response[1]['requests']
@@ -307,7 +307,7 @@ class TestGroup:
         manager_token = get_manager_id_token()[1]
         group_id_code = get_new_group_id_code(get_random_name(), manager_token)
 
-        response = get(f'groups/{group_id_code[0]}/requests', manager_token)
+        response = get(f'/api/v1/groups/{group_id_code[0]}/requests', manager_token)
 
         assert response[0] == 200
         requests = response[1]['requests']
@@ -321,8 +321,8 @@ class TestGroup:
         payload = {
             'code': group_id_code[1]
         }
-        post('groups/join', payload, student_id_token[1])
-        response = get(f'groups/{group_id_code[0]}/requests', student_id_token[1])
+        post('/api/v1/groups/join', payload, student_id_token[1])
+        response = get(f'/api/v1/groups/{group_id_code[0]}/requests', student_id_token[1])
 
         assert response[0] == 401
 
@@ -330,7 +330,7 @@ class TestGroup:
         manager_token = get_manager_id_token()[1]
         group_id_code = get_new_group_id_code(get_random_name(), manager_token)
 
-        response = get(f'groups/{group_id_code[0]}/requests')
+        response = get(f'/api/v1/groups/{group_id_code[0]}/requests')
 
         assert response[0] == 401
 
@@ -339,7 +339,7 @@ class TestGroup:
         random_token = get_random_manager_token()
         group_id_code = get_new_group_id_code(get_random_name(), random_token)
 
-        response = get(f'groups/{group_id_code[0]}/requests', manager_token)
+        response = get(f'/api/v1/groups/{group_id_code[0]}/requests', manager_token)
 
         assert response[0] == 403
 
@@ -347,7 +347,7 @@ class TestGroup:
         manager_token = get_manager_id_token()[1]
         id = 999999999999999999999
 
-        response = get(f'groups/{id}/requests', manager_token)
+        response = get(f'/api/v1/groups/{id}/requests', manager_token)
 
         assert response[0] == 404
 
@@ -359,15 +359,15 @@ class TestGroup:
         join_payload = {
             'code': group_id_code[1]
         }
-        post('groups/join', join_payload, student_id_token[1])
-        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        post('/api/v1/groups/join', join_payload, student_id_token[1])
+        request_id = get(f'/api/v1/groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
         payload = {
             'approve': True
         }
-        response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+        response = patch(f'/api/v1/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
 
         assert response[0] == 200
-        requests = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests']
+        requests = get(f'/api/v1/groups/{group_id_code[0]}/requests', manager_token)[1]['requests']
         assert len(requests) == 0
 
     def test_manager_decline_join_request_should_work(self) -> None:
@@ -378,15 +378,15 @@ class TestGroup:
         join_payload = {
             'code': group_id_code[1]
         }
-        post('groups/join', join_payload, student_id_token[1])
-        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        post('/api/v1/groups/join', join_payload, student_id_token[1])
+        request_id = get(f'/api/v1/groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
         payload = {
             'approve': False
         }
-        response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+        response = patch(f'/api/v1/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
 
         assert response[0] == 200
-        requests = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests']
+        requests = get(f'/api/v1/groups/{group_id_code[0]}/requests', manager_token)[1]['requests']
         assert len(requests) == 0
 
     def test_student_approve_join_request_should_return_unauthorized(self) -> None:
@@ -397,12 +397,12 @@ class TestGroup:
         join_payload = {
             'code': group_id_code[1]
         }
-        post('groups/join', join_payload, student_id_token[1])
-        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        post('/api/v1/groups/join', join_payload, student_id_token[1])
+        request_id = get(f'/api/v1/groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
         payload = {
             'approve': True
         }
-        response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, student_id_token[1])
+        response = patch(f'/api/v1/groups/{group_id_code[0]}/requests/{request_id}', payload, student_id_token[1])
 
         assert response[0] == 401
 
@@ -414,12 +414,12 @@ class TestGroup:
         join_payload = {
             'code': group_id_code[1]
         }
-        post('groups/join', join_payload, student_id_token[1])
-        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        post('/api/v1/groups/join', join_payload, student_id_token[1])
+        request_id = get(f'/api/v1/groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
         payload = {
             'approve': True
         }
-        response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload)
+        response = patch(f'/api/v1/groups/{group_id_code[0]}/requests/{request_id}', payload)
 
         assert response[0] == 401
 
@@ -432,12 +432,12 @@ class TestGroup:
         join_payload = {
             'code': group_id_code[1]
         }
-        post('groups/join', join_payload, student_id_token[1])
-        request_id = get(f'groups/{group_id_code[0]}/requests', random_manager_token)[1]['requests'][0]['id']
+        post('/api/v1/groups/join', join_payload, student_id_token[1])
+        request_id = get(f'/api/v1/groups/{group_id_code[0]}/requests', random_manager_token)[1]['requests'][0]['id']
         payload = {
             'approve': True
         }
-        response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+        response = patch(f'/api/v1/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
 
         assert response[0] == 403
 
@@ -448,7 +448,7 @@ class TestGroup:
         payload = {
             'approve': True
         }
-        response = patch(f'/groups/{id}/requests/{id}', payload, manager_token)
+        response = patch(f'/api/v1/groups/{id}/requests/{id}', payload, manager_token)
 
         assert response[0] == 404
 
@@ -460,7 +460,7 @@ class TestGroup:
         payload = {
             'approve': True
         }
-        response = patch(f'/groups/{group_id_code[0]}/requests/{id}', payload, manager_token)
+        response = patch(f'/api/v1/groups/{group_id_code[0]}/requests/{id}', payload, manager_token)
 
         assert response[0] == 404
 
@@ -472,15 +472,15 @@ class TestGroup:
         join_payload = {
             'code': group_id_code[1]
         }
-        post('groups/join', join_payload, student_id_token[1])
-        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        post('/api/v1/groups/join', join_payload, student_id_token[1])
+        request_id = get(f'/api/v1/groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
         payload = {
             'approve': True
         }
-        response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+        response = patch(f'/api/v1/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
         assert response[0] == 200
 
-        second_response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+        second_response = patch(f'/api/v1/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
         assert second_response[0] == 404
 
     def test_decline_join_request_twice_should_return_not_found(self) -> None:
@@ -491,15 +491,15 @@ class TestGroup:
         join_payload = {
             'code': group_id_code[1]
         }
-        post('groups/join', join_payload, student_id_token[1])
-        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        post('/api/v1/groups/join', join_payload, student_id_token[1])
+        request_id = get(f'/api/v1/groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
         payload = {
             'approve': False
         }
-        response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+        response = patch(f'/api/v1/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
         assert response[0] == 200
 
-        second_response = patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+        second_response = patch(f'/api/v1/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
         assert second_response[0] == 404
 
     def test_manager_get_students_list_should_return_students(self) -> None:
@@ -507,7 +507,7 @@ class TestGroup:
         student_id_token = get_student_id_token()
         group_id = create_join_request_group_id(student_id_token[1], manager_token, approve=True)
 
-        response = get(f'/groups/{group_id}/students', manager_token)
+        response = get(f'/api/v1/groups/{group_id}/students', manager_token)
 
         assert response[0] == 200
         students = response[1]['students']
@@ -520,7 +520,7 @@ class TestGroup:
         student_id_token = get_student_id_token()
         group_id = create_join_request_group_id(student_id_token[1], manager_token)
 
-        response = get(f'/groups/{group_id}/students', manager_token)
+        response = get(f'/api/v1/groups/{group_id}/students', manager_token)
 
         assert response[0] == 200
         students = response[1]['students']
@@ -534,13 +534,13 @@ class TestGroup:
         join_payload = {
             'code': group_id_code[1]
         }
-        post('groups/join', join_payload, student_id_token[1])
-        request_id = get(f'groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
+        post('/api/v1/groups/join', join_payload, student_id_token[1])
+        request_id = get(f'/api/v1/groups/{group_id_code[0]}/requests', manager_token)[1]['requests'][0]['id']
         payload = {
             'approve': True
         }
-        patch(f'/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
-        response = get(f'/groups/{group_id_code[0]}/students', student_id_token[1])
+        patch(f'/api/v1/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
+        response = get(f'/api/v1/groups/{group_id_code[0]}/students', student_id_token[1])
 
         assert response[0] == 401
 
@@ -548,7 +548,7 @@ class TestGroup:
         manager_token = get_manager_id_token()[1]
         group_id_code = get_new_group_id_code(get_random_name(), manager_token)
 
-        response = get(f'/groups/{group_id_code[0]}/students')
+        response = get(f'/api/v1/groups/{group_id_code[0]}/students')
 
         assert response[0] == 401
 
@@ -558,7 +558,7 @@ class TestGroup:
         group_id = create_join_request_group_id(student_id_token[1], manager_token, approve=True)
         random_manager_token = get_random_manager_token()
 
-        response = get(f'/groups/{group_id}/students', random_manager_token)
+        response = get(f'/api/v1/groups/{group_id}/students', random_manager_token)
 
         assert response[0] == 403
 
@@ -566,7 +566,7 @@ class TestGroup:
         manager_token = get_manager_id_token()[1]
         id = 999999999999999999999
 
-        response = get(f'/groups/{id}/students', manager_token)
+        response = get(f'/api/v1/groups/{id}/students', manager_token)
 
         assert response[0] == 404
 
@@ -575,10 +575,10 @@ class TestGroup:
         student_id_token = get_student_id_token()
         create_join_request_group_id(student_id_token[1], manager_id_token[1], approve=True)
 
-        response = get('/groups?member_of=true', student_id_token[1])
+        response = get('/api/v1/groups?member_of=true', student_id_token[1])
 
         assert response[0] == 200
-        all_groups = get('/groups?member_of=false', student_id_token[1])[1]['groups']
+        all_groups = get('/api/v1/groups?member_of=false', student_id_token[1])[1]['groups']
         assert len(all_groups) > len(response[1]['groups'])
 
     # JWT tests
@@ -586,7 +586,7 @@ class TestGroup:
     def test_get_groups_list_with_invalid_token_should_return_unauthorized(self) -> None:
         token ='invalid'
 
-        response = get('/groups', token)
+        response = get('/api/v1/groups', token)
 
         assert response[0] == 401
 
@@ -594,13 +594,13 @@ class TestGroup:
         manager_id = get_manager_id_token()[0]
         token = create_expired_token(manager_id)
 
-        response = get('/groups', token)
+        response = get('/api/v1/groups', token)
 
         assert response[0] == 401
 
     def test_get_groups_list_with_wrong_token_patter_should_return_unauthorized(self) -> None:
         token = get_manager_id_token()[1]
 
-        response = get('/groups', custom_headers={'Authorization': f'{token}'})
+        response = get('/api/v1/groups', custom_headers={'Authorization': f'{token}'})
 
         assert response[0] == 401

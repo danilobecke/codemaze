@@ -11,7 +11,7 @@ class TestStudent:
             'email': self.__email,
             'password': self.__password
         }
-        response = post('/students', payload)
+        response = post('/api/v1/students', payload)
 
         assert_user_response(response, self.__name, self.__email, 'student')
 
@@ -20,7 +20,7 @@ class TestStudent:
             'email': self.__email,
             'password': self.__password
         }
-        response = post('/session', payload)
+        response = post('/api/v1/session', payload)
 
         assert_user_response(response, self.__name, self.__email, 'student', 200)
 
@@ -28,7 +28,7 @@ class TestStudent:
         payload = {
             'password': self.__password
         }
-        response = post('/session', payload)
+        response = post('/api/v1/session', payload)
 
         assert response[0] == 400
 
@@ -36,7 +36,7 @@ class TestStudent:
         payload = {
             'email': self.__email
         }
-        response = post('/session', payload)
+        response = post('/api/v1/session', payload)
 
         assert response[0] == 400
 
@@ -45,7 +45,7 @@ class TestStudent:
             'email': 'some-random-email@email.com',
             'password': self.__password
         }
-        response = post('/session', payload)
+        response = post('/api/v1/session', payload)
 
         assert response[0] == 403
 
@@ -54,7 +54,7 @@ class TestStudent:
             'email': self.__email,
             'password': 'some-random-password'
         }
-        response = post('/session', payload)
+        response = post('/api/v1/session', payload)
 
         assert response[0] == 403
 
@@ -64,7 +64,7 @@ class TestStudent:
             'email': self.__email,
             'password': self.__password
         }
-        response = post('/students', payload)
+        response = post('/api/v1/students', payload)
 
         assert response[0] == 500
 
@@ -73,7 +73,7 @@ class TestStudent:
             'email': 'invalid-email',
             'password': 'password'
         }
-        response = post('/session', payload)
+        response = post('/api/v1/session', payload)
 
         assert response[0] == 400
 
@@ -83,6 +83,6 @@ class TestStudent:
             'email': 'invalid-email',
             'password': 'password'
         }
-        response = post('/students', payload)
+        response = post('/api/v1/students', payload)
 
         assert response[0] == 400

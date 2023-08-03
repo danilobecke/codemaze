@@ -15,7 +15,7 @@ class TestTask:
             'ends_on': (datetime.now().astimezone() + timedelta(days=1)).isoformat(),
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
-        response = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 201
         json = response[1]
@@ -24,7 +24,7 @@ class TestTask:
         assert json['max_attempts'] == payload['max_attempts']
         assert json['starts_on'] == payload['starts_on']
         assert json['ends_on'] == payload['ends_on']
-        assert json['file_url'] == f'/tasks/{id}/task'
+        assert json['file_url'] == f'/api/v1/tasks/{id}/task'
 
     def test_create_task_without_optional_parameters_should_create_and_set_start_date(self) -> None:
         manager_id_token = get_manager_id_token()
@@ -33,7 +33,7 @@ class TestTask:
             'name': get_random_name(),
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
-        response = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 201
         json = response[1]
@@ -42,7 +42,7 @@ class TestTask:
         assert json['max_attempts'] is None
         assert json['starts_on'] is not None
         assert json['ends_on'] is None
-        assert json['file_url'] == f'/tasks/{id}/task'
+        assert json['file_url'] == f'/api/v1/tasks/{id}/task'
 
     def test_create_task_without_name_should_fail(self) -> None:
         manager_id_token = get_manager_id_token()
@@ -50,7 +50,7 @@ class TestTask:
         payload = {
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
-        response = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 400
 
@@ -60,7 +60,7 @@ class TestTask:
         payload = {
             'name': get_random_name()
         }
-        response = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 400
 
@@ -71,7 +71,7 @@ class TestTask:
             'name': get_random_name(),
             'file': (BytesIO(b'Random file content.'))
         }
-        response = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 400
 
@@ -82,7 +82,7 @@ class TestTask:
             'name': get_random_name(),
             'file': (BytesIO(b'Random file content.'), '')
         }
-        response = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 422
 
@@ -93,7 +93,7 @@ class TestTask:
             'name': get_random_name(),
             'file': (BytesIO(b'Random file content.'), 'file.png')
         }
-        response = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 422
 
@@ -105,7 +105,7 @@ class TestTask:
             'name': get_random_name(),
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
-        response = post(f'/groups/{group_id_code[0]}/tasks', payload, random_manager_token, CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, random_manager_token, CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 403
 
@@ -115,7 +115,7 @@ class TestTask:
             'name': get_random_name(),
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
-        response = post(f'/groups/{99999999}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/groups/{99999999}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 404
 
@@ -128,7 +128,7 @@ class TestTask:
                 'name': get_random_name(),
                 'file': (file, 'file_name.txt')
             }
-            response = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+            response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
             assert response[0] == 413
 
@@ -141,7 +141,7 @@ class TestTask:
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
 
-        response = post(f'/groups/{group_id}/tasks', payload, student_id_token[1], CONTENT_TYPE_FORM_DATA)
+        response = post(f'/api/v1/groups/{group_id}/tasks', payload, student_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 401
 
@@ -153,7 +153,7 @@ class TestTask:
             'name': get_random_name(),
             'file': (BytesIO(content.encode('UTF-8')), 'file_name.txt')
         }
-        task = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
+        task = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
 
         response = get(task['file_url'], manager_id_token[1], decode_as_json=False)
 
@@ -168,7 +168,7 @@ class TestTask:
             'name': get_random_name(),
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
-        task = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
+        task = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
 
         response = get(task['file_url'], random_manager_token)
 
@@ -177,7 +177,7 @@ class TestTask:
     def test_download_task_with_invalid_task_should_return_not_found(self) -> None:
         manager_id_token = get_manager_id_token()
 
-        response = get(f'/tasks/{999999}/task', manager_id_token[1])
+        response = get(f'/api/v1/tasks/{999999}/task', manager_id_token[1])
 
         assert response[0] == 404
 
@@ -189,11 +189,11 @@ class TestTask:
             'name': get_random_name(),
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
-        task = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
+        task = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
         join_payload = {
             'code': group_id_code[1]
         }
-        post('groups/join', join_payload, student_id_token[1])
+        post('/api/v1/groups/join', join_payload, student_id_token[1])
 
         response = get(task['file_url'], student_id_token[1])
 
@@ -208,7 +208,7 @@ class TestTask:
             'name': get_random_name(),
             'file': (BytesIO(content.encode('UTF-8')), 'file_name.txt')
         }
-        task = post(f'/groups/{group_id}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
+        task = post(f'/api/v1/groups/{group_id}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
 
         response = get(task['file_url'], manager_id_token[1], decode_as_json=False)
 
@@ -225,7 +225,7 @@ class TestTask:
             'ends_on': (datetime.now().astimezone() + timedelta(days=1)).isoformat(),
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
-        task = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
+        task = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
         task_id = task['id']
 
         new_content = 'New content!'
@@ -236,7 +236,7 @@ class TestTask:
             'ends_on': (datetime.now().astimezone() + timedelta(days=10)).isoformat(),
             'file': (BytesIO(new_content.encode('UTF-8')), 'file_name.txt')
         }
-        response = patch(f'/tasks/{task_id}', update_payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+        response = patch(f'/api/v1/tasks/{task_id}', update_payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 200
         json = response[1]
@@ -261,10 +261,10 @@ class TestTask:
             'name': get_random_name(),
             'file': (BytesIO(content.encode('UTF-8')), 'file_name.txt')
         }
-        task = post(f'/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
+        task = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
         task_id = task['id']
 
-        response = patch(f'/tasks/{task_id}', {}, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+        response = patch(f'/api/v1/tasks/{task_id}', {}, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 200
         json = response[1]
@@ -288,7 +288,7 @@ class TestTask:
             'file': (BytesIO(b'Random file content.'), '')
         }
 
-        response = patch(f'/tasks/{task_id}', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+        response = patch(f'/api/v1/tasks/{task_id}', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 422
 
@@ -299,7 +299,7 @@ class TestTask:
             'file': (BytesIO(b'Random file content.'), 'file.png')
         }
 
-        response = patch(f'/tasks/{task_id}', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+        response = patch(f'/api/v1/tasks/{task_id}', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 422
 
@@ -308,14 +308,14 @@ class TestTask:
         task_id = create_task_json(manager_id_token[1])['id']
         random_manager_token = get_random_manager_token()
 
-        response = patch(f'/tasks/{task_id}', {}, random_manager_token, CONTENT_TYPE_FORM_DATA)
+        response = patch(f'/api/v1/tasks/{task_id}', {}, random_manager_token, CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 403
 
     def test_update_task_with_invalid_id_should_return_not_found(self) -> None:
         manager_id_token = get_manager_id_token()
 
-        response = patch(f'/tasks/{999999}', {}, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+        response = patch(f'/api/v1/tasks/{999999}', {}, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 404
 
@@ -327,7 +327,7 @@ class TestTask:
             payload = {
                 'file': (file, 'file_name.txt')
             }
-            response = patch(f'/tasks/{task_id}', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+            response = patch(f'/api/v1/tasks/{task_id}', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
             assert response[0] == 413
 
@@ -337,7 +337,7 @@ class TestTask:
         create_join_request_group_id(student_id_token[1], manager_id_token[1], approve=True)
         task_id = create_task_json(manager_id_token[1])['id']
 
-        response = patch(f'/tasks/{task_id}', {}, student_id_token[1], CONTENT_TYPE_FORM_DATA)
+        response = patch(f'/api/v1/tasks/{task_id}', {}, student_id_token[1], CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 401
 
@@ -347,7 +347,7 @@ class TestTask:
         task_1 = create_task_json(manager_token, group_id)
         task_2 = create_task_json(manager_token, group_id)
 
-        response = get(f'/groups/{group_id}/tasks', manager_token)
+        response = get(f'/api/v1/groups/{group_id}/tasks', manager_token)
 
         assert response[0] == 200
         tasks = response[1]['tasks']
@@ -363,7 +363,7 @@ class TestTask:
         task_2 = create_task_json(manager_token, group_id)
         create_task_json(manager_token) # another group
 
-        response = get(f'/groups/{group_id}/tasks', student_token)
+        response = get(f'/api/v1/groups/{group_id}/tasks', student_token)
 
         assert response[0] == 200
         tasks = response[1]['tasks']
@@ -375,7 +375,7 @@ class TestTask:
         manager_token = get_manager_id_token()[1]
         group_id = get_new_group_id_code(get_random_name(), manager_token)[0]
 
-        response = get(f'/groups/{group_id}/tasks', manager_token)
+        response = get(f'/api/v1/groups/{group_id}/tasks', manager_token)
 
         assert response[0] == 200
         tasks = response[1]['tasks']
@@ -384,7 +384,7 @@ class TestTask:
     def test_get_tasks_with_invalid_group_should_return_not_found(self) -> None:
         manager_token = get_manager_id_token()[1]
 
-        response = get(f'/groups/{99999999}/tasks', manager_token)
+        response = get(f'/api/v1/groups/{99999999}/tasks', manager_token)
 
         assert response[0] == 404
 
@@ -393,7 +393,7 @@ class TestTask:
         group_id = get_new_group_id_code(get_random_name(), manager_token)[0]
         random_manager = get_random_manager_token()
 
-        response = get(f'/groups/{group_id}/tasks', random_manager)
+        response = get(f'/api/v1/groups/{group_id}/tasks', random_manager)
 
         assert response[0] == 403
 
@@ -402,7 +402,7 @@ class TestTask:
         student_token = get_student_id_token()[1]
         group_id = create_join_request_group_id(student_token, manager_token)
 
-        response = get(f'/groups/{group_id}/tasks', student_token)
+        response = get(f'/api/v1/groups/{group_id}/tasks', student_token)
 
         assert response[0] == 403
 
@@ -412,7 +412,7 @@ class TestTask:
         open_test = create_test_case_json(manager_token, task_id, closed=False)
         closed_test = create_test_case_json(manager_token, task_id, closed=True)
 
-        response = get(f'/tasks/{task_id}', manager_token)
+        response = get(f'/api/v1/tasks/{task_id}', manager_token)
 
         assert response[0] == 200
         task = response[1]
@@ -439,7 +439,7 @@ class TestTask:
         open_test = create_test_case_json(manager_token, task_id, closed=False)
         closed_test = create_test_case_json(manager_token, task_id, closed=True)
 
-        response = get(f'/tasks/{task_id}', student_token)
+        response = get(f'/api/v1/tasks/{task_id}', student_token)
 
         assert response[0] == 200
         task = response[1]
@@ -464,7 +464,7 @@ class TestTask:
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
 
-        response = get(f'/tasks/{task_id}', manager_token)
+        response = get(f'/api/v1/tasks/{task_id}', manager_token)
 
         assert response[0] == 200
         task = response[1]
@@ -476,7 +476,7 @@ class TestTask:
         task_id = create_task_json(manager_token)['id']
         random_manager = get_random_manager_token()
 
-        response = get(f'/tasks/{task_id}', random_manager)
+        response = get(f'/api/v1/tasks/{task_id}', random_manager)
 
         assert response[0] == 403
 
@@ -486,13 +486,13 @@ class TestTask:
         group_id = create_join_request_group_id(student_token, manager_token, approve=False)
         task_id = create_task_json(manager_token, group_id)['id']
 
-        response = get(f'/tasks/{task_id}', student_token)
+        response = get(f'/api/v1/tasks/{task_id}', student_token)
 
         assert response[0] == 403
 
     def test_get_task_details_with_invalid_id_should_return_not_found(self) -> None:
         manager_token = get_manager_id_token()[1]
 
-        response = get(f'/tasks/{999999}', manager_token)
+        response = get(f'/api/v1/tasks/{999999}', manager_token)
 
         assert response[0] == 404

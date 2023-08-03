@@ -71,7 +71,7 @@ def get_manager_id_token() -> tuple[str, str]:
         'email': manager_email,
         'password': manager_password
     }
-    response = post('/session', login_payload)
+    response = post('/api/v1/session', login_payload)
     if response[0] == 200:
         return (response[1]['id'], response[1]['token'])
 
@@ -80,7 +80,7 @@ def get_manager_id_token() -> tuple[str, str]:
         'email': manager_email,
         'password': manager_password
     }
-    response = post('/managers', create_payload)
+    response = post('/api/v1/managers', create_payload)
     return (response[1]['id'], response[1]['token'])
 
 def get_student_id_token() -> tuple[str, str]:
@@ -91,7 +91,7 @@ def get_student_id_token() -> tuple[str, str]:
         'email': student_email,
         'password': student_password
     }
-    response = post('/session', login_payload)
+    response = post('/api/v1/session', login_payload)
     if response[0] == 200:
         return (response[1]['id'], response[1]['token'])
 
@@ -100,7 +100,7 @@ def get_student_id_token() -> tuple[str, str]:
         'email': student_email,
         'password': student_password
     }
-    response = post('/students', create_payload)
+    response = post('/api/v1/students', create_payload)
     return (response[1]['id'], response[1]['token'])
 
 def get_random_manager_token() -> str:
@@ -110,14 +110,14 @@ def get_random_manager_token() -> str:
         'email': f'{random}@email.com',
         'password': 'password'
     }
-    response = post('/managers', payload)
+    response = post('/api/v1/managers', payload)
     return str(response[1]['token'])
 
 def get_new_group_id_code(name: str, token: str) -> tuple[str, str]:
     payload = {
         'name': name
     }
-    response = post('/groups', payload, token)
+    response = post('/api/v1/groups', payload, token)
     return (response[1]['id'], response[1]['code'])
 
 def create_expired_token(user_id: str) -> str:
@@ -135,15 +135,15 @@ def create_join_request_group_id(student_token: str, manager_token: str, approve
     join_payload = {
         'code': code
     }
-    post('groups/join', join_payload, student_token)
+    post('/api/v1/groups/join', join_payload, student_token)
     if approve is False:
         return group_id
 
-    request_id = get(f'groups/{group_id}/requests', manager_token)[1]['requests'][0]['id']
+    request_id = get(f'/api/v1/groups/{group_id}/requests', manager_token)[1]['requests'][0]['id']
     approve_payload = {
         'approve': True
     }
-    patch(f'/groups/{group_id}/requests/{request_id}', approve_payload, manager_token)
+    patch(f'/api/v1/groups/{group_id}/requests/{request_id}', approve_payload, manager_token)
     return group_id
 
 def create_task_json(manager_token: str, group_id: str | None = None) -> Dict[str, Any]:
@@ -153,7 +153,7 @@ def create_task_json(manager_token: str, group_id: str | None = None) -> Dict[st
         'name': get_random_name(),
         'file': (BytesIO(b'Random file content.'), 'file.txt')
     }
-    return post(f'/groups/{group_id}/tasks', payload, manager_token, CONTENT_TYPE_FORM_DATA)[1]
+    return post(f'/api/v1/groups/{group_id}/tasks', payload, manager_token, CONTENT_TYPE_FORM_DATA)[1]
 
 def create_test_case_json(manager_token: str, task_id: int | None = None, group_id: str | None = None, closed: bool = False, content_in: str = 'Input.', content_out: str = 'Output.') -> Dict[str, Any]:
     if task_id is None:
@@ -165,7 +165,7 @@ def create_test_case_json(manager_token: str, task_id: int | None = None, group_
         'output': (BytesIO(content_out.encode('UTF-8')), 'output.out'),
         'closed': closed
     }
-    return post(f'/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)[1]
+    return post(f'/api/v1/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)[1]
 
 ## Asserts
 

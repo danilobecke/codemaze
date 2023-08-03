@@ -15,7 +15,7 @@ def __init_app(db_string: str, storage_path: str, resetting_db: bool = False) ->
     app.config['STORAGE_PATH'] = storage_path
     Database.initialize(db_string, resetting_db)
     SessionService.initialize(key)
-    Router(app).create_routes()
+    Router().create_routes(app)
     return app
 
 def __get_env(name: str) -> str:

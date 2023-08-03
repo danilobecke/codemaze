@@ -11,7 +11,7 @@ class TestManager:
             'email': self.__email,
             'password': self.__password
         }
-        response = post('/managers', payload)
+        response = post('/api/v1/managers', payload)
 
         assert_user_response(response, self.__name, self.__email, 'manager')
 
@@ -20,7 +20,7 @@ class TestManager:
             'email': self.__email,
             'password': self.__password
         }
-        response = post('/session', payload)
+        response = post('/api/v1/session', payload)
 
         assert_user_response(response, self.__name, self.__email, 'manager', 200)
 
@@ -29,7 +29,7 @@ class TestManager:
             'email': self.__email,
             'password': self.__password
         }
-        response = post('/managers', payload)
+        response = post('/api/v1/managers', payload)
 
         assert response[0] == 400
 
@@ -38,7 +38,7 @@ class TestManager:
             'name': self.__name,
             'password': self.__password
         }
-        response = post('/managers', payload)
+        response = post('/api/v1/managers', payload)
 
         assert response[0] == 400
 
@@ -47,7 +47,7 @@ class TestManager:
             'name': self.__name,
             'email': self.__email
         }
-        response = post('/managers', payload)
+        response = post('/api/v1/managers', payload)
 
         assert response[0] == 400
 
@@ -57,7 +57,7 @@ class TestManager:
             'email': self.__email,
             'password': self.__password
         }
-        response = post('/managers', payload)
+        response = post('/api/v1/managers', payload)
 
         assert response[0] == 500
 
@@ -67,6 +67,6 @@ class TestManager:
             'email': 'invalid-email',
             'password': 'password'
         }
-        response = post('/managers', payload)
+        response = post('/api/v1/managers', payload)
 
         assert response[0] == 400

@@ -11,10 +11,10 @@ def file_extension(filename: str) -> str:
     return os.path.splitext(filename)[1]
 
 def task_download_url(task_id: int) -> str:
-    return url_for('tasks_task_download_resource', id=task_id)
+    return url_for('api/v1.tasks_task_download_resource', id=task_id)
 
 def test_download_url_in(test_id: int) -> str:
-    return url_for('tests_test_download_in_resource', id=test_id)
+    return url_for('api/v1.tests_test_download_in_resource', id=test_id)
 
 def test_download_url_out(test_id: int) -> str:
-    return url_for('tests_test_download_out_resource', id=test_id)
+    return url_for('api/v1.tests_test_download_out_resource', id=test_id)
