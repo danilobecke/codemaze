@@ -1,13 +1,14 @@
 from typing import TypeVar, Generic
 
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from helpers.exceptions import Internal_UniqueViolation, ServerError, NotFound
 from helpers.unwrapper import unwrap
-from repository.dto.base_dto import BaseDTO
+from repository.base import Base
 from repository.database import Database
 
-M = TypeVar('M', bound=BaseDTO)
+M = TypeVar('M', bound=Base)
 
 class AbstractRepository(Generic[M]):
     def __init__(self, klass: type[M]) -> None:
@@ -15,11 +16,12 @@ class AbstractRepository(Generic[M]):
         self._session = unwrap(Database.shared).session
 
     def find_all(self) -> list[M]:
-        results: list[M] = self._session.query(self.__class).order_by(self.__class.created_at).all()
-        return results
+        stm = select(self.__class).order_by(self.__class.created_at)
+        return list(self._session.scalars(stm).all())
 
     def find(self, id: int) -> M:
-        model: M | None = self._session.query(self.__class).get(id)
+        stm = select(self.__class).where(self.__class.id == id)
+        model = self._session.scalars(stm).first()
         if model is None:
             raise NotFound()
         return model

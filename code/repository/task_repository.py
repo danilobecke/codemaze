@@ -10,10 +10,8 @@ class TaskRepository(AbstractRepository[TaskDTO]):
         super().__init__(TaskDTO)
 
     def get_tasks(self, group_id: int, started_only: bool) -> list[TaskDTO]:
-        # this is the correct syntax: https://docs.sqlalchemy.org/en/20/orm/queryguide/select.html#writing-select-statements-for-orm-mapped-classes
-        stm = select(TaskDTO).where(TaskDTO.group_id == group_id) # type: ignore
+        stm = select(TaskDTO).where(TaskDTO.group_id == group_id)
         if started_only is True:
             stm = stm.where(TaskDTO.starts_on <= datetime.now().astimezone())
         stm = stm.order_by(TaskDTO.created_at)
-        result: list[TaskDTO] = self._session.scalars(stm).all()
-        return result
+        return list(self._session.scalars(stm).all())

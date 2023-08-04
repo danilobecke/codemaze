@@ -1,13 +1,13 @@
-from sqlalchemy import Column, Integer, Sequence, String, Boolean, ForeignKey
+from sqlalchemy import Integer, Sequence, ForeignKey
+from sqlalchemy.orm import mapped_column, Mapped
 
 from repository.base import Base
-from repository.dto.base_dto import BaseDTO
 
-class TestCaseDTO(Base, BaseDTO):
+class TestCaseDTO(Base):
     __tablename__ = 'test_case'
 
-    id = Column(Integer, Sequence('sq_test_case_pk'), primary_key=True, autoincrement=True)
-    input_file_path = Column(String, nullable=False)
-    output_file_path = Column(String, nullable=False)
-    closed = Column(Boolean, nullable=False)
-    task_id = Column(Integer, ForeignKey('task.id'), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, Sequence('sq_test_case_pk'), primary_key=True, autoincrement=True)
+    input_file_path: Mapped[str]
+    output_file_path: Mapped[str]
+    closed: Mapped[bool]
+    task_id: Mapped[int] = mapped_column(Integer, ForeignKey('task.id'), nullable=False)

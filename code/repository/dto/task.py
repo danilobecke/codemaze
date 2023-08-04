@@ -1,17 +1,20 @@
-from sqlalchemy import Column, Integer, Sequence, String, DateTime, ForeignKey
+from datetime import datetime
+from typing import Optional
+
+from sqlalchemy import Integer, Sequence, DateTime, ForeignKey
+from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy.sql import func
 
 from repository.base import Base
-from repository.dto.base_dto import BaseDTO
 
 # pylint: disable=not-callable
-class TaskDTO(Base, BaseDTO):
+class TaskDTO(Base):
     __tablename__ = 'task'
 
-    id = Column(Integer, Sequence('sq_task_pk'), primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
-    max_attempts = Column(Integer, nullable=True)
-    starts_on = Column(DateTime(timezone=True), server_default=func.now())
-    ends_on = Column(DateTime(timezone=True), nullable=True)
-    file_path = Column(String, nullable=False)
-    group_id = Column(Integer, ForeignKey('group.id'), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, Sequence('sq_task_pk'), primary_key=True, autoincrement=True)
+    name: Mapped[str]
+    max_attempts: Mapped[Optional[int]]
+    starts_on: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    ends_on: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    file_path: Mapped[str]
+    group_id: Mapped[int] = mapped_column(Integer, ForeignKey('group.id'), nullable=False)

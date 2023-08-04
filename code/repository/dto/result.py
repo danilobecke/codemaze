@@ -1,14 +1,14 @@
-from sqlalchemy import Column, Integer, Sequence, String, ForeignKey
+from sqlalchemy import Integer, Sequence, ForeignKey
+from sqlalchemy.orm import mapped_column, Mapped
 
 from repository.base import Base
-from repository.dto.base_dto import BaseDTO
 
-class ResultDTO(Base, BaseDTO):
+class ResultDTO(Base):
     __tablename__ = 'result'
 
-    id = Column(Integer, Sequence('sq_result_pk'), primary_key=True, autoincrement=True)
-    correct_open = Column(Integer, nullable=False)
-    correct_closed = Column(Integer, nullable=False)
-    file_path = Column(String, nullable=False)
-    student_id = Column(Integer, ForeignKey('student.id'), nullable=False)
-    task_id = Column(Integer, ForeignKey('task.id'), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, Sequence('sq_result_pk'), primary_key=True, autoincrement=True)
+    correct_open: Mapped[int]
+    correct_closed: Mapped[int]
+    file_path: Mapped[str]
+    student_id: Mapped[int] = mapped_column(Integer, ForeignKey('student.id'), nullable=False)
+    task_id: Mapped[int] = mapped_column(Integer, ForeignKey('task.id'), nullable=False)
