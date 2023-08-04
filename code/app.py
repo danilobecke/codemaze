@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask.testing import FlaskClient
 
+from error_handler import ErrorHandler
 from repository.database import Database
 from router import Router
 from services.session_service import SessionService
@@ -16,6 +17,7 @@ def __init_app(db_string: str, storage_path: str, resetting_db: bool = False) ->
     Database.initialize(db_string, resetting_db)
     SessionService.initialize(key)
     Router().create_routes(app)
+    ErrorHandler.register(app)
     return app
 
 def __get_env(name: str) -> str:
