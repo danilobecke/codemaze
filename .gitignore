@@ -163,3 +163,4 @@ cython_debug/
 files/**/*
 !files/.gitkeep
 files_test/**/*
+!files_test/.gitkeep

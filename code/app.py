@@ -1,5 +1,5 @@
+import glob
 import os
-import shutil
 
 from dotenv import load_dotenv
 from flask import Flask
@@ -40,9 +40,8 @@ def run_as_test() -> FlaskClient:
     __set_up()
     db_string = __get_env('TEST_DB_STRING')
     storage_path = os.path.join(os.path.realpath(os.path.curdir), 'files_test')
-    if os.path.isdir(storage_path):
-        shutil.rmtree(storage_path, ignore_errors=True)
-    os.mkdir(storage_path)
+    for file in glob.glob(os.path.join(storage_path, '*')):
+        os.remove(file)
     app = __init_app(db_string, storage_path, resetting_db=True)
     return app.test_client()
 
