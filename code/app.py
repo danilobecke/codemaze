@@ -32,14 +32,14 @@ def __set_up() -> None:
 def run_as_debug() -> None:
     __set_up()
     db_string = __get_env('DEBUG_DB_STRING')
-    storage_path = os.path.join(os.path.realpath(os.path.curdir), 'files')
+    storage_path = os.path.join(os.path.realpath(os.path.curdir), 'files', 'debug')
     app = __init_app(db_string, storage_path)
     app.run(port=48345, debug=True)
 
 def run_as_test() -> FlaskClient:
     __set_up()
     db_string = __get_env('TEST_DB_STRING')
-    storage_path = os.path.join(os.path.realpath(os.path.curdir), 'files_test')
+    storage_path = os.path.join(os.path.realpath(os.path.curdir), 'files', 'test')
     for file in glob.glob(os.path.join(storage_path, '*')):
         os.remove(file)
     app = __init_app(db_string, storage_path, resetting_db=True)
