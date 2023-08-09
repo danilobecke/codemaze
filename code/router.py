@@ -4,11 +4,13 @@ from jsonschema import FormatChecker
 
 from endpoints.group_endpoints import GroupEndpoints
 from endpoints.manager_endpoints import ManagerEndpoints
+from endpoints.results_endpoints import ResultsEndpoints
 from endpoints.session_endpoints import SessionEndpoints
 from endpoints.student_endpoints import StudentEndpoints
 from endpoints.task_endpoints import TaskEndpoints
 from endpoints.tcase_endpoints import TCaseEndpoints
 from services.group_service import GroupService
+from services.result_service import ResultService
 from services.task_service import TaskService
 from services.tcase_service import TCaseService
 
@@ -17,6 +19,7 @@ class Router:
         self.__group_service = GroupService()
         self.__task_service = TaskService()
         self.__tcase_service = TCaseService()
+        self.__result_service = ResultService()
 
     def __create_v1_api(self, blueprint: Blueprint) -> Api:
         return Api(
@@ -45,6 +48,7 @@ class Router:
         groups_namespace = GroupEndpoints(v1_api, self.__group_service).register_resources()
         tasks_namespace = TaskEndpoints(v1_api, groups_namespace, self.__group_service, self.__task_service, self.__tcase_service).register_resources()
         TCaseEndpoints(v1_api, tasks_namespace, self.__group_service, self.__task_service, self.__tcase_service).register_resources()
+        ResultsEndpoints(v1_api, tasks_namespace, self.__group_service, self.__task_service, self.__tcase_service, self.__result_service).register_resources()
 
         app.register_blueprint(v1_blueprint)
 
