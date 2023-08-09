@@ -32,3 +32,15 @@ class Conflict(Exception):
 class ParameterValidationError(Exception):
     def __init__(self, key: str, value: str, type: str) -> None:
         super().__init__(f"{key}: {value} is not a valid {type}")
+
+class CompilationError(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(f"Failed to compile:\n{message}")
+
+class InvalidSourceCode(Exception):
+    def __init__(self, extension: str) -> None:
+        super().__init__(f"Invalid source code extension: {extension}")
+
+class ExecutionError(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(f"Execution error:\n{message}")

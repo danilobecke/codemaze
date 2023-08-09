@@ -22,7 +22,7 @@ class TCaseService:
         return TCaseVO.import_from_dto(stored, is_manager=True)
 
     def __is_manager(self, user_id: int, group_id: int, user_groups: list[GroupVO]) -> bool:
-        group = next(filter(lambda _group: _group.id == group_id, user_groups))
+        group = next(_group for _group in user_groups if _group.id == group_id)
         return group.manager_id == user_id
 
     def __get_test_case(self, id: int, user_id: int, get_task_func: Callable[[int, int, list[GroupVO]], TaskVO], user_groups: list[GroupVO]) -> TestCaseDTO:
@@ -42,9 +42,11 @@ class TCaseService:
         dto = self.__get_test_case(id, user_id, get_task_func, user_groups)
         return dto.output_file_path
 
-    def get_tests(self, user_id: int, task: TaskVO, user_groups: list[GroupVO]) -> list[TCaseVO]:
-        is_manager = self.__is_manager(user_id, task.group_id, user_groups)
+    def get_tests(self, user_id: int, task: TaskVO, user_groups: list[GroupVO], running_context: bool = False) -> list[TCaseVO]:
         dtos = self.__tcase_repository.get_tests(task.id)
+        if running_context is True:
+            return list(map(lambda dto: TCaseVO.running_context_from_dto(dto), dtos))
+        is_manager = self.__is_manager(user_id, task.group_id, user_groups)
         return list(map(lambda dto: TCaseVO.import_from_dto(dto, is_manager), dtos))
 
     def delete_test(self, id: int, user_id: int, get_task_func: Callable[[int, int, list[GroupVO]], TaskVO], user_groups: list[GroupVO]) -> None:

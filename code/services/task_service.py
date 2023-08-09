@@ -69,7 +69,7 @@ class TaskService:
     def get_task(self, task_id: int, user_id: int, user_groups: list[GroupVO]) -> TaskVO:
         dto = self.__task_repository.find(task_id)
         try:
-            group = next(filter(lambda _group: _group.id == dto.group_id, user_groups))
+            group = next(_group for _group in user_groups if _group.id == dto.group_id)
             if unwrap(dto.starts_on) > datetime.now().astimezone() and group.manager_id != user_id:
                 raise Forbidden() # only managers can retrieve upcoming tasks
             return TaskVO.import_from_dto(dto)
