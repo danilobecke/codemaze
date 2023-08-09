@@ -2,9 +2,12 @@
 
 ![coverage-badge](./metadata/coverage.svg) [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint) [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 
-## Prerequisite
+## Prerequisites
 
-This project uses PostgreSQL as its database, you must have it installed before installing the requirements.
+You must have installed before installing the requirements:
+
+1. **PostgreSQL** - used as the project's database;
+2. **Docker** - used as a sandbox to run students' code in a safe environment.
 
 ## Install Requirements
 
@@ -52,6 +55,14 @@ Navigate to the root folder and run:
 make test
 ```
 
+## Stopping
+
+To stop and remove the Docker containers, you can run:
+
+```bash
+make stop
+```
+
 ## Swagger - v1
 
 The Swagger documentation is hosted at the `/api/v1/docs` URL.
@@ -67,16 +78,18 @@ The Swagger documentation is hosted at the `/api/v1/docs` URL.
 ![data-structure](./metadata/logico.png)
 
 ## Technologies
+
+- [coverage-badge](https://pypi.org/project/coverage-badge/)
+- [Docker](https://www.docker.com)
 - [Flask](https://flask.palletsprojects.com/en/2.3.x/)
 - [flask-restx](https://flask-restx.readthedocs.io/en/latest/)
+- [mypy](https://mypy-lang.org)
 - [PostgreSQL](https://www.postgresql.org)
-- [SQLAlchemy](https://www.sqlalchemy.org)
-- [SQLAlchemy-Utils](https://sqlalchemy-utils.readthedocs.io/en/latest/)
+- [pyclean](https://pypi.org/project/pyclean/)
 - [PyJWT](https://pyjwt.readthedocs.io/en/stable/)
+- [pylint](https://pylint.readthedocs.io/en/latest/#)
 - [pytest](https://docs.pytest.org/en/7.3.x/)
 - [pytest-cov](https://pytest-cov.readthedocs.io)
-- [coverage-badge](https://pypi.org/project/coverage-badge/)
-- [pyclean](https://pypi.org/project/pyclean/)
-- [pylint](https://pylint.readthedocs.io/en/latest/#)
 - [python-dotenv](https://pypi.org/project/python-dotenv/)
-- [mypy](https://mypy-lang.org)
+- [SQLAlchemy](https://www.sqlalchemy.org)
+- [SQLAlchemy-Utils](https://sqlalchemy-utils.readthedocs.io/en/latest/)
