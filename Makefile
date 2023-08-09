@@ -11,8 +11,8 @@ MYPY = $(VENV)/bin/mypy
 setup: requirements.txt
 	python -m venv $(VENV)
 	$(PIP) install -r requirements.txt
-	chmod 777 hooks/pre-commit
-	git config core.hooksPath hooks
+	chmod 777 scripts/pre-commit
+	git config core.hooksPath scripts
 run:
 	$(PYTHON) code/app.py
 test:

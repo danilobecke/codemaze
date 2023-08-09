@@ -20,7 +20,7 @@ green_echo() {
 
 # find staged .py files
 FILES=`git diff --name-only --cached --diff-filter=d`
-PY_FILES=`venv/bin/python hooks/modified_py_files.py "$FILES"`
+PY_FILES=`venv/bin/python scripts/modified_py_files.py "$FILES"`
 if [ -z "$PY_FILES" ]; then
     green_echo "No .py files changed - skipping tests, pylint, and mypy."
     exit 0;
