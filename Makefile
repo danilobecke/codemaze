@@ -7,20 +7,27 @@ PYCLEAN = $(VENV)/bin/pyclean
 PYLINT = $(VENV)/bin/pylint
 MYPY = $(VENV)/bin/mypy
 
-# setup, run, test, and lint
+# setup, run, test, lint, type-ceck, and stop
 setup: requirements.txt
 	python -m venv $(VENV)
 	$(PIP) install -r requirements.txt
 	chmod 777 scripts/pre-commit
+	chmod 777 scripts/run_gcc_container_if_needed.sh
+	chmod 777 scripts/stop_gcc_container.sh
 	git config core.hooksPath scripts
+	docker build -t gcc-image . 
 run:
+	./scripts/run_gcc_container_if_needed.sh
 	$(PYTHON) code/app.py
 test:
+	./scripts/run_gcc_container_if_needed.sh
 	$(PYTEST) --ignore=code/repository --cov-report term-missing:skip-covered --cov-config=configs/.coveragerc --cov=code
 lint:
 	$(PYLINT) code --rcfile=configs/.pylintrc
 type-check:
 	$(MYPY) code --config-file configs/mypy.ini
+stop:
+	./scripts/stop_gcc_container.sh
 
 # pip install and freeze
 add:
