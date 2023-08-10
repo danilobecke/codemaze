@@ -1,5 +1,6 @@
 from typing import Callable
 
+from endpoints.models.all_tests_vo import AllTestsVO
 from endpoints.models.group import GroupVO
 from endpoints.models.task_vo import TaskVO
 from endpoints.models.tcase_vo import TCaseVO
@@ -42,12 +43,17 @@ class TCaseService:
         dto = self.__get_test_case(id, user_id, get_task_func, user_groups)
         return dto.output_file_path
 
-    def get_tests(self, user_id: int, task: TaskVO, user_groups: list[GroupVO], running_context: bool = False) -> list[TCaseVO]:
+    def get_tests(self, user_id: int, task: TaskVO, user_groups: list[GroupVO], running_context: bool = False) -> AllTestsVO:
         dtos = self.__tcase_repository.get_tests(task.id)
+        vos: list[TCaseVO] = []
         if running_context is True:
-            return list(map(lambda dto: TCaseVO.running_context_from_dto(dto), dtos))
-        is_manager = self.__is_manager(user_id, task.group_id, user_groups)
-        return list(map(lambda dto: TCaseVO.import_from_dto(dto, is_manager), dtos))
+            vos = list(map(lambda dto: TCaseVO.running_context_from_dto(dto), dtos))
+        else:
+            is_manager = self.__is_manager(user_id, task.group_id, user_groups)
+            vos = list(map(lambda dto: TCaseVO.import_from_dto(dto, is_manager), dtos))
+        open_tests = list(filter(lambda test: test.closed is False, vos))
+        closed_tests = list(filter(lambda test: test.closed is True, vos))
+        return AllTestsVO(open_tests, closed_tests)
 
     def delete_test(self, id: int, user_id: int, get_task_func: Callable[[int, int, list[GroupVO]], TaskVO], user_groups: list[GroupVO]) -> None:
         dto = self.__tcase_repository.find(id)

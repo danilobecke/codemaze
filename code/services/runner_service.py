@@ -1,6 +1,6 @@
 import difflib
 
-from endpoints.models.tcase_vo import TCaseVO
+from endpoints.models.all_tests_vo import AllTestsVO
 from endpoints.models.tcase_result_vo import TCaseResultVO
 from helpers.commons import file_extension
 from helpers.exceptions import InvalidSourceCode, ExecutionError, CompilationError, ServerError
@@ -23,13 +23,13 @@ class RunnerService:
             result = result.union(runner.file_extension())
         return result
 
-    def run(self, path: str, tests: list[TCaseVO]) -> list[TCaseResultVO]:
+    def run(self, path: str, tests: AllTestsVO) -> list[TCaseResultVO]:
         results: list[TCaseResultVO] = []
         try:
             runner = next(_runner for _runner in self.__runners if _runner.is_source_code(path))
             source_path = runner.add_to_sandbox(path)
             executable_path = runner.compile(source_path)
-            for test in tests:
+            for test in tests.open_tests + tests.closed_tests:
                 dto = TestCaseResultDTO()
                 dto.test_case_id = test.id
                 try:
@@ -56,7 +56,7 @@ class RunnerService:
             # pylint: disable=raise-missing-from
             raise InvalidSourceCode(file_extension(path))
         except CompilationError as e:
-            for test in tests:
+            for test in tests.open_tests + tests.closed_tests:
                 dto = TestCaseResultDTO()
                 dto.test_case_id = test.id
                 dto.success = False

@@ -270,8 +270,11 @@ class TestTCase:
         response = get(f'/api/v1/tasks/{task_id}/tests', manager_token)
 
         assert response[0] == 200
-        tests = response[1]['tests']
-        assert len(tests) == 2
+        open_tests = response[1]['open_tests']
+        closed_tests = response[1]['closed_tests']
+        assert len(open_tests) == 1
+        assert len(closed_tests) == 1
+        tests = open_tests + closed_tests
         assert all(test['input_url'] is not None for test in tests) is True
         assert all(test['output_url'] is not None for test in tests) is True
 
@@ -286,14 +289,16 @@ class TestTCase:
         response = get(f'/api/v1/tasks/{task_id}/tests', student_token)
 
         assert response[0] == 200
-        tests = response[1]['tests']
-        assert len(tests) == 2
-        open_test = list(filter(lambda test: test['id'] == open_test_id, tests))[0]
-        assert open_test['input_url'] is not None
-        assert open_test['output_url'] is not None
-        closed_test = list(filter(lambda test: test['id'] == closed_test_id, tests))[0]
-        assert closed_test['input_url'] is None
-        assert closed_test['output_url'] is None
+        open_tests = response[1]['open_tests']
+        assert len(open_tests) == 1
+        assert open_test_id in map(lambda test: test['id'], open_tests)
+        assert all(test['input_url'] is not None for test in open_tests) is True
+        assert all(test['output_url'] is not None for test in open_tests) is True
+        closed_tests = response[1]['closed_tests']
+        assert len(closed_tests) == 1
+        assert closed_test_id in map(lambda test: test['id'], closed_tests)
+        assert all(test.get('input_url') is None for test in closed_tests) is True
+        assert all(test.get('output_url') is None for test in closed_tests) is True
 
     def test_get_tests_when_task_has_no_tests_should_return_empty_list(self) -> None:
         manager_token = get_manager_id_token()[1]
@@ -305,9 +310,11 @@ class TestTCase:
         response_student = get(f'/api/v1/tasks/{task_id}/tests', student_token)
 
         assert response_manager[0] == 200
-        assert len(response_manager[1]['tests']) == 0
+        assert len(response_manager[1]['open_tests']) == 0
+        assert len(response_manager[1]['closed_tests']) == 0
         assert response_student[0] == 200
-        assert len(response_student[1]['tests']) == 0
+        assert len(response_student[1]['open_tests']) == 0
+        assert len(response_student[1]['closed_tests']) == 0
 
     def test_get_tests_with_non_manager_should_return_forbidden(self) -> None:
         manager_token = get_manager_id_token()[1]
@@ -341,7 +348,9 @@ class TestTCase:
         open_test_id = create_test_case_json(manager_token, task_id, closed=False)['id']
         closed_test_id = create_test_case_json(manager_token, task_id, closed=True)['id']
 
-        assert len(get(f'/api/v1/tasks/{task_id}/tests', manager_token)[1]['tests']) == 2
+        tests_response_before = get(f'/api/v1/tasks/{task_id}/tests', manager_token)[1]
+        assert len(tests_response_before['open_tests']) == 1
+        assert len(tests_response_before['closed_tests']) == 1
 
         response_1 = delete(f'/api/v1/tests/{open_test_id}', manager_token)
         response_2 = delete(f'/api/v1/tests/{closed_test_id}', manager_token)
@@ -349,32 +358,34 @@ class TestTCase:
         assert response_1[0] == 200
         assert response_2[0] == 200
 
-        assert len(get(f'/api/v1/tasks/{task_id}/tests', manager_token)[1]['tests']) == 0
+        tests_response = get(f'/api/v1/tasks/{task_id}/tests', manager_token)[1]
+        assert len(tests_response['open_tests']) == 0
+        assert len(tests_response['closed_tests']) == 0
 
     def test_delete_test_with_non_manager_should_return_forbidden(self) -> None:
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
-        test_id = create_test_case_json(manager_token, task_id)['id']
+        test_id = create_test_case_json(manager_token, task_id, closed=True)['id']
         random_manager = get_random_manager_token()
 
         response = delete(f'/api/v1/tests/{test_id}', random_manager)
 
         assert response[0] == 403
 
-        assert len(get(f'/api/v1/tasks/{task_id}/tests', manager_token)[1]['tests']) == 1
+        assert len(get(f'/api/v1/tasks/{task_id}/tests', manager_token)[1]['closed_tests']) == 1
 
     def test_delete_test_with_student_should_return_unauthorized(self) -> None:
         manager_token = get_manager_id_token()[1]
         student_token = get_student_id_token()[1]
         group_id = create_join_request_group_id(student_token, manager_token, approve=True)
         task_id = create_task_json(manager_token, group_id)['id']
-        test_id = create_test_case_json(manager_token, task_id)['id']
+        test_id = create_test_case_json(manager_token, task_id, closed=False)['id']
 
         response = delete(f'/api/v1/tests/{test_id}', student_token)
 
         assert response[0] == 401
 
-        assert len(get(f'/api/v1/tasks/{task_id}/tests', manager_token)[1]['tests']) == 1
+        assert len(get(f'/api/v1/tasks/{task_id}/tests', manager_token)[1]['open_tests']) == 1
 
     def test_delete_test_with_invalid_id_should_return_not_found(self) -> None:
         manager_token = get_manager_id_token()[1]

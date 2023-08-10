@@ -2,9 +2,9 @@ from datetime import datetime
 from functools import reduce
 from typing import Callable
 
+from endpoints.models.all_tests_vo import AllTestsVO
 from endpoints.models.result_vo import ResultVO
 from endpoints.models.task_vo import TaskVO
-from endpoints.models.tcase_vo import TCaseVO
 from endpoints.models.tcase_result_vo import TCaseResultVO
 from endpoints.models.user import UserVO
 from helpers.exceptions import Forbidden
@@ -19,7 +19,7 @@ class ResultService:
         self.__runner_service = RunnerService()
         self.__result_repository = ResultRepository()
 
-    def run(self, user: UserVO, task: TaskVO, tests: list[TCaseVO], file: File) -> ResultVO:
+    def run(self, user: UserVO, task: TaskVO, tests: AllTestsVO, file: File) -> ResultVO:
         now = datetime.now().astimezone()
         if unwrap(task.starts_on) > now\
             or (task.ends_on is not None and task.ends_on > now)\
@@ -27,14 +27,8 @@ class ResultService:
             raise Forbidden()
         file_path = file.save(self.__runner_service.allowed_extensions())
         results = self.__runner_service.run(file_path, tests)
-        def evaluate_open(item: TCaseResultVO) -> bool:
-            tcase = next(test for test in tests if test.id == item.test_case_id)
-            return tcase.closed is False
-        def evaluate_closed(item: TCaseResultVO) -> bool:
-            tcase = next(test for test in tests if test.id == item.test_case_id)
-            return tcase.closed is True
-        open_results = list(filter(evaluate_open, results))
-        closed_results = list(filter(evaluate_closed, results))
+        open_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.open_tests) , results))
+        closed_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.closed_tests) , results))
         reducer: Callable[[int, TCaseResultVO], int] = lambda current, result: current + (1 if result.success else 0)
         dto = ResultDTO()
         dto.correct_open = reduce(reducer, open_results, 0)

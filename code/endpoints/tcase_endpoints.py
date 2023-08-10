@@ -4,6 +4,8 @@ from flask_restx import Api, Namespace, Resource, inputs, fields
 from flask_restx.reqparse import RequestParser
 from werkzeug.datastructures import FileStorage
 
+
+from endpoints.models.all_tests_vo import AllTestsVO
 from endpoints.models.tcase_vo import TCaseVO
 from endpoints.models.user import UserVO
 from helpers.authenticator_decorator import authentication_required
@@ -30,6 +32,11 @@ test_model = _namespace.model('Test Case', {
     'input_url': fields.String(required=False),
     'output_url': fields.String(required=False)
 }, skipNone=True)
+
+all_tests_model = _namespace.model('Tests', {
+    'open_tests': fields.Nested(test_model, skip_none=True, as_list=True),
+    'closed_tests': fields.Nested(test_model, skip_none=True, as_list=True)
+})
 
 class TestsResource(Resource): # type: ignore
     _group_service: GroupService | None
@@ -76,10 +83,10 @@ class TestsResource(Resource): # type: ignore
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(500, 'Error')
-    @_namespace.marshal_with(test_model, as_list=True, envelope='tests')
+    @_namespace.marshal_with(all_tests_model)
     @_namespace.doc(security='bearer')
     @authentication_required()
-    def get(self, task_id: int, user: UserVO) -> list[TCaseVO]:
+    def get(self, task_id: int, user: UserVO) -> AllTestsVO:
         try:
             user_groups = unwrap(TestsResource._group_service).get_all(user)
             task = unwrap(TestsResource._task_service).get_task(task_id, user.id, user_groups)

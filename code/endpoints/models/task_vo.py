@@ -1,6 +1,7 @@
 from __future__ import annotations
 from datetime import datetime
 
+from endpoints.models.all_tests_vo import AllTestsVO
 from endpoints.models.tcase_vo import TCaseVO
 from helpers.commons import task_download_url
 from repository.dto.task import TaskDTO
@@ -29,7 +30,7 @@ class TaskVO:
         vo.group_id = dto.group_id
         return vo
 
-    def appending_tests(self, tests: list[TCaseVO]) -> TaskVO:
-        self.open_tests = list(filter(lambda test: test.closed is False, tests))
-        self.closed_tests = list(filter(lambda test: test.closed is True, tests))
+    def appending_tests(self, tests: AllTestsVO) -> TaskVO:
+        self.open_tests = tests.open_tests
+        self.closed_tests = tests.closed_tests
         return self
