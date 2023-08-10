@@ -23,7 +23,7 @@ class CRunner(Runner):
 
     def compile(self, source_path: str) -> str:
         executable = str(uuid.uuid1())
-        with subprocess.Popen(self.__exec(f'gcc -o {executable} {source_path}'), stdout=subprocess.PIPE,  stderr=subprocess.PIPE, text=True) as process:
+        with subprocess.Popen(self.__exec(f'gcc -Wall -g -lm -o {executable} {source_path}'), stdout=subprocess.PIPE,  stderr=subprocess.PIPE, text=True) as process:
             stdout, stderr = process.communicate()
             if stdout.strip():
                 raise CompilationError(stdout)
