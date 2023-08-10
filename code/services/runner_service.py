@@ -1,4 +1,5 @@
 import difflib
+import uuid
 
 from endpoints.models.all_tests_vo import AllTestsVO
 from endpoints.models.tcase_result_vo import TCaseResultVO
@@ -27,8 +28,9 @@ class RunnerService:
         results: list[TCaseResultVO] = []
         try:
             runner = next(_runner for _runner in self.__runners if _runner.is_source_code(path))
-            source_path = runner.add_to_sandbox(path)
-            executable_path = runner.compile(source_path)
+            dest = str(uuid.uuid1())
+            source_path = runner.add_to_sandbox(path, dest)
+            executable_path = runner.compile(source_path, dest)
             for test in tests.open_tests + tests.closed_tests:
                 dto = TestCaseResultDTO()
                 dto.test_case_id = test.id
@@ -48,9 +50,8 @@ class RunnerService:
                     dto.success = False
                     dto.diff = 'Timeout.'
                 finally:
-                    stored = self.__tcase_result_repository.add(dto)
-                    results.append(TCaseResultVO.import_from_dto(stored))
-            runner.remove_executable(executable_path)
+                    results.append(TCaseResultVO.import_from_dto(self.__tcase_result_repository.add(dto)))
+            runner.remove_directory(dest)
             return results
         except StopIteration:
             # pylint: disable=raise-missing-from
@@ -61,8 +62,7 @@ class RunnerService:
                 dto.test_case_id = test.id
                 dto.success = False
                 dto.diff = str(e)
-                stored = self.__tcase_result_repository.add(dto)
-                results.append(TCaseResultVO.import_from_dto(stored))
+                results.append(TCaseResultVO.import_from_dto(self.__tcase_result_repository.add(dto)))
             return results
         except Exception as e:
             raise ServerError from e

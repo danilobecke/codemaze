@@ -13,11 +13,11 @@ class Runner(ABC):
         pass
 
     @abstractmethod
-    def add_to_sandbox(self, source_path: str) -> str:
+    def add_to_sandbox(self, source_path: str, destination_directory: str) -> str:
         pass
 
     @abstractmethod
-    def compile(self, source_path: str) -> str:
+    def compile(self, source_path: str, destination_directory: str) -> str:
         pass
 
     @abstractmethod
@@ -25,5 +25,5 @@ class Runner(ABC):
         pass
 
     @abstractmethod
-    def remove_executable(self, path: str) -> None:
+    def remove_directory(self, path: str) -> None:
         pass
