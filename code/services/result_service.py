@@ -15,8 +15,8 @@ from repository.dto.result import ResultDTO
 from services.runner_service import RunnerService
 
 class ResultService:
-    def __init__(self) -> None:
-        self.__runner_service = RunnerService()
+    def __init__(self, runner_service: RunnerService) -> None:
+        self.__runner_service = runner_service
         self.__result_repository = ResultRepository()
 
     def run(self, user: UserVO, task: TaskVO, tests: AllTestsVO, file: File) -> ResultVO:
@@ -25,7 +25,7 @@ class ResultService:
             or (task.ends_on is not None and task.ends_on > now)\
             or (task.max_attempts is not None and self.__result_repository.get_number_of_results(user.id, task.id) >= task.max_attempts):
             raise Forbidden()
-        file_path = file.save(self.__runner_service.allowed_extensions())
+        file_path = file.save(self.__runner_service.allowed_extensions(task.languages))
         results = self.__runner_service.run(file_path, tests)
         open_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.open_tests) , results))
         closed_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.closed_tests) , results))

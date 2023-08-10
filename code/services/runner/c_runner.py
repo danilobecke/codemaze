@@ -10,7 +10,12 @@ class CRunner(Runner):
     def __init__(self) -> None:
         self.__container = 'gcc-container'
 
-    def file_extension(self) -> list[str]:
+    @property
+    def language_name(self) -> str:
+        return 'c'
+
+    @property
+    def file_extensions(self) -> list[str]:
         return ['.c']
 
     def add_to_sandbox(self, source_path: str, destination_directory: str) -> str:

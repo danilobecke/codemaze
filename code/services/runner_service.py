@@ -18,10 +18,16 @@ class RunnerService:
             CRunner(),
         ]
 
-    def allowed_extensions(self) -> set[str]:
+    def allowed_languages(self) -> set[str]:
         result: set[str] = set()
         for runner in self.__runners:
-            result = result.union(runner.file_extension())
+            result.add(runner.language_name)
+        return result
+
+    def allowed_extensions(self, languages: list[str]) -> set[str]:
+        result: set[str] = set()
+        for runner in filter(lambda _runner: _runner.language_name in languages , self.__runners):
+            result = result.union(runner.file_extensions)
         return result
 
     def run(self, path: str, tests: AllTestsVO) -> list[TCaseResultVO]:

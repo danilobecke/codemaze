@@ -11,6 +11,7 @@ class TestTask:
         payload = {
             'name': get_random_name(),
             'max_attempts': 10,
+            'languages': ['c'],
             'starts_on': datetime.now().astimezone().isoformat(),
             'ends_on': (datetime.now().astimezone() + timedelta(days=1)).isoformat(),
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
@@ -22,6 +23,7 @@ class TestTask:
         id = json['id']
         assert json['name'] == payload['name']
         assert json['max_attempts'] == payload['max_attempts']
+        assert json['languages'] == payload['languages']
         assert json['starts_on'] == payload['starts_on']
         assert json['ends_on'] == payload['ends_on']
         assert json['file_url'] == f'/api/v1/tasks/{id}/task'
@@ -31,6 +33,7 @@ class TestTask:
         group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
         payload = {
             'name': get_random_name(),
+            'languages': ['c'],
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
         response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
@@ -40,6 +43,7 @@ class TestTask:
         id = json['id']
         assert json['name'] == payload['name']
         assert json['max_attempts'] is None
+        assert json['languages'] == payload['languages']
         assert json['starts_on'] is not None
         assert json['ends_on'] is None
         assert json['file_url'] == f'/api/v1/tasks/{id}/task'
@@ -48,6 +52,31 @@ class TestTask:
         manager_id_token = get_manager_id_token()
         group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
         payload = {
+            'languages': ['c'],
+            'file': (BytesIO(b'Random file content.'), 'file_name.txt')
+        }
+        response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+
+        assert response[0] == 400
+
+    def test_create_task_without_languages_should_fail(self) -> None:
+        manager_id_token = get_manager_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
+        payload = {
+            'name': get_random_name(),
+            'languages': [],
+            'file': (BytesIO(b'Random file content.'), 'file_name.txt')
+        }
+        response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
+
+        assert response[0] == 400
+
+    def test_create_task_with_invalid_language_should_fail(self) -> None:
+        manager_id_token = get_manager_id_token()
+        group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
+        payload = {
+            'name': get_random_name(),
+            'languages': ['my_language', 'c'],
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
         response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
@@ -58,7 +87,8 @@ class TestTask:
         manager_id_token = get_manager_id_token()
         group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
         payload = {
-            'name': get_random_name()
+            'name': get_random_name(),
+            'languages': ['c']
         }
         response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
 
@@ -69,6 +99,7 @@ class TestTask:
         group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
         payload = {
             'name': get_random_name(),
+            'languages': ['c'],
             'file': (BytesIO(b'Random file content.'))
         }
         response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
@@ -80,6 +111,7 @@ class TestTask:
         group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
         payload = {
             'name': get_random_name(),
+            'languages': ['c'],
             'file': (BytesIO(b'Random file content.'), '')
         }
         response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
@@ -91,6 +123,7 @@ class TestTask:
         group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
         payload = {
             'name': get_random_name(),
+            'languages': ['c'],
             'file': (BytesIO(b'Random file content.'), 'file.png')
         }
         response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
@@ -103,6 +136,7 @@ class TestTask:
         random_manager_token = get_random_manager_token()
         payload = {
             'name': get_random_name(),
+            'languages': ['c'],
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
         response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, random_manager_token, CONTENT_TYPE_FORM_DATA)
@@ -113,6 +147,7 @@ class TestTask:
         manager_id_token = get_manager_id_token()
         payload = {
             'name': get_random_name(),
+            'languages': ['c'],
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
         response = post(f'/api/v1/groups/{99999999}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
@@ -126,6 +161,7 @@ class TestTask:
         with open(filepath, 'rb') as file:
             payload = {
                 'name': get_random_name(),
+                'languages': ['c'],
                 'file': (file, 'file_name.txt')
             }
             response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)
@@ -151,6 +187,7 @@ class TestTask:
         content = 'Random file content.'
         payload = {
             'name': get_random_name(),
+            'languages': ['c'],
             'file': (BytesIO(content.encode('UTF-8')), 'file_name.txt')
         }
         task = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
@@ -166,6 +203,7 @@ class TestTask:
         random_manager_token = get_random_manager_token()
         payload = {
             'name': get_random_name(),
+            'languages': ['c'],
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
         task = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
@@ -187,6 +225,7 @@ class TestTask:
         student_id_token = get_student_id_token()
         payload = {
             'name': get_random_name(),
+            'languages': ['c'],
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
         task = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
@@ -206,6 +245,7 @@ class TestTask:
         content = 'Random file content.'
         payload = {
             'name': get_random_name(),
+            'languages': ['c'],
             'file': (BytesIO(content.encode('UTF-8')), 'file_name.txt')
         }
         task = post(f'/api/v1/groups/{group_id}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
@@ -221,6 +261,7 @@ class TestTask:
         payload = {
             'name': get_random_name(),
             'max_attempts': 10,
+            'languages': ['c'],
             'starts_on': datetime.now().astimezone().isoformat(),
             'ends_on': (datetime.now().astimezone() + timedelta(days=1)).isoformat(),
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
@@ -244,6 +285,7 @@ class TestTask:
         assert task_id == id
         assert json['name'] == update_payload['name']
         assert json['max_attempts'] == update_payload['max_attempts']
+        assert json['languages'] == payload['languages']
         assert json['starts_on'] == update_payload['starts_on']
         assert json['ends_on'] == update_payload['ends_on']
         assert json['file_url'] == task['file_url']
@@ -259,6 +301,7 @@ class TestTask:
         content = 'Random file content.'
         payload = {
             'name': get_random_name(),
+            'languages': ['c'],
             'file': (BytesIO(content.encode('UTF-8')), 'file_name.txt')
         }
         task = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
@@ -272,6 +315,7 @@ class TestTask:
         assert task_id == id
         assert json['name'] == task['name']
         assert json['max_attempts'] == task['max_attempts']
+        assert json['languages'] == task['languages']
         assert json['starts_on'] == task['starts_on']
         assert json['ends_on'] == task['ends_on']
         assert json['file_url'] == task['file_url']

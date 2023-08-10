@@ -11,15 +11,17 @@ from endpoints.task_endpoints import TaskEndpoints
 from endpoints.tcase_endpoints import TCaseEndpoints
 from services.group_service import GroupService
 from services.result_service import ResultService
+from services.runner_service import RunnerService
 from services.task_service import TaskService
 from services.tcase_service import TCaseService
 
 class Router:
     def __init__(self) -> None:
+        self.__runner_service = RunnerService()
         self.__group_service = GroupService()
-        self.__task_service = TaskService()
+        self.__task_service = TaskService(self.__runner_service)
         self.__tcase_service = TCaseService()
-        self.__result_service = ResultService()
+        self.__result_service = ResultService(self.__runner_service)
 
     def __create_v1_api(self, blueprint: Blueprint) -> Api:
         return Api(

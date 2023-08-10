@@ -8,7 +8,7 @@ from endpoints.tcase_endpoints import test_model
 from endpoints.models.task_vo import TaskVO
 from endpoints.models.user import UserVO
 from helpers.authenticator_decorator import authentication_required
-from helpers.exceptions import NotFound, ServerError, Forbidden, InvalidFileExtension, InvalidFileSize
+from helpers.exceptions import NotFound, ServerError, Forbidden, InvalidFileExtension, InvalidFileSize, ParameterValidationError
 from helpers.file import File
 from helpers.role import Role
 from helpers.unwrapper import unwrap
@@ -25,6 +25,7 @@ def _set_up_task_parser(parser: RequestParser, updating: bool) -> None:
     required = not updating
     parser.add_argument('name', type=str, required=required, location='form')
     parser.add_argument('max_attempts', type=int, required=False, location='form')
+    parser.add_argument('languages', type=str, required=required, action='append', location='form')
     parser.add_argument('starts_on', type=inputs.datetime_from_iso8601, required=False, location='form')
     parser.add_argument('ends_on', type=inputs.datetime_from_iso8601, required=False, location='form')
     parser.add_argument('file', type=FileStorage, required=required, location='files')
@@ -33,6 +34,7 @@ _task_model = _namespace.model('Task', {
     'id': fields.String(required=True),
     'name': fields.String(required=True),
     'max_attempts': fields.Integer,
+    'languages': fields.List(fields.String),
     'starts_on': fields.DateTime(required=True),
     'ends_on': fields.DateTime,
     'file_url': fields.String(required=True),
@@ -51,6 +53,7 @@ class TasksResource(Resource): # type: ignore
     @_namespace.expect(_new_task_parser, validate=True)
     @_namespace.param('name', _in='formData', required=True)
     @_namespace.param('max_attempts', _in='formData', type=int)
+    @_namespace.param('languages', _in='formData', description='Array with languanges.')
     @_namespace.param('starts_on', _in='formData')
     @_namespace.param('ends_on', _in='formData')
     @_namespace.param('file', _in='formData', type='file', required=True)
@@ -68,6 +71,7 @@ class TasksResource(Resource): # type: ignore
         args = _new_task_parser.parse_args()
         name = args['name']
         max_attempts = args.get('max_attempts')
+        languages = args['languages']
         starts_on = args.get('starts_on')
         ends_on = args.get('ends_on')
         file_storage: FileStorage = args['file']
@@ -75,7 +79,9 @@ class TasksResource(Resource): # type: ignore
         blob = file_storage.stream.read()
         try:
             group = unwrap(TasksResource._group_service).get_group(group_id)
-            return unwrap(TasksResource._task_service).create_task(user, group, name, max_attempts, starts_on, ends_on, File(filename, blob)), 201
+            return unwrap(TasksResource._task_service).create_task(user, group, name, max_attempts, languages, starts_on, ends_on, File(filename, blob)), 201
+        except ParameterValidationError as e:
+            abort(400, str(e))
         except Forbidden as e:
             abort(403, str(e))
         except NotFound as e:
@@ -139,6 +145,7 @@ class TaskResource(Resource): # type: ignore
     @_namespace.expect(_update_task_parser, validate=True)
     @_namespace.param('name', _in='formData')
     @_namespace.param('max_attempts', _in='formData', type=int)
+    @_namespace.param('languages', _in='formData', description='Array with languanges.')
     @_namespace.param('starts_on', _in='formData')
     @_namespace.param('ends_on', _in='formData')
     @_namespace.param('file', _in='formData', type='file')
@@ -156,6 +163,7 @@ class TaskResource(Resource): # type: ignore
         args = _update_task_parser.parse_args()
         name = args['name']
         max_attempts = args.get('max_attempts')
+        languages = args['languages']
         starts_on = args.get('starts_on')
         ends_on = args.get('ends_on')
         file: File | None = None
@@ -163,7 +171,9 @@ class TaskResource(Resource): # type: ignore
         if file_storage is not None:
             file = File(unwrap(file_storage.filename), file_storage.stream.read())
         try:
-            return unwrap(TaskResource._task_service).update_task(user, unwrap(TaskResource._group_service).get_group, id, name, max_attempts, starts_on, ends_on, file)
+            return unwrap(TaskResource._task_service).update_task(user, unwrap(TaskResource._group_service).get_group, id, name, max_attempts, languages, starts_on, ends_on, file)
+        except ParameterValidationError as e:
+            abort(400, str(e))
         except Forbidden as e:
             abort(403, str(e))
         except NotFound as e:

@@ -6,10 +6,16 @@ from helpers.commons import file_extension
 class Runner(ABC):
     def is_source_code(self, source_path: str) -> bool:
         source_extension = file_extension(source_path)
-        return any(source_extension == extension for extension in self.file_extension())
+        return any(source_extension == extension for extension in self.file_extensions)
 
+    @property
     @abstractmethod
-    def file_extension(self) -> list[str]:
+    def language_name(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def file_extensions(self) -> list[str]:
         pass
 
     @abstractmethod

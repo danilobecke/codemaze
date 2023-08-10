@@ -150,12 +150,14 @@ def create_join_request_group_id(student_token: str, manager_token: str, approve
     patch(f'/api/v1/groups/{group_id}/requests/{request_id}', approve_payload, manager_token)
     return group_id
 
-def create_task_json(manager_token: str, group_id: str | None = None, starts_on: str | None = None) -> Dict[str, Any]:
+# pylint: disable=dangerous-default-value
+def create_task_json(manager_token: str, group_id: str | None = None, starts_on: str | None = None, languages: list[str] = ['c']) -> Dict[str, Any]:
     if group_id is None:
         group_id = get_new_group_id_code(get_random_name(), manager_token)[0]
     payload = {
         'name': get_random_name(),
-        'file': (BytesIO(b'Random file content.'), 'file.txt')
+        'file': (BytesIO(b'Random file content.'), 'file.txt'),
+        'languages': languages
     }
     if starts_on is not None:
         payload['starts_on'] = starts_on

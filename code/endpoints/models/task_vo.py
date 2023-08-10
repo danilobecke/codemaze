@@ -11,6 +11,7 @@ class TaskVO:
         self.id = -1
         self.name = ""
         self.max_attempts: int | None = None
+        self.languages: list[str] = []
         self.starts_on: datetime | None = datetime.now()
         self.ends_on: datetime | None = None
         self.file_url = ""
@@ -24,6 +25,7 @@ class TaskVO:
         vo.id = dto.id
         vo.name = dto.name
         vo.max_attempts = dto.max_attempts
+        vo.languages = dto.languages
         vo.starts_on = dto.starts_on
         vo.ends_on = dto.ends_on
         vo.file_url = task_download_url(dto.id)
