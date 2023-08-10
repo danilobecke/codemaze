@@ -30,7 +30,7 @@ class RunnerService:
             result = result.union(runner.file_extensions)
         return result
 
-    def run(self, path: str, tests: AllTestsVO) -> list[TCaseResultVO]:
+    def run(self, path: str, tests: AllTestsVO, result_id: int) -> list[TCaseResultVO]:
         results: list[TCaseResultVO] = []
         try:
             runner = next(_runner for _runner in self.__runners if _runner.is_source_code(path))
@@ -40,6 +40,7 @@ class RunnerService:
             for test in tests.open_tests + tests.closed_tests:
                 dto = TestCaseResultDTO()
                 dto.test_case_id = test.id
+                dto.result_id = result_id
                 try:
                     with open(unwrap(test.input_path), encoding='utf-8') as stdin, open(unwrap(test.output_path), encoding='utf-8') as expected_result:
                         output = runner.run(executable_path, stdin, timeout=2)
@@ -66,6 +67,7 @@ class RunnerService:
             for test in tests.open_tests + tests.closed_tests:
                 dto = TestCaseResultDTO()
                 dto.test_case_id = test.id
+                dto.result_id = result_id
                 dto.success = False
                 dto.diff = str(e)
                 results.append(TCaseResultVO.import_from_dto(self.__tcase_result_repository.add(dto)))

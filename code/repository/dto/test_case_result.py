@@ -9,6 +9,7 @@ class TestCaseResultDTO(Base):
     __tablename__ = 'test_case_result'
 
     id: Mapped[int] = mapped_column(Integer, Sequence('sq_test_case_pk'), primary_key=True, autoincrement=True)
-    test_case_id: Mapped[int] = mapped_column(Integer, ForeignKey('test_case.id'), nullable=False)
     success: Mapped[bool]
     diff: Mapped[Optional[str]]
+    test_case_id: Mapped[int] = mapped_column(Integer, ForeignKey('test_case.id'), nullable=False)
+    result_id: Mapped[int] = mapped_column(Integer, ForeignKey('result.id'), nullable=False)

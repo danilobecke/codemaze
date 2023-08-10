@@ -27,20 +27,23 @@ class ResultService:
             or (task.max_attempts is not None and self.__result_repository.get_number_of_results(user.id, task.id) >= task.max_attempts):
             raise Forbidden()
         file_path = file.save(self.__runner_service.allowed_extensions(task.languages))
-        results = self.__runner_service.run(file_path, tests)
-        open_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.open_tests) , results))
-        closed_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.closed_tests) , results))
-        reducer: Callable[[int, TCaseResultVO], int] = lambda current, result: current + (1 if result.success else 0)
         dto = ResultDTO()
-        dto.correct_open = reduce(reducer, open_results, 0)
-        dto.correct_closed = reduce(reducer, closed_results, 0)
+        dto.correct_open = 0
+        dto.correct_closed = 0
         dto.file_path = file_path
         dto.student_id = user.id
         dto.task_id = task.id
-        self.__result_repository.add(dto)
+        stored = self.__result_repository.add(dto)
+        results = self.__runner_service.run(file_path, tests, stored.id)
+        open_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.open_tests) , results))
+        closed_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.closed_tests) , results))
+        reducer: Callable[[int, TCaseResultVO], int] = lambda current, result: current + (1 if result.success else 0)
+        stored.correct_open = reduce(reducer, open_results, 0)
+        stored.correct_closed = reduce(reducer, closed_results, 0)
+        self.__result_repository.update_session()
         for result in closed_results:
             result.diff = None
-        return ResultVO.import_from_dto(dto, open_results, closed_results)
+        return ResultVO.import_from_dto(stored, open_results, closed_results)
 
     def get_latest_source_code_name_path(self, task: TaskVO, user_id: int) -> tuple[str, str]:
         dto = self.__result_repository.get_latest_result(user_id, task.id)
