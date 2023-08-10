@@ -7,6 +7,7 @@ from endpoints.models.result_vo import ResultVO
 from endpoints.models.task_vo import TaskVO
 from endpoints.models.tcase_result_vo import TCaseResultVO
 from endpoints.models.user import UserVO
+from helpers.commons import file_extension
 from helpers.exceptions import Forbidden
 from helpers.file import File
 from helpers.unwrapper import unwrap
@@ -40,3 +41,8 @@ class ResultService:
         for result in closed_results:
             result.diff = None
         return ResultVO.import_from_dto(dto, open_results, closed_results)
+
+    def get_latest_source_code_name_path(self, task: TaskVO, user_id: int) -> tuple[str, str]:
+        dto = self.__result_repository.get_latest_result(user_id, task.id)
+        path = dto.file_path
+        return ('source' + file_extension(path), path)

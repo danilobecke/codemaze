@@ -1,4 +1,5 @@
-from flask import abort
+from flask import abort, send_file
+from flask.wrappers import Response
 from flask_restx import Api, Namespace, Resource, fields
 from flask_restx.reqparse import RequestParser
 from werkzeug.datastructures import FileStorage
@@ -75,7 +76,29 @@ class ResultsResource(Resource): # type: ignore
             abort(500, str(e))
 
 class SourceCodeDownloadResource(Resource): # type: ignore
-    pass
+    _group_service: GroupService | None
+    _task_service: TaskService | None
+    _result_service: ResultService | None
+
+    @_namespace.doc(description='*Students only*\nDownloads the latest submitted source code for the given task.')
+    @_namespace.response(401, 'Error')
+    @_namespace.response(403, 'Error')
+    @_namespace.response(404, 'Error')
+    @_namespace.response(500, 'Error')
+    @_namespace.doc(security='bearer')
+    @authentication_required(role=Role.STUDENT)
+    def get(self, task_id: int, user: UserVO) -> Response:
+        try:
+            user_groups = unwrap(SourceCodeDownloadResource._group_service).get_all(user)
+            task = unwrap(SourceCodeDownloadResource._task_service).get_task(task_id, user.id, user_groups)
+            name, path = unwrap(SourceCodeDownloadResource._result_service).get_latest_source_code_name_path(task, user.id)
+            return send_file(path, download_name=name)
+        except Forbidden as e:
+            abort(403, str(e))
+        except NotFound as e:
+            abort(404, str(e))
+        except ServerError as e:
+            abort(500, str(e))
 
 class ResultsEndpoints():
     def __init__(self, api: Api, tasks_namespace: Namespace, group_service: GroupService, task_service: TaskService, tcase_service: TCaseService, result_service: ResultService) -> None:
@@ -86,6 +109,9 @@ class ResultsEndpoints():
         ResultsResource._task_service = task_service
         ResultsResource._tcase_service = tcase_service
         ResultsResource._result_service = result_service
+        SourceCodeDownloadResource._group_service = group_service
+        SourceCodeDownloadResource._task_service = task_service
+        SourceCodeDownloadResource._result_service = result_service
 
     def register_resources(self) -> None:
         self.__tasks_namespace.add_resource(ResultsResource, '/<int:task_id>/results')

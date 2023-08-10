@@ -5,7 +5,7 @@ from typing import Optional, Callable
 from endpoints.models.group import GroupVO
 from endpoints.models.task_vo import TaskVO
 from endpoints.models.user import UserVO
-from helpers import commons
+from helpers.commons import file_extension
 from helpers.exceptions import Forbidden, ParameterValidationError
 from helpers.file import File
 from helpers.unwrapper import unwrap
@@ -47,7 +47,7 @@ class TaskService:
         if task_dto.group_id not in list(map(lambda group: group.id, user_groups)):
             raise Forbidden()
         path = task_dto.file_path
-        return (task_dto.name + commons.file_extension(path), path)
+        return (task_dto.name + file_extension(path), path)
 
     def update_task(self, user: UserVO, get_group_func: Callable[[int], GroupVO], task_id: int, name: Optional[str], max_attempts: Optional[int], languages: list[str], starts_on: Optional[datetime], ends_on: Optional[datetime], file: Optional[File]) -> TaskVO:
         dto: TaskDTO = self.__task_repository.find(task_id)

@@ -1,5 +1,6 @@
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, desc
 
+from helpers.exceptions import NotFound
 from helpers.unwrapper import unwrap
 from repository.abstract_repository import AbstractRepository
 from repository.dto.result import ResultDTO
@@ -14,3 +15,10 @@ class ResultRepository(AbstractRepository[ResultDTO]):
             .where(and_(ResultDTO.student_id == user_id, ResultDTO.task_id == task_id))
         result = self._session.scalar(stm)
         return unwrap(result)
+
+    def get_latest_result(self, user_id: int, task_id: int) -> ResultDTO:
+        stm = select(ResultDTO).where(and_(ResultDTO.student_id == user_id, ResultDTO.task_id == task_id)).order_by(desc(ResultDTO.created_at))
+        result = self._session.scalars(stm).first()
+        if result is None:
+            raise NotFound()
+        return result
