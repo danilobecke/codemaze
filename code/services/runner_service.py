@@ -1,4 +1,5 @@
 import difflib
+from subprocess import TimeoutExpired
 import uuid
 
 from endpoints.models.all_tests_vo import AllTestsVO
@@ -53,7 +54,7 @@ class RunnerService:
                 except ExecutionError as e:
                     dto.success = False
                     dto.diff = str(e)
-                except TimeoutError:
+                except TimeoutExpired:
                     dto.success = False
                     dto.diff = 'Timeout.'
                 finally:

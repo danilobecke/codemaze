@@ -7,7 +7,7 @@ from werkzeug.datastructures import FileStorage
 from endpoints.models.result_vo import ResultVO
 from endpoints.models.user import UserVO
 from helpers.authenticator_decorator import authentication_required
-from helpers.exceptions import Forbidden, NotFound, InvalidFileExtension, InvalidFileSize, ServerError
+from helpers.exceptions import Forbidden, NotFound, InvalidFileExtension, InvalidFileSize, ServerError, InvalidSourceCode
 from helpers.file import File
 from helpers.role import Role
 from helpers.unwrapper import unwrap
@@ -68,7 +68,7 @@ class ResultsResource(Resource): # type: ignore
             abort(403, str(e))
         except NotFound as e:
             abort(404, str(e))
-        except InvalidFileSize as e:
+        except (InvalidFileSize, InvalidSourceCode) as e:
             abort(413, str(e))
         except InvalidFileExtension as e:
             abort(422, str(e))

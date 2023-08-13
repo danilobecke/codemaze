@@ -23,7 +23,7 @@ class ResultService:
     def run(self, user: UserVO, task: TaskVO, tests: AllTestsVO, file: File) -> ResultVO:
         now = datetime.now().astimezone()
         if unwrap(task.starts_on) > now\
-            or (task.ends_on is not None and task.ends_on > now)\
+            or (task.ends_on is not None and task.ends_on < now)\
             or (task.max_attempts is not None and self.__result_repository.get_number_of_results(user.id, task.id) >= task.max_attempts):
             raise Forbidden()
         file_path = file.save(self.__runner_service.allowed_extensions(task.languages))
