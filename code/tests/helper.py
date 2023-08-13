@@ -151,16 +151,20 @@ def create_join_request_group_id(student_token: str, manager_token: str, approve
     return group_id
 
 # pylint: disable=dangerous-default-value
-def create_task_json(manager_token: str, group_id: str | None = None, starts_on: str | None = None, languages: list[str] = ['c']) -> Dict[str, Any]:
+def create_task_json(manager_token: str, group_id: str | None = None, starts_on: str | None = None, languages: list[str] = ['c'], ends_on: str | None = None, max_attempts: int | None = None) -> Dict[str, Any]:
     if group_id is None:
         group_id = get_new_group_id_code(get_random_name(), manager_token)[0]
-    payload = {
+    payload: Dict[str, Any] = {
         'name': get_random_name(),
         'file': (BytesIO(b'Random file content.'), 'file.txt'),
         'languages': languages
     }
+    if max_attempts is not None:
+        payload['max_attempts'] = max_attempts
     if starts_on is not None:
         payload['starts_on'] = starts_on
+    if ends_on is not None:
+        payload['ends_on'] = ends_on
 
     return post(f'/api/v1/groups/{group_id}/tasks', payload, manager_token, CONTENT_TYPE_FORM_DATA)[1]
 
@@ -189,8 +193,8 @@ def assert_user_response(response: HTTPResponse, name: str, email: str, role: st
 
 ## File helper
 
-def get_filepath_of_size(size: int) -> str:
-    full_path = os.path.join(__app.application.config['STORAGE_PATH'], get_random_name() + '.txt')
+def get_filepath_of_size(size: int, extension: str = '.txt') -> str:
+    full_path = os.path.join(__app.application.config['STORAGE_PATH'], get_random_name() + extension)
     with open(full_path, 'wb') as file:
         file.seek(size - 1)
         file.write(b'\0')
