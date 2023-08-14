@@ -75,3 +75,7 @@ class RunnerService:
             return results
         except Exception as e:
             raise ServerError from e
+
+    def get_test_results(self, result_id: int) -> list[TCaseResultVO]:
+        dtos = self.__tcase_result_repository.get_test_results(result_id)
+        return list(map(lambda dto: TCaseResultVO.import_from_dto(dto), dtos))

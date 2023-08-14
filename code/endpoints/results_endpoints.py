@@ -101,6 +101,33 @@ class SourceCodeDownloadResource(Resource): # type: ignore
         except ServerError as e:
             abort(500, str(e))
 
+class LatestResultResource(Resource): # type: ignore
+    _group_service: GroupService | None
+    _task_service: TaskService | None
+    _tcase_service: TCaseService | None
+    _result_service: ResultService | None
+
+    @_namespace.doc(description='*Students only*\nGet the latest submitted result for the given task.')
+    @_namespace.response(401, 'Error')
+    @_namespace.response(403, 'Error')
+    @_namespace.response(404, 'Error')
+    @_namespace.response(500, 'Error')
+    @_namespace.marshal_with(_result_model)
+    @_namespace.doc(security='bearer')
+    @authentication_required(role=Role.STUDENT)
+    def get(self, task_id: int, user: UserVO) -> ResultVO:
+        try:
+            user_groups = unwrap(LatestResultResource._group_service).get_all(user)
+            task = unwrap(LatestResultResource._task_service).get_task(task_id, user.id, user_groups)
+            tests = unwrap(LatestResultResource._tcase_service).get_tests(user.id, task, user_groups, running_context=True)
+            return unwrap(LatestResultResource._result_service).get_latest_result(task, user, tests)
+        except Forbidden as e:
+            abort(403, str(e))
+        except NotFound as e:
+            abort(404, str(e))
+        except ServerError as e:
+            abort(500, str(e))
+
 class ResultsEndpoints():
     def __init__(self, api: Api, tasks_namespace: Namespace, group_service: GroupService, task_service: TaskService, tcase_service: TCaseService, result_service: ResultService) -> None:
         api.add_namespace(_namespace)
@@ -113,7 +140,12 @@ class ResultsEndpoints():
         SourceCodeDownloadResource._group_service = group_service
         SourceCodeDownloadResource._task_service = task_service
         SourceCodeDownloadResource._result_service = result_service
+        LatestResultResource._group_service = group_service
+        LatestResultResource._task_service = task_service
+        LatestResultResource._tcase_service = tcase_service
+        LatestResultResource._result_service = result_service
 
     def register_resources(self) -> None:
         self.__tasks_namespace.add_resource(ResultsResource, '/<int:task_id>/results')
+        self.__tasks_namespace.add_resource(LatestResultResource, '/<int:task_id>/results/latest')
         self.__tasks_namespace.add_resource(SourceCodeDownloadResource, '/<int:task_id>/results/latest/code')

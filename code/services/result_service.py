@@ -10,6 +10,7 @@ from endpoints.models.user import UserVO
 from helpers.commons import file_extension
 from helpers.exceptions import Forbidden
 from helpers.file import File
+from helpers.role import Role
 from helpers.unwrapper import unwrap
 from repository.result_repository import ResultRepository
 from repository.dto.result import ResultDTO
@@ -50,3 +51,14 @@ class ResultService:
         dto = self.__result_repository.get_latest_result(user_id, task.id)
         path = dto.file_path
         return ('source' + file_extension(path), path)
+
+    def get_latest_result(self, task: TaskVO, user: UserVO, tests: AllTestsVO) -> ResultVO:
+        dto = self.__result_repository.get_latest_result(user.id, task.id)
+        number_off_attempts = self.__result_repository.get_number_of_results(user.id, task.id)
+        test_results = self.__runner_service.get_test_results(dto.id)
+        open_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.open_tests) , test_results))
+        closed_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.closed_tests) , test_results))
+        if user.role == Role.STUDENT:
+            for result in closed_results:
+                result.diff = None
+        return ResultVO.import_from_dto(dto, number_off_attempts, open_results, closed_results)

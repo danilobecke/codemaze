@@ -199,7 +199,6 @@ class TestResult:
         assert all(result['success'] is False for result in closed_results)
         assert all(result.get('diff') is None for result in closed_results)
 
-    @pytest.mark.smoke
     def test_post_result_with_valid_c_code_should_succeed_and_succeed_all_tests(self) -> None:
         task_id, student_token = self.__set_up_valid_2_open_2_closed_tests_task_id_student_token()
         payload = {
@@ -325,4 +324,84 @@ class TestResult:
 
         response = get(f'api/v1/tasks/{task_id}/results/latest/code', student_token, decode_as_json=False)
 
+        assert response[0] == 404
+
+    @pytest.mark.smoke
+    def test_get_latest_result_with_student_should_succeed_and_return_latest_result(self) -> None:
+        task_id, student_token = self.__set_up_valid_2_open_2_closed_tests_task_id_student_token()
+
+        payload_first = {
+            'code': (BytesIO(VALID_C_CODE.encode('utf-8')), 'code.c')
+        }
+        response_first = post(f'/api/v1/tasks/{task_id}/results', payload_first, student_token, CONTENT_TYPE_FORM_DATA)
+        assert response_first[0] == 201
+        assert response_first[1]['attempt_number'] == 1
+        assert response_first[1]['correct_open'] == 2
+        assert response_first[1]['correct_closed'] == 2
+
+        # fail second open test and first closed test
+        code = '''
+#include<stdio.h>
+int main() {
+    int a, b;
+    scanf("%d %d", &a, &b);
+    if(a == 3 || a == 5) {
+        return 0;
+    }
+    printf("%d", a+b);
+}
+'''
+        payload_second = {
+            'code': (BytesIO(code.encode('utf-8')), 'code.c')
+        }
+        response_second = post(f'/api/v1/tasks/{task_id}/results', payload_second, student_token, CONTENT_TYPE_FORM_DATA)
+        assert response_second[0] == 201
+        assert response_second[1]['attempt_number'] == 2
+        assert response_second[1]['correct_open'] == 1
+        assert response_second[1]['correct_closed'] == 1
+        assert len(response_second[1]['open_results']) == 2
+        assert len(response_second[1]['closed_results']) == 2
+        assert response_second[1]['open_results'][0]['success'] is True
+        assert response_second[1]['open_results'][0].get('diff') is None
+        assert response_second[1]['open_results'][1]['success'] is False
+        assert response_second[1]['open_results'][1].get('diff') is not None
+        assert response_second[1]['closed_results'][0]['success'] is False
+        assert response_second[1]['closed_results'][0].get('diff') is None
+        assert response_second[1]['closed_results'][1]['success'] is True
+        assert response_second[1]['closed_results'][1].get('diff') is None
+
+        response = get(f'api/v1/tasks/{task_id}/results/latest', student_token)
+        assert response[0] == 200
+        assert response[1] == response_second[1]
+
+    def test_get_latest_result_with_manager_should_return_unauthorized(self) -> None:
+        task_id = self.__set_up_task_id_student_token()[0]
+        manager_token = get_manager_id_token()[1]
+
+        response = get(f'api/v1/tasks/{task_id}/results/latest', manager_token)
+        assert response[0] == 401
+
+    def test_get_latest_result_with_another_student_should_return_forbidden(self) -> None:
+        task_id = self.__set_up_task_id_student_token()[0]
+        name = get_random_name()
+        student_payload = {
+            'name': name,
+            'email': name + '@mail.com',
+            'password': name + 'password'
+        }
+        another_student_token = post('/api/v1/students', student_payload)[1]['token']
+
+        response = get(f'api/v1/tasks/{task_id}/results/latest', another_student_token)
+        assert response[0] == 403
+
+    def test_get_latest_result_with_invalid_task_id_should_return_not_found(self) -> None:
+        student_token = self.__set_up_task_id_student_token()[1]
+
+        response = get(f'api/v1/tasks/{999999}/results/latest', student_token)
+        assert response[0] == 404
+
+    def test_get_latest_result_without_result_should_return_not_found(self) -> None:
+        task_id, student_token = self.__set_up_task_id_student_token()
+
+        response = get(f'api/v1/tasks/{task_id}/results/latest', student_token)
         assert response[0] == 404
