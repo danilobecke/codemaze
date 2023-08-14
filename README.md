@@ -1,6 +1,6 @@
 # Codemaze
 
-![coverage-badge](./metadata/coverage.svg) [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint) [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
+[![Tests](https://github.com/danilobecke/codemaze/actions/workflows/test.yml/badge.svg)](https://github.com/danilobecke/codemaze/actions/workflows/test.yml) ![coverage-badge](./metadata/coverage.svg) [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint) [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 
 ## Prerequisites
 
