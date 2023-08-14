@@ -26,16 +26,13 @@ if [ -z "$PY_FILES" ]; then
     exit 0;
 fi
 
-# run coverage report and create badge
+# run smoke test suite
 cyan_echo "------------ 1. Run Tests ------------"
-make code-coverage
+make smoke-test
 if [ "$?" != "0" ]; then
     red_echo "\nFix broken tests before commiting.\n";
     exit 1;
 fi
-
-# add badge to the current commit
-git add metadata/coverage.svg
 
 # run mypy
 cyan_echo "---------- 2. Typing Checks ----------"

@@ -1,7 +1,10 @@
+import pytest
+
 from tests.helper import post, get, patch, get_random_name, get_manager_id_token, get_student_id_token, get_random_manager_token, get_new_group_id_code, create_expired_token, create_join_request_group_id
 
 # pylint: disable=too-many-public-methods
 class TestGroup:
+    @pytest.mark.smoke
     def test_create_group_should_create(self) -> None:
         name = get_random_name()
         id_token = get_manager_id_token()
@@ -42,6 +45,7 @@ class TestGroup:
 
         assert response[0] == 401
 
+    @pytest.mark.smoke
     def test_manager_get_all_groups_should_return_all(self) -> None:
         name = get_random_name()
         random_token = get_random_manager_token()
@@ -56,6 +60,7 @@ class TestGroup:
         # must contain groups owned by others
         assert len(list(filter(lambda json: json['name'] == name, groups))) == 1
 
+    @pytest.mark.smoke
     def test_manager_get_all_groups_where_member_of_should_return_groups_where_is_member(self) -> None:
         manager_id_token = get_manager_id_token()
 
@@ -68,6 +73,7 @@ class TestGroup:
         filtered = list(filter(lambda json: json['manager_id'] == manager_id_token[0], groups))
         assert filtered == groups
 
+    @pytest.mark.smoke
     def test_manager_get_all_groups_where_member_of_when_is_not_member_should_return_empty_list(self) -> None:
         random_token = get_random_manager_token()
 
@@ -82,6 +88,7 @@ class TestGroup:
 
         assert response[0] == 401
 
+    @pytest.mark.smoke
     def test_manager_get_group_info_should_return_group(self) -> None:
         random_manager_token = get_random_manager_token()
         name = get_random_name()
@@ -98,6 +105,7 @@ class TestGroup:
         assert json['code'] is not None
         assert json['manager_id'] is not None
 
+    @pytest.mark.smoke
     def test_student_get_group_info_should_return_group(self) -> None:
         random_manager_token = get_random_manager_token()
         name = get_random_name()
@@ -130,6 +138,7 @@ class TestGroup:
 
         assert response[0] == 401
 
+    @pytest.mark.smoke
     def test_update_group_active_should_update(self) -> None:
         manager_id_token = get_manager_id_token()
         name = get_random_name()
@@ -147,6 +156,7 @@ class TestGroup:
         assert group['name'] == name
         assert group['code'] == code
 
+    @pytest.mark.smoke
     def test_update_group_name_should_update(self) -> None:
         manager_id_token = get_manager_id_token()
         group_id, code = get_new_group_id_code(get_random_name(), manager_id_token[1])
@@ -164,6 +174,7 @@ class TestGroup:
         assert group['name'] == new_name
         assert group['code'] == code
 
+    @pytest.mark.smoke
     def test_update_group_name_active_should_update(self) -> None:
         manager_id_token = get_manager_id_token()
         group_id, code = get_new_group_id_code(get_random_name(), manager_id_token[1])
@@ -182,6 +193,7 @@ class TestGroup:
         assert group['name'] == new_name
         assert group['code'] == code
 
+    @pytest.mark.smoke
     def test_update_group_with_empty_payload_should_work_and_not_update(self) -> None:
         manager_id_token = get_manager_id_token()
         name = get_random_name()
@@ -230,6 +242,7 @@ class TestGroup:
 
         assert response[0] == 401
 
+    @pytest.mark.smoke
     def test_student_join_group_should_work(self) -> None:
         student_token = get_student_id_token()[1]
         manager_token = get_manager_id_token()[1]
@@ -276,6 +289,7 @@ class TestGroup:
 
         assert response[0] == 404
 
+    @pytest.mark.smoke
     def test_join_group_twice_should_return_conflict(self) -> None:
         student_token = get_student_id_token()[1]
         manager_token = get_manager_id_token()[1]
@@ -290,6 +304,7 @@ class TestGroup:
         response_replay = post('/api/v1/groups/join', payload, student_token)
         assert response_replay[0] == 409
 
+    @pytest.mark.smoke
     def test_manager_get_requests_list_sould_return_requests(self) -> None:
         manager_token = get_manager_id_token()[1]
         student_id_token = get_student_id_token()
@@ -303,6 +318,7 @@ class TestGroup:
         assert requests[0]['id'] == student_id_token[0]
         assert requests[0]['student'] == 'Student'
 
+    @pytest.mark.smoke
     def test_manager_get_requests_list_when_there_is_no_request_should_return_empty_list(self) -> None:
         manager_token = get_manager_id_token()[1]
         group_id_code = get_new_group_id_code(get_random_name(), manager_token)
@@ -351,6 +367,7 @@ class TestGroup:
 
         assert response[0] == 404
 
+    @pytest.mark.smoke
     def test_manager_approve_join_request_should_work(self) -> None:
         manager_token = get_manager_id_token()[1]
         student_id_token = get_student_id_token()
@@ -370,6 +387,7 @@ class TestGroup:
         requests = get(f'/api/v1/groups/{group_id_code[0]}/requests', manager_token)[1]['requests']
         assert len(requests) == 0
 
+    @pytest.mark.smoke
     def test_manager_decline_join_request_should_work(self) -> None:
         manager_token = get_manager_id_token()[1]
         student_id_token = get_student_id_token()
@@ -502,6 +520,7 @@ class TestGroup:
         second_response = patch(f'/api/v1/groups/{group_id_code[0]}/requests/{request_id}', payload, manager_token)
         assert second_response[0] == 404
 
+    @pytest.mark.smoke
     def test_manager_get_students_list_should_return_students(self) -> None:
         manager_token = get_manager_id_token()[1]
         student_id_token = get_student_id_token()
@@ -515,6 +534,7 @@ class TestGroup:
         assert students[0]['name'] == 'Student'
         assert students[0]['email'] == 'student@email.com'
 
+    @pytest.mark.smoke
     def test_manager_get_students_list_without_approved_students_should_return_empty_list(self) -> None:
         manager_token = get_manager_id_token()[1]
         student_id_token = get_student_id_token()
@@ -570,6 +590,7 @@ class TestGroup:
 
         assert response[0] == 404
 
+    @pytest.mark.smoke
     def test_student_get_all_groups_where_member_of_should_return_groups_where_is_member(self) -> None:
         manager_id_token = get_manager_id_token()
         student_id_token = get_student_id_token()

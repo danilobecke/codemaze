@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 from io import BytesIO
 
+import pytest
+
 from tests.helper import post, get_manager_id_token, create_task_json, create_test_case_json, get_student_id_token, create_join_request_group_id, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_new_group_id_code, get_random_name
 
 VALID_C_CODE = '''
@@ -186,6 +188,7 @@ class TestResult:
         assert all(result['success'] is False for result in closed_results)
         assert all(result.get('diff') is None for result in closed_results)
 
+    @pytest.mark.smoke
     def test_post_result_with_valid_c_code_should_succeed_and_succeed_all_tests(self) -> None:
         task_id, student_token = self.__set_up_valid_2_open_2_closed_tests_task_id_student_token()
         payload = {

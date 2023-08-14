@@ -1,9 +1,12 @@
 from io import BytesIO
 
+import pytest
+
 from tests.helper import get_manager_id_token, create_task_json, post, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_student_id_token, create_join_request_group_id, get_random_manager_token, create_test_case_json, get, delete
 
 # pylint: disable=too-many-public-methods
 class TestTCase:
+    @pytest.mark.smoke
     def test_add_open_test_case_should_succeed_with_urls(self) -> None:
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
@@ -22,6 +25,7 @@ class TestTCase:
         assert json['input_url'] == f'/api/v1/tests/{test_id}/in'
         assert json['output_url'] == f'/api/v1/tests/{test_id}/out'
 
+    @pytest.mark.smoke
     def test_add_closed_test_case_should_succeed_with_urls(self) -> None:
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
@@ -173,6 +177,7 @@ class TestTCase:
 
         assert response[0] == 403
 
+    @pytest.mark.smoke
     def test_download_input_output_of_open_test_with_manager_should_succeed(self) -> None:
         manager_id_token = get_manager_id_token()
         content_in = 'Test input.'
@@ -187,6 +192,7 @@ class TestTCase:
         assert str(response_in[1]) == content_in
         assert str(response_out[1]) == content_out
 
+    @pytest.mark.smoke
     def test_download_input_output_of_open_test_with_student_should_succeed(self) -> None:
         manager_id_token = get_manager_id_token()
         student_token = get_student_id_token()[1]
@@ -203,6 +209,7 @@ class TestTCase:
         assert str(response_in[1]) == content_in
         assert str(response_out[1]) == content_out
 
+    @pytest.mark.smoke
     def test_download_input_output_of_closed_test_with_manager_should_succeed(self) -> None:
         manager_id_token = get_manager_id_token()
         content_in = 'Test input.'
@@ -217,6 +224,7 @@ class TestTCase:
         assert str(response_in[1]) == content_in
         assert str(response_out[1]) == content_out
 
+    @pytest.mark.smoke
     def test_download_input_output_of_closed_test_with_student_should_return_forbidden(self) -> None:
         manager_id_token = get_manager_id_token()
         student_token = get_student_id_token()[1]
@@ -261,6 +269,7 @@ class TestTCase:
         assert response_in[0] == 404
         assert response_out[0] == 404
 
+    @pytest.mark.smoke
     def test_get_tests_with_manager_should_succeed_with_urls(self) -> None:
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
@@ -278,6 +287,7 @@ class TestTCase:
         assert all(test['input_url'] is not None for test in tests) is True
         assert all(test['output_url'] is not None for test in tests) is True
 
+    @pytest.mark.smoke
     def test_get_tests_with_student_should_succeed_with_urls_on_open_tests_only(self) -> None:
         manager_token = get_manager_id_token()[1]
         student_token = get_student_id_token()[1]
@@ -300,6 +310,7 @@ class TestTCase:
         assert all(test.get('input_url') is None for test in closed_tests) is True
         assert all(test.get('output_url') is None for test in closed_tests) is True
 
+    @pytest.mark.smoke
     def test_get_tests_when_task_has_no_tests_should_return_empty_list(self) -> None:
         manager_token = get_manager_id_token()[1]
         student_token = get_student_id_token()[1]
@@ -342,6 +353,7 @@ class TestTCase:
 
         assert response[0] == 404
 
+    @pytest.mark.smoke
     def test_delete_test_with_manager_should_work(self) -> None:
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']

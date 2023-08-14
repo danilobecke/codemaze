@@ -1,3 +1,5 @@
+import pytest
+
 from tests.helper import post, get_random_name, assert_user_response
 
 class TestStudent:
@@ -5,6 +7,7 @@ class TestStudent:
     __email = f'{__name}@email.com'
     __password = f'pass{__name}'
 
+    @pytest.mark.smoke
     def test_create_student_should_create(self) -> None:
         payload = {
             'name': self.__name,
@@ -15,6 +18,7 @@ class TestStudent:
 
         assert_user_response(response, self.__name, self.__email, 'student')
 
+    @pytest.mark.smoke
     def test_login_should_work(self) -> None:
         payload = {
             'email': self.__email,
@@ -49,6 +53,7 @@ class TestStudent:
 
         assert response[0] == 403
 
+    @pytest.mark.smoke
     def test_login_wrong_password_should_return_forbidden(self) -> None:
         payload = {
             'email': self.__email,

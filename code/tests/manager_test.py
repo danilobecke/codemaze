@@ -1,3 +1,5 @@
+import pytest
+
 from tests.helper import post, get_random_name, assert_user_response
 
 class TestManager:
@@ -5,6 +7,7 @@ class TestManager:
     __email = f'{__name}@email.com'
     __password = f'pass{__name}'
 
+    @pytest.mark.smoke
     def test_create_manager_should_create(self) -> None:
         payload = {
             'name': self.__name,
@@ -15,6 +18,7 @@ class TestManager:
 
         assert_user_response(response, self.__name, self.__email, 'manager')
 
+    @pytest.mark.smoke
     def test_login_should_work(self) -> None:
         payload = {
             'email': self.__email,
