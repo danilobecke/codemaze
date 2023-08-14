@@ -1,0 +1,27 @@
+name: Test
+run-name: Running tests
+on: [push]
+jobs:
+    run-tests:
+        runs-on: ubuntu-latest
+        services:
+            postgres:
+              image: postgres
+              env:
+                POSTGRES_PASSWORD: postgres
+              ports:
+                - 5432:5432 # Maps port 5432 on service container to the host
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            - name: Set up python
+              uses: actions/setup-python@v4
+              with:
+                python-version: 3.11
+            - name: Generate .env
+              run: |
+                  echo CODEMAZE_KEY=\"$(openssl rand -base64 32)\" > .env
+                  echo TEST_DB_STRING=\"postgresql://postgres:postgres@localhost:5432/postgres\" >> .env
+            - name: Run tests
+              run: |
+                  make test
