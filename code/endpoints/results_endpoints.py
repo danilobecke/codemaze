@@ -30,6 +30,7 @@ _test_result_model = _namespace.model('Test Case Result', {
 
 _result_model = _namespace.model('Result', {
     'id': fields.Integer(required=True),
+    'attempt_number': fields.Integer(required=True),
     'correct_open': fields.Integer(required=True),
     'correct_closed': fields.Integer(),
     'source_url': fields.String(required=True),

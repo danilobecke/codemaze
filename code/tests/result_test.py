@@ -140,6 +140,7 @@ class TestResult:
         response_second = post(f'/api/v1/tasks/{task_id}/results', payload_second, student_token, CONTENT_TYPE_FORM_DATA)
 
         assert response_first[0] == 201
+        assert response_first[1]['attempt_number'] == 1
         assert response_second[0] == 403
 
     def test_post_result_with_student_not_member_should_return_forbidden(self) -> None:
@@ -185,6 +186,7 @@ class TestResult:
 
         assert response[0] == 201
         result = response[1]
+        assert result['attempt_number'] == 1
         assert result['correct_open'] == 0
         assert result['correct_closed'] == 0
         assert result['source_url'] == f'/api/v1/tasks/{task_id}/results/latest/code'
@@ -207,6 +209,7 @@ class TestResult:
 
         assert response[0] == 201
         result = response[1]
+        assert result['attempt_number'] == 1
         assert result['correct_open'] == 2
         assert result['correct_closed'] == 2
         assert result['source_url'] == f'/api/v1/tasks/{task_id}/results/latest/code'
@@ -228,6 +231,7 @@ class TestResult:
 
         assert response[0] == 201
         result = response[1]
+        assert result['attempt_number'] == 1
         assert result['correct_open'] == 0
         assert result.get('correct_closed') is None
         assert result['source_url'] == f'/api/v1/tasks/{task_id}/results/latest/code'
@@ -248,6 +252,7 @@ class TestResult:
 
         assert response[0] == 201
         result = response[1]
+        assert result['attempt_number'] == 1
         assert result['correct_open'] == 0
         assert result.get('correct_closed') is None
         assert result['source_url'] == f'/api/v1/tasks/{task_id}/results/latest/code'
