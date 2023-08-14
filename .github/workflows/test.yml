@@ -28,6 +28,9 @@ jobs:
             - name: Run tests
               run: |
                   make test
+            - name: Stop gcc-container
+              run: |
+                  make stop
             - name: Verify Changed files
               uses: tj-actions/verify-changed-files@v16
               id: verify-changed-files
