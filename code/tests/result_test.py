@@ -16,7 +16,7 @@ int main() {
 
 INVALID_C_CODE = '''
 int main() {
-    printf("Invalid code - missing import.")'
+    printf("Invalid code - missing import.")
 '''
 
 TIMEOUT_C_CODE = '''

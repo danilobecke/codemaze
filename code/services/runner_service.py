@@ -72,6 +72,7 @@ class RunnerService:
                 dto.success = False
                 dto.diff = str(e)
                 results.append(TCaseResultVO.import_from_dto(self.__tcase_result_repository.add(dto)))
+            runner.remove_directory(dest)
             return results
         except Exception as e:
             raise ServerError from e
