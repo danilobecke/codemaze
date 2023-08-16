@@ -147,6 +147,24 @@ class TestTask:
 
         assert response[0] == 400
 
+    def test_create_task_with_closed_group_should_return_forbidden(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        group_id_code = get_new_group_id_code(get_random_name(), manager_token)
+        group_id = group_id_code[0]
+        upadte_payload = {
+            'active': False
+        }
+        patch(f'/api/v1/groups/{group_id}', upadte_payload, manager_token)
+
+        payload = {
+            'name': get_random_name(),
+            'languages': ['c'],
+            'file': (BytesIO(b'Random file content.'), 'file_name.txt')
+        }
+        response = post(f'/api/v1/groups/{group_id}/tasks', payload, manager_token, CONTENT_TYPE_FORM_DATA)
+
+        assert response[0] == 403
+
     def test_create_task_with_non_manager_should_return_forbidden(self) -> None:
         manager_id_token = get_manager_id_token()
         group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
@@ -378,6 +396,20 @@ class TestTask:
         response = patch(f'/api/v1/tasks/{task_id}', payload, manager_token, CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 400
+
+    def test_update_task_with_closed_group_should_return_forbidden(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        group_id = get_new_group_id_code(get_random_name(), manager_token)[0]
+        task = create_task_json(manager_token, group_id, starts_on=(datetime.now().astimezone() + timedelta(days=2)).isoformat())
+        task_id = task['id']
+        upadte_payload = {
+            'active': False
+        }
+        patch(f'/api/v1/groups/{group_id}', upadte_payload, manager_token)
+
+        response = patch(f'/api/v1/tasks/{task_id}', {}, manager_token, CONTENT_TYPE_FORM_DATA)
+
+        assert response[0] == 403
 
     def test_update_task_with_non_manager_should_return_forbidden(self) -> None:
         manager_id_token = get_manager_id_token()

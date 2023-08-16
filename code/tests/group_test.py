@@ -304,6 +304,21 @@ class TestGroup:
         response_replay = post('/api/v1/groups/join', payload, student_token)
         assert response_replay[0] == 409
 
+    def test_join_closed_group_should_return_forbidden(self) -> None:
+        student_token = get_student_id_token()[1]
+        manager_token = get_manager_id_token()[1]
+        group_id, group_code = get_new_group_id_code(get_random_name(), manager_token)
+        upadte_payload = {
+            'active': False
+        }
+        patch(f'/api/v1/groups/{group_id}', upadte_payload, manager_token)
+
+        payload = {
+            'code': group_code
+        }
+        response = post('/api/v1/groups/join', payload, student_token)
+        assert response[0] == 403
+
     @pytest.mark.smoke
     def test_manager_get_requests_list_sould_return_requests(self) -> None:
         manager_token = get_manager_id_token()[1]
@@ -406,6 +421,28 @@ class TestGroup:
         assert response[0] == 200
         requests = get(f'/api/v1/groups/{group_id_code[0]}/requests', manager_token)[1]['requests']
         assert len(requests) == 0
+
+    def test_update_join_request_with_closed_group_should_return_forbidden(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        student_token = get_student_id_token()[1]
+        group_id = create_join_request_group_id(student_token, manager_token)
+        upadte_payload = {
+            'active': False
+        }
+        patch(f'/api/v1/groups/{group_id}', upadte_payload, manager_token)
+        request_id = get(f'/api/v1/groups/{group_id}/requests', manager_token)[1]['requests'][0]['id']
+
+        payload_approve = {
+            'approve': True
+        }
+        response_approve = patch(f'/api/v1/groups/{group_id}/requests/{request_id}', payload_approve, manager_token)
+        assert response_approve[0] == 403
+
+        payload_decline = {
+            'approve': False
+        }
+        response_decline = patch(f'/api/v1/groups/{group_id}/requests/{request_id}', payload_decline, manager_token)
+        assert response_decline[0] == 403
 
     def test_student_approve_join_request_should_return_unauthorized(self) -> None:
         manager_token = get_manager_id_token()[1]

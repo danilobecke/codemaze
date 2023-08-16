@@ -13,12 +13,15 @@ class GroupRepository(AbstractRepository[GroupDTO]):
     def __init__(self) -> None:
         super().__init__(GroupDTO)
 
-    def add_join_request(self, code: str, student_id: int) -> None:
-        group = self._session.scalars(select(GroupDTO).where(and_(GroupDTO.code == code, GroupDTO.active == True))).first()
+    def get_group_by_code(self, code: str) -> GroupDTO:
+        group = self._session.scalars(select(GroupDTO).where(GroupDTO.code == code)).first()
         if not group:
             raise NotFound()
+        return group
+
+    def add_join_request(self, group_id: int, student_id: int) -> None:
         try:
-            stm = insert(student_group).values(student_id=student_id, group_id=group.id, approved=False)
+            stm = insert(student_group).values(student_id=student_id, group_id=group_id, approved=False)
             self._session.execute(stm)
             self._session.commit()
         except IntegrityError as e:

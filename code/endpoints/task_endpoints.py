@@ -196,7 +196,7 @@ class TaskResource(Resource): # type: ignore
     def get(self, id: int, user: UserVO) -> TaskVO:
         try:
             user_groups = unwrap(TaskResource._group_service).get_all(user)
-            task = unwrap(TaskResource._task_service).get_task(id, user.id, user_groups)
+            task = unwrap(TaskResource._task_service).get_task(id, user.id, user_groups, active_required=False)
             tests = unwrap(TaskResource._tcase_service).get_tests(user.id, task, user_groups)
             return task.appending_tests(tests)
         except Forbidden as e:

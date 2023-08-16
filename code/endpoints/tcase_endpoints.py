@@ -63,7 +63,7 @@ class TestsResource(Resource): # type: ignore
         closed = args['closed']
         try:
             user_groups = unwrap(TestsResource._group_service).get_all(user)
-            task = unwrap(TestsResource._task_service).get_task(task_id, user.id, user_groups)
+            task = unwrap(TestsResource._task_service).get_task(task_id, user.id, user_groups, active_required=True)
             input_file = File(unwrap(input_storage.filename), input_storage.stream.read())
             output_file = File(unwrap(output_storage.filename), output_storage.stream.read())
             return unwrap(TestsResource._tcase_service).add_test_case(task, input_file, output_file, closed), 201
@@ -89,7 +89,7 @@ class TestsResource(Resource): # type: ignore
     def get(self, task_id: int, user: UserVO) -> AllTestsVO:
         try:
             user_groups = unwrap(TestsResource._group_service).get_all(user)
-            task = unwrap(TestsResource._task_service).get_task(task_id, user.id, user_groups)
+            task = unwrap(TestsResource._task_service).get_task(task_id, user.id, user_groups, active_required=False)
             return unwrap(TestsResource._tcase_service).get_tests(user.id, task, user_groups)
         except Forbidden as e:
             abort(403, str(e))

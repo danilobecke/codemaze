@@ -3,7 +3,7 @@ from io import BytesIO
 
 import pytest
 
-from tests.helper import post, get_manager_id_token, create_task_json, create_test_case_json, get_student_id_token, create_join_request_group_id, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_new_group_id_code, get_random_name, get
+from tests.helper import post, get_manager_id_token, create_task_json, create_test_case_json, get_student_id_token, create_join_request_group_id, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_new_group_id_code, get_random_name, get, patch
 
 VALID_C_CODE = '''
 #include<stdio.h>
@@ -109,6 +109,24 @@ class TestResult:
             response = post(f'/api/v1/tasks/{task_id}/results', payload, student_token, CONTENT_TYPE_FORM_DATA)
 
             assert response[0] == 413
+
+    def test_post_result_with_closed_group_should_return_forbidden(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        student_token = get_student_id_token()[1]
+        group_id = create_join_request_group_id(student_token, manager_token, approve=True)
+        task_id = create_task_json(manager_token, group_id)['id']
+        create_test_case_json(manager_token, task_id)
+        update_payload = {
+            'active': False
+        }
+        patch(f'api/v1/groups/{group_id}', update_payload, manager_token)
+
+        payload = {
+            'code': (BytesIO(VALID_C_CODE.encode('utf-8')), 'code.c')
+        }
+        response = post(f'/api/v1/tasks/{task_id}/results', payload, student_token, CONTENT_TYPE_FORM_DATA)
+
+        assert response[0] == 403
 
     def test_post_result_with_not_started_task_should_return_forbidden(self) -> None:
         task_id, student_token = self.__set_up_task_id_student_token(starts_on=(datetime.now().astimezone() + timedelta(days=1)).isoformat())

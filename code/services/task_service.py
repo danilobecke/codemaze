@@ -22,6 +22,10 @@ class TaskService:
         if group.manager_id != user.id:
             raise Forbidden()
 
+    def __assert_is_group_active(self, group: GroupVO) -> None:
+        if group.active is False:
+            raise Forbidden()
+
     def __assert_languages(self, languages: list[str]) -> None:
         allowed_languages = self.__runner_service.allowed_languages()
         if len(languages) == 0 or any(language not in allowed_languages for language in languages):
@@ -33,6 +37,7 @@ class TaskService:
 
     def create_task(self, user: UserVO, group: GroupVO, name: str, max_attempts: Optional[int], languages: list[str], starts_on: Optional[datetime], ends_on: Optional[datetime], file: File) -> TaskVO:
         self.__assert_is_manager(user, group)
+        self.__assert_is_group_active(group)
         self.__assert_languages(languages)
         if ends_on is not None:
             self.__assert_date('ends_on', ends_on, starts_on if starts_on else datetime.now().astimezone())
@@ -57,7 +62,9 @@ class TaskService:
 
     def update_task(self, user: UserVO, get_group_func: Callable[[int], GroupVO], task_id: int, name: Optional[str], max_attempts: Optional[int], languages: list[str], starts_on: Optional[datetime], ends_on: Optional[datetime], file: Optional[File]) -> TaskVO:
         dto: TaskDTO = self.__task_repository.find(task_id)
-        self.__assert_is_manager(user, get_group_func(dto.group_id))
+        group = get_group_func(dto.group_id)
+        self.__assert_is_manager(user, group)
+        self.__assert_is_group_active(group)
         if file is not None:
             new_file = file.save()
             os.remove(dto.file_path)
@@ -85,10 +92,12 @@ class TaskService:
         dtos = self.__task_repository.get_tasks(group_id, started_only)
         return list(map(lambda dto: TaskVO.import_from_dto(dto), dtos))
 
-    def get_task(self, task_id: int, user_id: int, user_groups: list[GroupVO]) -> TaskVO:
+    def get_task(self, task_id: int, user_id: int, user_groups: list[GroupVO], active_required: bool = False) -> TaskVO:
         dto = self.__task_repository.find(task_id)
         try:
             group = next(_group for _group in user_groups if _group.id == dto.group_id)
+            if active_required and group.active is False:
+                raise Forbidden()
             if unwrap(dto.starts_on) > datetime.now().astimezone() and group.manager_id != user_id:
                 raise Forbidden() # only managers can retrieve upcoming tasks
             return TaskVO.import_from_dto(dto)

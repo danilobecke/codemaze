@@ -2,7 +2,7 @@ from io import BytesIO
 
 import pytest
 
-from tests.helper import get_manager_id_token, create_task_json, post, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_student_id_token, create_join_request_group_id, get_random_manager_token, create_test_case_json, get, delete
+from tests.helper import get_manager_id_token, create_task_json, post, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_student_id_token, create_join_request_group_id, get_random_manager_token, create_test_case_json, get, delete, get_new_group_id_code, get_random_name, patch
 
 # pylint: disable=too-many-public-methods
 class TestTCase:
@@ -174,6 +174,24 @@ class TestTCase:
         }
 
         response = post(f'/api/v1/tasks/{task_id}/tests', payload, random_manager, CONTENT_TYPE_FORM_DATA)
+
+        assert response[0] == 403
+
+    def test_add_test_case_with_closed_group_should_return_forbidden(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        group_id = get_new_group_id_code(get_random_name(), manager_token)[0]
+        task_id = create_task_json(manager_token, group_id)['id']
+        upadte_payload = {
+            'active': False
+        }
+        patch(f'/api/v1/groups/{group_id}', upadte_payload, manager_token)
+        payload = {
+            'input': (BytesIO(b'Input.'), 'input.in'),
+            'output': (BytesIO(b'Output.'), 'output.out'),
+            'closed': False
+        }
+
+        response = post(f'/api/v1/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
 
         assert response[0] == 403
 

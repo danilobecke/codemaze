@@ -62,7 +62,7 @@ class ResultsResource(Resource): # type: ignore
         blob = file_storage.stream.read()
         try:
             user_groups = unwrap(ResultsResource._group_service).get_all(user)
-            task = unwrap(ResultsResource._task_service).get_task(task_id, user.id, user_groups)
+            task = unwrap(ResultsResource._task_service).get_task(task_id, user.id, user_groups, active_required=True)
             tests = unwrap(ResultsResource._tcase_service).get_tests(user.id, task, user_groups, running_context=True)
             return unwrap(ResultsResource._result_service).run(user, task, tests, File(filename, blob)), 201
         except Forbidden as e:
@@ -91,7 +91,7 @@ class SourceCodeDownloadResource(Resource): # type: ignore
     def get(self, task_id: int, user: UserVO) -> Response:
         try:
             user_groups = unwrap(SourceCodeDownloadResource._group_service).get_all(user)
-            task = unwrap(SourceCodeDownloadResource._task_service).get_task(task_id, user.id, user_groups)
+            task = unwrap(SourceCodeDownloadResource._task_service).get_task(task_id, user.id, user_groups, active_required=False)
             name, path = unwrap(SourceCodeDownloadResource._result_service).get_latest_source_code_name_path(task, user.id)
             return send_file(path, download_name=name)
         except Forbidden as e:
@@ -118,7 +118,7 @@ class LatestResultResource(Resource): # type: ignore
     def get(self, task_id: int, user: UserVO) -> ResultVO:
         try:
             user_groups = unwrap(LatestResultResource._group_service).get_all(user)
-            task = unwrap(LatestResultResource._task_service).get_task(task_id, user.id, user_groups)
+            task = unwrap(LatestResultResource._task_service).get_task(task_id, user.id, user_groups, active_required=False)
             tests = unwrap(LatestResultResource._tcase_service).get_tests(user.id, task, user_groups, running_context=True)
             return unwrap(LatestResultResource._result_service).get_latest_result(task, user, tests)
         except Forbidden as e:

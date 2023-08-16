@@ -136,6 +136,7 @@ class JoinResource(Resource): # type: ignore
     @_namespace.response(200, 'Success')
     @_namespace.response(400, 'Error')
     @_namespace.response(401, 'Error')
+    @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(409, 'Error')
     @_namespace.response(500, 'Error')
@@ -146,6 +147,8 @@ class JoinResource(Resource): # type: ignore
         try:
             unwrap(JoinResource._group_service).add_join_request(code, user.id)
             return jsonify(message='Success')
+        except Forbidden as e:
+            abort(403, str(e))
         except NotFound as e:
             abort(404, str(e))
         except Internal_UniqueViolation:
