@@ -27,9 +27,15 @@ class TaskService:
         if len(languages) == 0 or any(language not in allowed_languages for language in languages):
             raise ParameterValidationError('languages', str(languages), str(allowed_languages))
 
+    def __assert_date(self, key: str, date: datetime, reference: datetime) -> None:
+        if date < reference:
+            raise ParameterValidationError(key, str(date), 'datetime')
+
     def create_task(self, user: UserVO, group: GroupVO, name: str, max_attempts: Optional[int], languages: list[str], starts_on: Optional[datetime], ends_on: Optional[datetime], file: File) -> TaskVO:
         self.__assert_is_manager(user, group)
         self.__assert_languages(languages)
+        if ends_on is not None:
+            self.__assert_date('ends_on', ends_on, starts_on if starts_on else datetime.now().astimezone())
         full_path = file.save()
         dto = TaskDTO()
         dto.name = name
@@ -63,9 +69,10 @@ class TaskService:
         if languages is not None and languages != dto.languages:
             self.__assert_languages(languages)
             dto.languages = languages
-        if starts_on is not None:
+        if starts_on is not None and starts_on != dto.starts_on:
             dto.starts_on = starts_on
         if ends_on is not None and ends_on != dto.ends_on:
+            self.__assert_date('ends_on', ends_on, unwrap(dto.starts_on))
             dto.ends_on = ends_on
         self.__task_repository.update_session()
         return TaskVO.import_from_dto(dto)
