@@ -233,6 +233,14 @@ class TestTask:
         assert response[0] == 200
         assert str(response[1]) == content
 
+    def test_download_task_with_manager_and_not_started_task_should_succeed(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        task = create_task_json(manager_token, starts_on=(datetime.now().astimezone() + timedelta(days=1)).isoformat())
+
+        response = get(task['file_url'], manager_token, decode_as_json=False)
+
+        assert response[0] == 200
+
     def test_download_task_with_non_manager_should_return_forbidden(self) -> None:
         manager_id_token = get_manager_id_token()
         group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
@@ -245,6 +253,16 @@ class TestTask:
         task = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)[1]
 
         response = get(task['file_url'], random_manager_token)
+
+        assert response[0] == 403
+
+    def test_download_task_with_student_and_not_started_task_should_return_forbidden(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        student_token = get_student_id_token()[1]
+        group_id = create_join_request_group_id(student_token, manager_token, approve=True)
+        task = create_task_json(manager_token, group_id, starts_on=(datetime.now().astimezone() + timedelta(days=10)).isoformat())
+
+        response = get(task['file_url'], student_token)
 
         assert response[0] == 403
 
