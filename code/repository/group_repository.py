@@ -34,8 +34,11 @@ class GroupRepository(AbstractRepository[GroupDTO]):
     def get_students_with_join_request(self, group_id: int, approved: bool = False) -> list[StudentDTO]:
         stm = select(StudentDTO)\
             .join(student_group, StudentDTO.id == student_group.columns['student_id'])\
-            .where(and_(student_group.columns['group_id'] == group_id, student_group.columns['approved'] == approved))\
-            .order_by(student_group.columns['updated_at'])
+            .where(and_(student_group.columns['group_id'] == group_id, student_group.columns['approved'] == approved))
+        if approved:
+            stm = stm.order_by(StudentDTO.name)
+        else:
+            stm = stm.order_by(student_group.columns['created_at'])
         return list(self._session.scalars(stm).all())
 
     def __find_opened_join_request(self, group_id: int, student_id: int) -> None:
