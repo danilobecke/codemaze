@@ -23,6 +23,8 @@ class ResultService:
 
     def run(self, user: UserVO, task: TaskVO, tests: AllTestsVO, file: File) -> ResultVO:
         now = datetime.now().astimezone()
+        if (len(tests.closed_tests) + len(tests.open_tests)) < 1:
+            raise Forbidden() # Prevent running without tests
         if unwrap(task.starts_on) > now or (task.ends_on is not None and task.ends_on < now):
             raise Forbidden()
         attempt_number = self.__result_repository.get_number_of_results(user.id, task.id) + 1

@@ -174,6 +174,19 @@ class TestResult:
 
         assert response[0] == 403
 
+    def test_post_result_with_task_without_tests_should_return_forbidden(self) -> None:
+        manager_token = get_manager_id_token()[1]
+        student_token = get_student_id_token()[1]
+        group_id = create_join_request_group_id(student_token, manager_token, approve=True)
+        task_id = create_task_json(manager_token, group_id)['id']
+
+        payload = {
+            'code': (BytesIO(VALID_C_CODE.encode('utf-8')), 'code.c')
+        }
+        response = post(f'/api/v1/tasks/{task_id}/results', payload, student_token, CONTENT_TYPE_FORM_DATA)
+
+        assert response[0] == 403
+
     def test_post_result_with_manager_should_return_unauthorized(self) -> None:
         manager_token = get_manager_id_token()[1]
         group_id = get_new_group_id_code(get_random_name(), manager_token)[0]
