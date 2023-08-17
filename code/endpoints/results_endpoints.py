@@ -31,8 +31,9 @@ _test_result_model = _namespace.model('Test Case Result', {
 _result_model = _namespace.model('Result', {
     'id': fields.Integer(required=True),
     'attempt_number': fields.Integer(required=True),
-    'correct_open': fields.Integer(required=True),
-    'correct_closed': fields.Integer(),
+    'open_result_percentage': fields.Float(required=True),
+    'closed_result_percentage': fields.Float(),
+    'result_percentage': fields.Float(required=True),
     'source_url': fields.String(required=True),
     'open_results': fields.Nested(_test_result_model, as_list=True, skip_none=True, required=True),
     'closed_results': fields.Nested(_test_result_model, as_list=True, skip_none=True, required=True)
@@ -51,6 +52,8 @@ class ResultsResource(Resource): # type: ignore
     @_namespace.response(401, 'Error')
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
+    @_namespace.response(413, 'Error')
+    @_namespace.response(422, 'Error')
     @_namespace.response(500, 'Error')
     @_namespace.marshal_with(_result_model, code=201)
     @_namespace.doc(security='bearer')

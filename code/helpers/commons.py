@@ -22,5 +22,5 @@ def test_download_url_in(test_id: int) -> str:
 def test_download_url_out(test_id: int) -> str:
     return url_for('api/v1.tests_test_download_out_resource', id=test_id)
 
-def source_code_download_url(task_id: int) -> str:
+def latest_source_code_download_url(task_id: int) -> str:
     return url_for('api/v1.tasks_source_code_download_resource', task_id=task_id)

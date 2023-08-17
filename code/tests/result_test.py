@@ -33,6 +33,19 @@ int main() {
 }
 '''
 
+# fail second open test and first closed test
+FAIL_TWO_TESTS_C_CODE = '''
+#include<stdio.h>
+int main() {
+    int a, b;
+    scanf("%d %d", &a, &b);
+    if(a == 3 || a == 5) {
+        return 0;
+    }
+    printf("%d", a+b);
+}
+'''
+
 # pylint: disable=too-many-public-methods
 class TestResult:
     def __set_up_task_id_student_token(self, starts_on: str | None = None, ends_on: str | None = None, max_attempts: int | None = None) -> tuple[str, str]:
@@ -218,8 +231,9 @@ class TestResult:
         assert response[0] == 201
         result = response[1]
         assert result['attempt_number'] == 1
-        assert result['correct_open'] == 0
-        assert result['correct_closed'] == 0
+        assert result['open_result_percentage'] == 0
+        assert result['closed_result_percentage'] == 0
+        assert result['result_percentage'] == 0
         assert result['source_url'] == f'/api/v1/tasks/{task_id}/results/latest/code'
         open_results = result['open_results']
         assert len(open_results) == 2
@@ -240,8 +254,9 @@ class TestResult:
         assert response[0] == 201
         result = response[1]
         assert result['attempt_number'] == 1
-        assert result['correct_open'] == 2
-        assert result['correct_closed'] == 2
+        assert result['open_result_percentage'] == 100
+        assert result['closed_result_percentage'] == 100
+        assert result['result_percentage'] == 100
         assert result['source_url'] == f'/api/v1/tasks/{task_id}/results/latest/code'
         open_results = result['open_results']
         assert len(open_results) == 2
@@ -262,8 +277,9 @@ class TestResult:
         assert response[0] == 201
         result = response[1]
         assert result['attempt_number'] == 1
-        assert result['correct_open'] == 0
-        assert result.get('correct_closed') is None
+        assert result['result_percentage'] == 0
+        assert result['open_result_percentage'] == 0
+        assert result.get('closed_result_percentage') is None
         assert result['source_url'] == f'/api/v1/tasks/{task_id}/results/latest/code'
         open_results = result['open_results']
         assert len(open_results) == 1
@@ -283,8 +299,9 @@ class TestResult:
         assert response[0] == 201
         result = response[1]
         assert result['attempt_number'] == 1
-        assert result['correct_open'] == 0
-        assert result.get('correct_closed') is None
+        assert result['result_percentage'] == 0
+        assert result['open_result_percentage'] == 0
+        assert result.get('closed_result_percentage') is None
         assert result['source_url'] == f'/api/v1/tasks/{task_id}/results/latest/code'
         open_results = result['open_results']
         assert len(open_results) == 1
@@ -367,29 +384,19 @@ class TestResult:
         response_first = post(f'/api/v1/tasks/{task_id}/results', payload_first, student_token, CONTENT_TYPE_FORM_DATA)
         assert response_first[0] == 201
         assert response_first[1]['attempt_number'] == 1
-        assert response_first[1]['correct_open'] == 2
-        assert response_first[1]['correct_closed'] == 2
+        assert response_first[1]['open_result_percentage'] == 100
+        assert response_first[1]['closed_result_percentage'] == 100
+        assert response_first[1]['result_percentage'] == 100
 
-        # fail second open test and first closed test
-        code = '''
-#include<stdio.h>
-int main() {
-    int a, b;
-    scanf("%d %d", &a, &b);
-    if(a == 3 || a == 5) {
-        return 0;
-    }
-    printf("%d", a+b);
-}
-'''
         payload_second = {
-            'code': (BytesIO(code.encode('utf-8')), 'code.c')
+            'code': (BytesIO(FAIL_TWO_TESTS_C_CODE.encode('utf-8')), 'code.c')
         }
         response_second = post(f'/api/v1/tasks/{task_id}/results', payload_second, student_token, CONTENT_TYPE_FORM_DATA)
         assert response_second[0] == 201
         assert response_second[1]['attempt_number'] == 2
-        assert response_second[1]['correct_open'] == 1
-        assert response_second[1]['correct_closed'] == 1
+        assert response_second[1]['open_result_percentage'] == 50
+        assert response_second[1]['closed_result_percentage'] == 50
+        assert response_second[1]['result_percentage'] == 50
         assert len(response_second[1]['open_results']) == 2
         assert len(response_second[1]['closed_results']) == 2
         assert response_second[1]['open_results'][0]['success'] is True

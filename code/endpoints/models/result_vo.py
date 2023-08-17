@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 from endpoints.models.tcase_result_vo import TCaseResultVO
-from helpers.commons import source_code_download_url
+from helpers.commons import latest_source_code_download_url
 from repository.dto.result import ResultDTO
 
 class ResultVO:
     def __init__(self) -> None:
         self.id = -1
         self.attempt_number = -1
-        self.correct_open = -1
-        self.correct_closed: int | None = None
+        self.open_result_percentage: float = -1
+        self.closed_result_percentage: float | None = -1
+        self.result_percentage: float = -1
         self.source_url = ''
         self.open_results: list[TCaseResultVO] = []
         self.closed_results: list[TCaseResultVO] = []
@@ -19,9 +20,10 @@ class ResultVO:
         vo = ResultVO()
         vo.id = dto.id
         vo.attempt_number = attempt_numer
-        vo.correct_open = dto.correct_open
-        vo.correct_closed = dto.correct_closed if len(closed_results) > 0 else None
-        vo.source_url = source_code_download_url(dto.task_id)
+        vo.open_result_percentage = (dto.correct_open / len(open_results)) * 100
+        vo.closed_result_percentage = (dto.correct_closed / len(closed_results)) * 100 if len(closed_results) > 0 else None
+        vo.result_percentage = vo.open_result_percentage if vo.closed_result_percentage is None else (vo.open_result_percentage + vo.closed_result_percentage) / 2
+        vo.source_url = latest_source_code_download_url(dto.task_id)
         vo.open_results = open_results
         vo.closed_results = closed_results
         return vo
