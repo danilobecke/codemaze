@@ -24,9 +24,8 @@ class TestReport:
         tests.append(create_test_case_json(manager_token, task_id, closed=True, content_in='6', content_out='6')['id'])
         return (manager_token, student_token_one, student_token_two, student_token_three, tests, task_id)
 
-    # pylint: disable=inconsistent-quotes
     def __get_code_failing_tests(self, tests: list[int]) -> str:
-        code = ""
+        code = ''
         if len(tests) == 0:
             code = '''
 #include<stdio.h>
@@ -37,7 +36,7 @@ int main() {
 }
 '''
         else:
-            condition_statement = " || ".join([ f'a == {test}' for test in tests ])
+            condition_statement = ' || '.join([ f'a == {test}' for test in tests ])
             code = f'''
 #include<stdio.h>
 int main() {{
