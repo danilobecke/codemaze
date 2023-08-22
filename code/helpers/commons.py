@@ -24,3 +24,6 @@ def test_download_url_out(test_id: int) -> str:
 
 def latest_source_code_download_url(task_id: int) -> str:
     return url_for('api/v1.tasks_source_code_download_resource', task_id=task_id)
+
+def source_code_download_url(result_id: int) -> str:
+    return url_for('api/v1.results_result_code_resource', id=result_id)

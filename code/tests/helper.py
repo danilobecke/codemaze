@@ -107,17 +107,27 @@ def get_student_id_token() -> tuple[str, str]:
     response = post('/api/v1/students', create_payload)
     return (response[1]['id'], response[1]['token'])
 
-def get_random_manager_token() -> str:
-    random = get_random_name()
+def __get_random(role_url: str, name_initial: str | None = None) -> str:
+    name = get_random_name()
+    if name_initial is not None:
+        name = name_initial + '-' + name
     payload = {
-        'name': random,
-        'email': f'{random}@email.com',
+        'name': name,
+        'email': f'{name}@email.com',
         'password': 'password'
     }
-    response = post('/api/v1/managers', payload)
+    response = post(f'/api/v1/{role_url}', payload)
     return str(response[1]['token'])
 
-def get_new_group_id_code(name: str, token: str) -> tuple[str, str]:
+def get_random_manager_token() -> str:
+    return __get_random('managers')
+
+def get_random_student_token(name_initial: str | None) -> str:
+    return __get_random('students', name_initial)
+
+def get_new_group_id_code(name: str | None, token: str) -> tuple[str, str]:
+    if name is None:
+        name = get_random_name()
     payload = {
         'name': name
     }
@@ -150,6 +160,18 @@ def create_join_request_group_id(student_token: str, manager_token: str, approve
     patch(f'/api/v1/groups/{group_id}/requests/{request_id}', approve_payload, manager_token)
     return group_id
 
+def join_group(code: str, group_id: str, student_token: str, manager_token: str) -> None:
+    join_payload = {
+        'code': code
+    }
+    post('/api/v1/groups/join', join_payload, student_token)
+
+    request_id = get(f'/api/v1/groups/{group_id}/requests', manager_token)[1]['requests'][0]['id']
+    approve_payload = {
+        'approve': True
+    }
+    patch(f'/api/v1/groups/{group_id}/requests/{request_id}', approve_payload, manager_token)
+
 # pylint: disable=dangerous-default-value
 def create_task_json(manager_token: str, group_id: str | None = None, starts_on: str | None = None, languages: list[str] = ['c'], ends_on: str | None = None, max_attempts: int | None = None) -> Dict[str, Any]:
     if group_id is None:
@@ -179,6 +201,14 @@ def create_test_case_json(manager_token: str, task_id: int | None = None, group_
         'closed': closed
     }
     return post(f'/api/v1/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)[1]
+
+def set_up_task_id_student_token(starts_on: str | None = None, ends_on: str | None = None, max_attempts: int | None = None) -> tuple[str, str]:
+    manager_token = get_manager_id_token()[1]
+    student_token = get_student_id_token()[1]
+    group_id = create_join_request_group_id(student_token, manager_token, approve=True)
+    task_id = create_task_json(manager_token, group_id, starts_on=starts_on, ends_on=ends_on, max_attempts=max_attempts)['id']
+    create_test_case_json(manager_token, task_id)
+    return (task_id, student_token)
 
 ## Asserts
 

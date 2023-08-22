@@ -3,7 +3,7 @@ from io import BytesIO
 
 import pytest
 
-from tests.helper import post, get_manager_id_token, create_task_json, create_test_case_json, get_student_id_token, create_join_request_group_id, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_new_group_id_code, get_random_name, get, patch
+from tests.helper import post, get_manager_id_token, create_task_json, create_test_case_json, get_student_id_token, create_join_request_group_id, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_new_group_id_code, get_random_name, get, patch, set_up_task_id_student_token
 
 VALID_C_CODE = '''
 #include<stdio.h>
@@ -48,14 +48,6 @@ int main() {
 
 # pylint: disable=too-many-public-methods
 class TestResult:
-    def __set_up_task_id_student_token(self, starts_on: str | None = None, ends_on: str | None = None, max_attempts: int | None = None) -> tuple[str, str]:
-        manager_token = get_manager_id_token()[1]
-        student_token = get_student_id_token()[1]
-        group_id = create_join_request_group_id(student_token, manager_token, approve=True)
-        task_id = create_task_json(manager_token, group_id, starts_on=starts_on, ends_on=ends_on, max_attempts=max_attempts)['id']
-        create_test_case_json(manager_token, task_id)
-        return (task_id, student_token)
-
     def __set_up_valid_2_open_2_closed_tests_task_id_student_token(self) -> tuple[str, str]:
         manager_token = get_manager_id_token()[1]
         student_token = get_student_id_token()[1]
@@ -68,7 +60,7 @@ class TestResult:
         return (task_id, student_token)
 
     def __set_up_result_source_code_url_student_token(self, code: str) -> tuple[str, str]:
-        task_id, student_token = self.__set_up_task_id_student_token()
+        task_id, student_token = set_up_task_id_student_token()
         payload = {
             'code': (BytesIO(code.encode('utf-8')), 'code.c')
         }
@@ -76,7 +68,7 @@ class TestResult:
         return (source_url, student_token)
 
     def test_post_result_without_code_should_fail(self) -> None:
-        task_id, student_token = self.__set_up_task_id_student_token()
+        task_id, student_token = set_up_task_id_student_token()
         payload = {
             'file': (BytesIO(b'Random file.'), 'code.c')
         }
@@ -85,7 +77,7 @@ class TestResult:
         assert response[0] == 400
 
     def test_post_result_without_filename_should_fail(self) -> None:
-        task_id, student_token = self.__set_up_task_id_student_token()
+        task_id, student_token = set_up_task_id_student_token()
         payload = {
             'code': (BytesIO(VALID_C_CODE.encode('utf-8')))
         }
@@ -94,7 +86,7 @@ class TestResult:
         assert response[0] == 400
 
     def test_post_result_with_empty_filename_should_return_unprocessable_entity(self) -> None:
-        task_id, student_token = self.__set_up_task_id_student_token()
+        task_id, student_token = set_up_task_id_student_token()
         payload = {
             'code': (BytesIO(VALID_C_CODE.encode('utf-8')), '')
         }
@@ -103,7 +95,7 @@ class TestResult:
         assert response[0] == 422
 
     def test_post_result_with_invalid_extension_should_return_unprocessable_entity(self) -> None:
-        task_id, student_token = self.__set_up_task_id_student_token()
+        task_id, student_token = set_up_task_id_student_token()
         payload = {
             'code': (BytesIO(VALID_C_CODE.encode('utf-8')), 'code.png')
         }
@@ -113,7 +105,7 @@ class TestResult:
 
     def test_post_result_with_invalid_file_size_should_return_invalid_file_size(self) -> None:
         filepath = get_filepath_of_size(round(1.1 * 1024 * 1024), extension='.c') # 1.1 MB
-        task_id, student_token = self.__set_up_task_id_student_token()
+        task_id, student_token = set_up_task_id_student_token()
 
         with open(filepath, 'rb') as file:
             payload = {
@@ -142,7 +134,7 @@ class TestResult:
         assert response[0] == 403
 
     def test_post_result_with_not_started_task_should_return_forbidden(self) -> None:
-        task_id, student_token = self.__set_up_task_id_student_token(starts_on=(datetime.now().astimezone() + timedelta(days=1)).isoformat())
+        task_id, student_token = set_up_task_id_student_token(starts_on=(datetime.now().astimezone() + timedelta(days=1)).isoformat())
         payload = {
             'code': (BytesIO(VALID_C_CODE.encode('utf-8')), 'code.c')
         }
@@ -151,7 +143,7 @@ class TestResult:
         assert response[0] == 403
 
     def test_post_result_with_finished_task_should_return_forbidden(self) -> None:
-        task_id, student_token = self.__set_up_task_id_student_token(starts_on=(datetime.now().astimezone() - timedelta(days=2)).isoformat(), ends_on=(datetime.now().astimezone() - timedelta(days=1)).isoformat())
+        task_id, student_token = set_up_task_id_student_token(starts_on=(datetime.now().astimezone() - timedelta(days=2)).isoformat(), ends_on=(datetime.now().astimezone() - timedelta(days=1)).isoformat())
         payload = {
             'code': (BytesIO(VALID_C_CODE.encode('utf-8')), 'code.c')
         }
@@ -160,7 +152,7 @@ class TestResult:
         assert response[0] == 403
 
     def test_post_result_more_than_max_attempt_times_should_return_forbidden(self) -> None:
-        task_id, student_token = self.__set_up_task_id_student_token(max_attempts=1)
+        task_id, student_token = set_up_task_id_student_token(max_attempts=1)
         payload = {
             'code': (BytesIO(VALID_C_CODE.encode('utf-8')), 'code.c')
         }
@@ -268,7 +260,7 @@ class TestResult:
         assert all(result.get('diff') is None for result in closed_results)
 
     def test_post_result_with_timeout_should_succeed_and_fail_tests_with_timeout(self) -> None:
-        task_id, student_token = self.__set_up_task_id_student_token()
+        task_id, student_token = set_up_task_id_student_token()
         payload = {
             'code': (BytesIO(TIMEOUT_C_CODE.encode('utf-8')), 'code.c')
         }
@@ -290,7 +282,7 @@ class TestResult:
         assert len(closed_results) == 0
 
     def test_post_result_with_execution_error_should_succeed_and_fail_test_with_error(self) -> None:
-        task_id, student_token = self.__set_up_task_id_student_token()
+        task_id, student_token = set_up_task_id_student_token()
         payload = {
             'code': (BytesIO(RUNTIME_ERROR_C_CODE.encode('utf-8')), 'code.c')
         }
@@ -322,7 +314,7 @@ class TestResult:
 
     @pytest.mark.smoke
     def test_download_latest_source_code_with_multiple_results_should_return_latest(self) -> None:
-        task_id, student_token = self.__set_up_task_id_student_token()
+        task_id, student_token = set_up_task_id_student_token()
         payload_first = {
             'code': (BytesIO(VALID_C_CODE.encode('utf-8')), 'code.c')
         }
@@ -368,7 +360,7 @@ class TestResult:
 
     @pytest.mark.smoke
     def test_download_latest_source_code_without_result_should_return_not_found(self) -> None:
-        task_id, student_token = self.__set_up_task_id_student_token()
+        task_id, student_token = set_up_task_id_student_token()
 
         response = get(f'api/v1/tasks/{task_id}/results/latest/code', student_token, decode_as_json=False)
 
@@ -413,14 +405,14 @@ class TestResult:
         assert response[1] == response_second[1]
 
     def test_get_latest_result_with_manager_should_return_unauthorized(self) -> None:
-        task_id = self.__set_up_task_id_student_token()[0]
+        task_id = set_up_task_id_student_token()[0]
         manager_token = get_manager_id_token()[1]
 
         response = get(f'api/v1/tasks/{task_id}/results/latest', manager_token)
         assert response[0] == 401
 
     def test_get_latest_result_with_another_student_should_return_forbidden(self) -> None:
-        task_id = self.__set_up_task_id_student_token()[0]
+        task_id = set_up_task_id_student_token()[0]
         name = get_random_name()
         student_payload = {
             'name': name,
@@ -433,13 +425,13 @@ class TestResult:
         assert response[0] == 403
 
     def test_get_latest_result_with_invalid_task_id_should_return_not_found(self) -> None:
-        student_token = self.__set_up_task_id_student_token()[1]
+        student_token = set_up_task_id_student_token()[1]
 
         response = get(f'api/v1/tasks/{999999}/results/latest', student_token)
         assert response[0] == 404
 
     def test_get_latest_result_without_result_should_return_not_found(self) -> None:
-        task_id, student_token = self.__set_up_task_id_student_token()
+        task_id, student_token = set_up_task_id_student_token()
 
         response = get(f'api/v1/tasks/{task_id}/results/latest', student_token)
         assert response[0] == 404

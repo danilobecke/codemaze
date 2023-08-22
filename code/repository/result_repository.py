@@ -22,3 +22,7 @@ class ResultRepository(AbstractRepository[ResultDTO]):
         if result is None:
             raise NotFound()
         return result
+
+    def get_results_for_task(self, task_id: int) -> list[ResultDTO]:
+        stm = select(ResultDTO).where(ResultDTO.task_id == task_id).order_by(ResultDTO.created_at)
+        return list(self._session.scalars(stm).all())
