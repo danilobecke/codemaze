@@ -2,7 +2,8 @@ from collections import Counter
 from datetime import datetime
 from functools import reduce
 from itertools import groupby
-from typing import Callable
+from threading import Thread
+from typing import Callable, Optional
 
 from endpoints.models.all_tests_vo import AllTestsVO
 from endpoints.models.group import GroupVO
@@ -19,10 +20,12 @@ from helpers.unwrapper import unwrap
 from repository.result_repository import ResultRepository
 from repository.dto.result import ResultDTO
 from services.runner_service import RunnerService
+from services.moss_service import MossService
 
 class ResultService:
-    def __init__(self, runner_service: RunnerService) -> None:
+    def __init__(self, runner_service: RunnerService, moss_service: Optional[MossService]) -> None:
         self.__runner_service = runner_service
+        self.__moss_service = moss_service
         self.__result_repository = ResultRepository()
 
     def run(self, user: UserVO, task: TaskVO, tests: AllTestsVO, file: File) -> ResultVO:
@@ -75,13 +78,12 @@ class ResultService:
         path = dto.file_path
         return ('source' + file_extension(path), path)
 
-    def __get_students_report(self, task: TaskVO, students: list[UserVO], tests: AllTestsVO) -> list[StudentReport]:
+    def __get_students_report(self, task_results: list[ResultDTO], students: list[UserVO], tests: AllTestsVO) -> list[StudentReport]:
         number_open_tests = len(tests.open_tests)
         number_closed_tests = len(tests.closed_tests)
-        all_results = self.__result_repository.get_results_for_task(task.id)
         student_reports = [ StudentReport(student.id, student.name) for student in students ]
         for report in student_reports:
-            results = [ result for result in all_results if result.student_id == report.id ]
+            results = [ result for result in task_results if result.student_id == report.id ]
             try:
                 valid_result = results[-1] # last submitted
                 report.open_result_percentage = round((valid_result.correct_open / number_open_tests) * 100, 2)
@@ -135,8 +137,25 @@ class ResultService:
             reports.append(TestReport(test.id, correct_percentage))
         return reports
 
+    def __get_moss_report(self, languages: list[str], task_results: list[ResultDTO], students: list[UserVO]) -> Optional[str]:
+        if self.__moss_service is None:
+            return None
+        if len(languages) > 1:
+                # TODO LOGGER
+                return None
+        task_results.reverse() # the latest is the relevant one
+        results: list[ResultDTO] = []
+        [ results.append(result) for result in task_results if result.student_id not in [ _result.student_id for _result in results ] ]
+        urls: list[str] = []
+        self.__moss_service.get_report(filepaths, languages[0], urls)
+        return urls[0]
+
     def get_results_report(self, task: TaskVO, students: list[UserVO], tests: AllTestsVO) -> ReportVO:
-        students_report = self.__get_students_report(task, students, tests)
+        task_results = self.__result_repository.get_results_for_task(task.id)
+        thread = Thread(target=self.__get_moss_report, args=[task.languages, task_results.copy(), students])
+        thread.start()
+        students_report = self.__get_students_report(task_results, students, tests)
         overall_report = self.__get_overall_report(students_report)
         tests_report = self.__get_tests_report(students_report, tests)
+        thread.join()            
         return ReportVO(overall_report, students_report, tests_report)

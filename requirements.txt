@@ -1,6 +1,7 @@
 aniso8601==9.0.1
 astroid==2.15.5
 attrs==23.1.0
+beautifulsoup4==4.12.2
 blinker==1.6.2
 click==8.1.3
 coverage==7.2.7
@@ -15,8 +16,10 @@ itsdangerous==2.1.2
 Jinja2==3.1.2
 jsonschema==4.17.3
 lazy-object-proxy==1.9.0
+lxml==4.9.3
 MarkupSafe==2.1.3
 mccabe==0.7.0
+mosspy==1.0.9
 mypy==1.4.1
 mypy-extensions==1.0.0
 packaging==23.1
@@ -32,6 +35,7 @@ pytest==7.3.2
 pytest-cov==4.1.0
 python-dotenv==1.0.0
 pytz==2023.3
+soupsieve==2.4.1
 SQLAlchemy==2.0.19
 SQLAlchemy-Utils==0.41.1
 tomlkit==0.11.8
