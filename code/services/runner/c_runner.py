@@ -1,14 +1,18 @@
 from io import TextIOWrapper
 import subprocess
+from typing import Any
 import uuid
 
 from helpers.commons import filename
+from helpers.config import Config
 from helpers.exceptions import CompilationError, ExecutionError
+from helpers.unwrapper import unwrap
 from services.runner.runner import Runner
 
 class CRunner(Runner):
     def __init__(self) -> None:
         self.__container = 'gcc-container'
+        self.__config = dict[str, Any](unwrap(Config.shared)['runners']['c'])
 
     @property
     def language_name(self) -> str:
@@ -30,7 +34,8 @@ class CRunner(Runner):
 
     def compile(self, source_path: str, destination_directory: str) -> str:
         executable = f'{destination_directory}/{str(uuid.uuid1())}'
-        with subprocess.Popen(self.__exec(f'gcc -Wall -g -lm -o {executable} {source_path}'), stdout=subprocess.PIPE,  stderr=subprocess.PIPE, text=True) as process:
+        gcc_options = str(self.__config['gcc-parameters'])
+        with subprocess.Popen(self.__exec(f'gcc {gcc_options} -o {executable} {source_path}'), stdout=subprocess.PIPE,  stderr=subprocess.PIPE, text=True) as process:
             stdout, stderr = process.communicate()
             if stdout.strip():
                 raise CompilationError(stdout)

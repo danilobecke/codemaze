@@ -1,0 +1,8 @@
+[admin]
+mail-list = []
+
+[runners]
+timeout = 2
+
+[runners.c]
+gcc-parameters = '-Wall -g -ansi -pedantic -lm'

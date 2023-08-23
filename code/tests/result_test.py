@@ -11,18 +11,21 @@ int main() {
     int a, b;
     scanf("%d %d", &a, &b);
     printf("%d", a+b);
+    return 0;
 }
 '''
 
 INVALID_C_CODE = '''
 int main() {
     printf("Invalid code - missing import.")
+    return 0;
 '''
 
 TIMEOUT_C_CODE = '''
 #include <unistd.h>
 int main() {
     sleep(3);
+    return 0;
 }
 '''
 
@@ -30,6 +33,7 @@ RUNTIME_ERROR_C_CODE = '''
 #include<stdio.h>
 int main() {
 	fprintf(stderr, "%s", "Error");
+    return 0;
 }
 '''
 
@@ -43,6 +47,7 @@ int main() {
         return 0;
     }
     printf("%d", a+b);
+    return 0;
 }
 '''
 

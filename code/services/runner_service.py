@@ -5,6 +5,7 @@ import uuid
 from endpoints.models.all_tests_vo import AllTestsVO
 from endpoints.models.tcase_result_vo import TCaseResultVO
 from helpers.commons import file_extension
+from helpers.config import Config
 from helpers.exceptions import InvalidSourceCode, ExecutionError, CompilationError, ServerError
 from helpers.unwrapper import unwrap
 from repository.tcase_result_repository import TCaseResultRepository
@@ -50,7 +51,7 @@ class RunnerService:
                 dto.result_id = result_id
                 try:
                     with open(unwrap(test.input_path), encoding='utf-8') as stdin, open(unwrap(test.output_path), encoding='utf-8') as expected_result:
-                        output = runner.run(executable_path, stdin, timeout=2)
+                        output = runner.run(executable_path, stdin, timeout=float(unwrap(Config.shared)['runners']['timeout'])) # pylint: disable=unsubscriptable-object
                         diff = '\n'.join(line for line in difflib.unified_diff(expected_result.readlines(), output.splitlines(), fromfile='expected.out', tofile='result.out', lineterm=''))
                         if len(diff) == 0:
                             dto.success = True
