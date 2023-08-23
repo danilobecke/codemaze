@@ -31,6 +31,12 @@ class RunnerService:
             result = result.union(runner.file_extensions)
         return result
 
+    def language_with_extension(self, extension: str) -> str | None:
+        try:
+            return next(runner.language_name for runner in self.__runners if extension in runner.file_extensions)
+        except StopIteration:
+            return None
+
     def run(self, path: str, tests: AllTestsVO, result_id: int) -> list[TCaseResultVO]:
         results: list[TCaseResultVO] = []
         try:

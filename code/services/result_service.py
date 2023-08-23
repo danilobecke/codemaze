@@ -1,5 +1,5 @@
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import reduce
 from itertools import groupby
 from threading import Thread
@@ -17,7 +17,9 @@ from helpers.exceptions import Forbidden
 from helpers.file import File
 from helpers.role import Role
 from helpers.unwrapper import unwrap
+from repository.plagiarism_report_repository import PlagiarismReportRepository
 from repository.result_repository import ResultRepository
+from repository.dto.plagiarism_report_dto import PlagiarismReportDTO
 from repository.dto.result import ResultDTO
 from services.runner_service import RunnerService
 from services.moss_service import MossService
@@ -27,6 +29,7 @@ class ResultService:
         self.__runner_service = runner_service
         self.__moss_service = moss_service
         self.__result_repository = ResultRepository()
+        self.__plagiarism_report_repository = PlagiarismReportRepository()
 
     def run(self, user: UserVO, task: TaskVO, tests: AllTestsVO, file: File) -> ResultVO:
         now = datetime.now().astimezone()
@@ -137,36 +140,61 @@ class ResultService:
             reports.append(TestReport(test.id, correct_percentage))
         return reports
 
-    def __get_moss_report(self, languages: list[str], task_results: list[ResultDTO], students: list[UserVO], urls: list[str]) -> None:
-        if self.__moss_service is None:
-            return
-        if len(languages) > 1:
-            # TODO LOGGER
-            return
+    # pylint: disable=too-many-branches
+    def __get_plagiarism_report(self, task: TaskVO, task_results: list[ResultDTO], students: list[UserVO], urls: list[str]) -> None:
+        if self.__moss_service is None or task.ends_on is None:
+            return # MOSS user ID not set or task without ends_on set
+        if task.ends_on >= datetime.now().astimezone():
+            return # task didn't finish
+        reports = self.__plagiarism_report_repository.get_reports_for_task(task.id)
+        if len(set(task.languages).symmetric_difference([report.language for report in reports])) != 0:
+            # delete all and create again
+            for report in reports:
+                self.__plagiarism_report_repository.delete(report.id)
+        else:
+            # assert they are valid (one week)
+            if any(report.created_at + timedelta(days=7) < datetime.now().astimezone() for report in reports):
+                # delete all and create again
+                for report in reports:
+                    self.__plagiarism_report_repository.delete(report.id)
+            else:
+                urls.extend([ report.url for report in reports ])
+                return
         task_results.reverse() # the latest is the relevant one
         results: list[ResultDTO] = []
         for result in task_results:
+            # keep only one result per student
             if result.student_id not in [ _result.student_id for _result in results ]:
                 results.append(result)
-        filepath_name_list: list[tuple[str, str]] = []
-        for result in results:
-            try:
-                student_name = next(student.name for student in students if student.id == result.student_id)
-                filepath_name_list.append((result.file_path, student_name))
-            except StopIteration:
+        for extension, _results in groupby(results, lambda result: file_extension(result.file_path)):
+            filepath_name_list: list[tuple[str, str]] = []
+            language = self.__runner_service.language_with_extension(extension)
+            if language is None:
                 continue
-        self.__moss_service.get_report(filepath_name_list, languages[0], urls)
-        return
+            for result in _results:
+                try:
+                    student_name = next(student.name for student in students if student.id == result.student_id)
+                    filepath_name_list.append((result.file_path, student_name))
+                except StopIteration:
+                    continue
+            report_url = self.__moss_service.get_report(filepath_name_list, language)
+            if report_url is None:
+                continue
+            dto = PlagiarismReportDTO()
+            dto.language = language
+            dto.url = report_url
+            dto.task_id = task.id
+            self.__plagiarism_report_repository.add(dto)
+            urls.append(report_url)
 
     def get_results_report(self, task: TaskVO, students: list[UserVO], tests: AllTestsVO) -> ReportVO:
         task_results = self.__result_repository.get_results_for_task(task.id)
-        moss_urls: list[str] = []
-        thread = Thread(target=self.__get_moss_report, args=[task.languages, task_results.copy(), students, moss_urls])
+        plagiarism_report_urls: list[str] = []
+        thread = Thread(target=self.__get_plagiarism_report, args=[task, task_results.copy(), students, plagiarism_report_urls])
         thread.start()
         students_report = self.__get_students_report(task_results, students, tests)
         overall_report = self.__get_overall_report(students_report)
         tests_report = self.__get_tests_report(students_report, tests)
         thread.join()
-        overall_report.plagiarism_report_urls = moss_urls
-        # TODO store URL on task
+        overall_report.plagiarism_report_urls = plagiarism_report_urls
         return ReportVO(overall_report, students_report, tests_report)
