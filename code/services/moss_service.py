@@ -8,6 +8,12 @@ class MossService:
         moss = Moss(self.__user_id, language)
         if language not in moss.getLanguages():
             return
-        for path, name in source_file_path_name_list:
-            moss.addFile(path, name)
-        output_list.append(moss.send())
+        try:
+            for path, name in source_file_path_name_list:
+                moss.addFile(path, name.replace('', '_'))
+            output_list.append(moss.send())
+        # pylint: disable=broad-exception-caught
+        except Exception as e:
+            # TODO send email
+            print(str(e))
+            return

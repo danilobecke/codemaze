@@ -19,11 +19,11 @@ class StudentReport:
         self.wrong_tests_id: list[int] = []
 
 class OverallReport:
-    def __init__(self, submissions_percentage: float, results_percentages: list[ResultPercentage], mean_attempts_success_all: int | None, plagiarism_report_url: str | None, tests_more_failures: list[int]) -> None:
+    def __init__(self, submissions_percentage: float, results_percentages: list[ResultPercentage], mean_attempts_success_all: int | None, tests_more_failures: list[int]) -> None:
         self.submissions_percentage = submissions_percentage
         self.results_percentages = results_percentages
         self.mean_attempts_success_all = mean_attempts_success_all
-        self.plagiarism_report_url = plagiarism_report_url
+        self.plagiarism_report_urls: list[str] = []
         self.tests_more_failures = tests_more_failures
 
 @total_ordering

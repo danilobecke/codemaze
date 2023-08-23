@@ -124,7 +124,7 @@ class ResultService:
         if len(most_common) > 0:
             most_common_count = most_common[0][1]
             tests_more_failures = [ x[0] for x in most_common if x[1] == most_common_count ]
-        return OverallReport(submissions_percentage, sorted(results_percentage, reverse=True), mean_attempts_success, None, tests_more_failures)
+        return OverallReport(submissions_percentage, sorted(results_percentage, reverse=True), mean_attempts_success, tests_more_failures)
 
     def __get_tests_report(self, students_report: list[StudentReport], tests: AllTestsVO) -> list[TestReport]:
         students_with_results = [ report for report in students_report if report.number_attempts > 0 ]
@@ -167,7 +167,6 @@ class ResultService:
         overall_report = self.__get_overall_report(students_report)
         tests_report = self.__get_tests_report(students_report, tests)
         thread.join()
-        report_url = moss_urls[0] if len(moss_urls) > 0 else None
-        overall_report.plagiarism_report_url = report_url
+        overall_report.plagiarism_report_urls = moss_urls
         # TODO store URL on task
         return ReportVO(overall_report, students_report, tests_report)

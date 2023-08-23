@@ -49,7 +49,7 @@ _overall_report_model = _namespace.model('Overall Report', {
     'submissions_percentage': fields.Float(required=True),
     'mean_attempts_success_all': fields.Integer(required=False),
     'tests_more_failures': fields.List(fields.Integer, required=True),
-    'plagiarism_report_url': fields.String(required=False),
+    'plagiarism_report_urls': fields.List(fields.String, required=True),
     'results_percentages': fields.Nested(_result_percentage, as_list=True, skip_none=True, required=True)
 })
 
