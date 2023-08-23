@@ -25,6 +25,7 @@ jobs:
               run: |
                   echo CODEMAZE_KEY=\"$(openssl rand -base64 32)\" > .env
                   echo TEST_DB_STRING=\"postgresql://postgres:postgres@localhost:5432/postgres\" >> .env
+                  echo MOSS_USER_ID=\"${{ secrets.MOSS_USER_ID }}\" >> .env
             - name: Install dependencies
               run: |
                  make setup
