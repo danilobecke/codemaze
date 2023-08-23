@@ -97,11 +97,11 @@ The Swagger documentation is hosted at the `/api/v1/docs` URL.
 
 ### Entity-Relationship Diagram (ERD)
 
-![entity-relationship](./metadata/diagrama.png)
+![entity-relationship](./metadata/erd.png)
 
 ### Data-Structure diagram (DSD)
 
-![data-structure](./metadata/logico.png)
+![data-structure](./metadata/dsd.png)
 
 ## Technologies
 
