@@ -137,25 +137,37 @@ class ResultService:
             reports.append(TestReport(test.id, correct_percentage))
         return reports
 
-    def __get_moss_report(self, languages: list[str], task_results: list[ResultDTO], students: list[UserVO]) -> Optional[str]:
+    def __get_moss_report(self, languages: list[str], task_results: list[ResultDTO], students: list[UserVO], urls: list[str]) -> None:
         if self.__moss_service is None:
-            return None
+            return
         if len(languages) > 1:
-                # TODO LOGGER
-                return None
+            # TODO LOGGER
+            return
         task_results.reverse() # the latest is the relevant one
         results: list[ResultDTO] = []
-        [ results.append(result) for result in task_results if result.student_id not in [ _result.student_id for _result in results ] ]
-        urls: list[str] = []
-        self.__moss_service.get_report(filepaths, languages[0], urls)
-        return urls[0]
+        for result in task_results:
+            if result.student_id not in [ _result.student_id for _result in results ]:
+                results.append(result)
+        filepath_name_list: list[tuple[str, str]] = []
+        for result in results:
+            try:
+                student_name = next(student.name for student in students if student.id == result.student_id)
+                filepath_name_list.append((result.file_path, student_name))
+            except StopIteration:
+                continue
+        self.__moss_service.get_report(filepath_name_list, languages[0], urls)
+        return
 
     def get_results_report(self, task: TaskVO, students: list[UserVO], tests: AllTestsVO) -> ReportVO:
         task_results = self.__result_repository.get_results_for_task(task.id)
-        thread = Thread(target=self.__get_moss_report, args=[task.languages, task_results.copy(), students])
+        moss_urls: list[str] = []
+        thread = Thread(target=self.__get_moss_report, args=[task.languages, task_results.copy(), students, moss_urls])
         thread.start()
         students_report = self.__get_students_report(task_results, students, tests)
         overall_report = self.__get_overall_report(students_report)
         tests_report = self.__get_tests_report(students_report, tests)
-        thread.join()            
+        thread.join()
+        report_url = moss_urls[0] if len(moss_urls) > 0 else None
+        overall_report.plagiarism_report_url = report_url
+        # TODO store URL on task
         return ReportVO(overall_report, students_report, tests_report)

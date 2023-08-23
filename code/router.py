@@ -10,18 +10,20 @@ from endpoints.student_endpoints import StudentEndpoints
 from endpoints.task_endpoints import TaskEndpoints
 from endpoints.tcase_endpoints import TCaseEndpoints
 from services.group_service import GroupService
+from services.moss_service import MossService
 from services.result_service import ResultService
 from services.runner_service import RunnerService
 from services.task_service import TaskService
 from services.tcase_service import TCaseService
 
 class Router:
-    def __init__(self) -> None:
+    def __init__(self, moss_user_id: str | None) -> None:
+        self.__moss_service = MossService(moss_user_id) if moss_user_id else None
         self.__runner_service = RunnerService()
         self.__group_service = GroupService()
         self.__task_service = TaskService(self.__runner_service)
         self.__tcase_service = TCaseService()
-        self.__result_service = ResultService(self.__runner_service)
+        self.__result_service = ResultService(self.__runner_service, self.__moss_service)
 
     def __create_v1_api(self, blueprint: Blueprint) -> Api:
         return Api(
