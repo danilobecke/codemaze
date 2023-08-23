@@ -14,6 +14,9 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v3
+              with:
+                persist-credentials: false
+                fetch-depth: 0
             - name: Set up python
               uses: actions/setup-python@v4
               with:
@@ -42,10 +45,10 @@ jobs:
                 git config --local user.email "github-actions[bot]@users.noreply.github.com"
                 git config --local user.name "github-actions[bot]"
                 git add metadata/coverage.svg
-                git commit -m "Updated coverage.svg"
+                git commit -m "Update coverage.svg"
             - name: Push changes
               if: steps.verify-changed-files.outputs.files_changed == 'true'
               uses: ad-m/github-push-action@master
               with:
-                github_token: ${{ secrets.github_token }}
+                github_token: ${{ secrets.GITHUB_TOKEN }}
                 branch: ${{ github.ref }}
