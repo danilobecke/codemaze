@@ -18,6 +18,11 @@ class Runner(ABC):
     def file_extensions(self) -> list[str]:
         pass
 
+    @property
+    @abstractmethod
+    def help(self) -> str:
+        pass
+
     @abstractmethod
     def add_to_sandbox(self, source_path: str, destination_directory: str) -> str:
         pass

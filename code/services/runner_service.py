@@ -38,6 +38,12 @@ class RunnerService:
         except StopIteration:
             return None
 
+    def help_for_language(self, language: str) -> str | None:
+        try:
+            return next(runner.help for runner in self.__runners if language == runner.language_name)
+        except StopIteration:
+            return None
+
     def run(self, path: str, tests: AllTestsVO, result_id: int) -> list[TCaseResultVO]:
         results: list[TCaseResultVO] = []
         try:

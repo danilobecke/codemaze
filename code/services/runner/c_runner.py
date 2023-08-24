@@ -22,6 +22,11 @@ class CRunner(Runner):
     def file_extensions(self) -> list[str]:
         return ['.c']
 
+    @property
+    def help(self) -> str:
+        command = self.__gcc_command('executable', 'source.c')
+        return f'Compilation command: {command}'
+
     def add_to_sandbox(self, source_path: str, destination_directory: str) -> str:
         _filename = filename(source_path)
         dest = f'{destination_directory}/{_filename}'
@@ -32,10 +37,13 @@ class CRunner(Runner):
     def __exec(self, command: str, interactive: bool = False) -> list[str]:
         return ['docker', 'exec'] + (['-i'] if interactive else []) + [self.__container] + command.split(' ')
 
+    def __gcc_command(self, executable: str, source_path: str) -> str:
+        gcc_options = str(self.__config['gcc-parameters'])
+        return f'gcc {gcc_options} -o {executable} {source_path}'
+
     def compile(self, source_path: str, destination_directory: str) -> str:
         executable = f'{destination_directory}/{str(uuid.uuid1())}'
-        gcc_options = str(self.__config['gcc-parameters'])
-        with subprocess.Popen(self.__exec(f'gcc {gcc_options} -o {executable} {source_path}'), stdout=subprocess.PIPE,  stderr=subprocess.PIPE, text=True) as process:
+        with subprocess.Popen(self.__exec(self.__gcc_command(executable, source_path)), stdout=subprocess.PIPE,  stderr=subprocess.PIPE, text=True) as process:
             stdout, stderr = process.communicate()
             if stdout.strip():
                 raise CompilationError(stdout)

@@ -2,6 +2,7 @@ from flask import Flask, Blueprint
 from flask_restx import Api
 from jsonschema import FormatChecker
 
+from endpoints.config_endpoints import ConfigEndpoints
 from endpoints.group_endpoints import GroupEndpoints
 from endpoints.manager_endpoints import ManagerEndpoints
 from endpoints.results_endpoints import ResultsEndpoints
@@ -9,6 +10,7 @@ from endpoints.session_endpoints import SessionEndpoints
 from endpoints.student_endpoints import StudentEndpoints
 from endpoints.task_endpoints import TaskEndpoints
 from endpoints.tcase_endpoints import TCaseEndpoints
+from services.config_service import ConfigService
 from services.group_service import GroupService
 from services.moss_service import MossService
 from services.result_service import ResultService
@@ -24,6 +26,7 @@ class Router:
         self.__task_service = TaskService(self.__runner_service)
         self.__tcase_service = TCaseService()
         self.__result_service = ResultService(self.__runner_service, self.__moss_service)
+        self.__config_service = ConfigService(self.__runner_service)
 
     def __create_v1_api(self, blueprint: Blueprint) -> Api:
         return Api(
@@ -53,6 +56,7 @@ class Router:
         tasks_namespace = TaskEndpoints(v1_api, groups_namespace, self.__group_service, self.__task_service, self.__tcase_service).register_resources()
         TCaseEndpoints(v1_api, tasks_namespace, self.__group_service, self.__task_service, self.__tcase_service).register_resources()
         ResultsEndpoints(v1_api, tasks_namespace, self.__group_service, self.__task_service, self.__tcase_service, self.__result_service).register_resources()
+        ConfigEndpoints(v1_api, self.__config_service).register_resources()
 
         app.register_blueprint(v1_blueprint)
 
