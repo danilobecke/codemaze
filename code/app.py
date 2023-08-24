@@ -18,7 +18,7 @@ def __init_app(db_string: str, storage_path: str, resetting_db: bool = False) ->
     app.config['STORAGE_PATH'] = storage_path
     CodemazeLogger.start(app)
     Database.initialize(db_string, resetting_db)
-    Config.initialize(os.path.join(os.path.realpath(os.path.curdir), 'code', 'config.toml'))
+    Config.initialize(os.path.join(os.path.realpath(os.path.curdir), 'config.toml'))
     SessionService.initialize(key)
     Router(os.getenv('MOSS_USER_ID')).create_routes(app)
     ErrorHandler.register(app)
