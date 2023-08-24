@@ -14,33 +14,43 @@ class CodemazeLogger:
         return unwrap(CodemazeLogger.__shared)
 
     @staticmethod
-    def set_up() -> None:
+    def set_up(log_tail_key: str | None) -> None:
         if not os.path.exists('logs'):
             os.mkdir('logs')
-        dictConfig({
+        handlers = {
+            'console': {
+                'class': 'logging.StreamHandler',
+                'stream': 'ext://sys.stdout',
+                'formatter': 'default',
+            },
+            'time-rotate': {
+                'class': 'logging.handlers.TimedRotatingFileHandler',
+                'filename': 'logs/codemaze.log',
+                'when': 'D',
+                'interval': 1,
+                'backupCount': 10,
+                'formatter': 'default',
+            }
+        }
+        handlers_array = ['console', 'time-rotate']
+        if log_tail_key is not None:
+            handlers['logtail'] = {
+                'class': 'logtail.LogtailHandler',
+                'source_token': log_tail_key,
+                'formatter': 'default',
+            }
+            handlers_array.append('logtail')
+        config = {
             'version': 1,
             'formatters': {
                 'default': {
                     'format': '[%(asctime)s] %(levelname)s | %(module)s >>> %(message)s',
                 }
             },
-            'handlers': {
-                'console': {
-                    'class': 'logging.StreamHandler',
-                    'stream': 'ext://sys.stdout',
-                    'formatter': 'default',
-                },
-                'time-rotate': {
-                    'class': 'logging.handlers.TimedRotatingFileHandler',
-                    'filename': 'logs/codemaze.log',
-                    'when': 'D',
-                    'interval': 1,
-                    'backupCount': 10,
-                    'formatter': 'default',
-                },
-            },
-            'root': {'level': 'DEBUG', 'handlers': ['console', 'time-rotate']},
-        })
+            'handlers': handlers,
+            'root': {'level': 'DEBUG', 'handlers': handlers_array},
+        }
+        dictConfig(config)
 
     @staticmethod
     def start(app: Flask) -> None:

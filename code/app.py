@@ -31,7 +31,7 @@ def __get_env(name: str) -> str:
     return var
 
 def __set_up() -> None:
-    CodemazeLogger.set_up()
+    CodemazeLogger.set_up(os.getenv('LOG_TAIL_KEY'))
     load_dotenv()
 
 def run_as_debug() -> None:
