@@ -1,5 +1,7 @@
 from mosspy import Moss # type: ignore
 
+from helpers.codemaze_logger import CodemazeLogger
+
 class MossService:
     def __init__(self, user_id: str) -> None:
         self.__user_id = user_id
@@ -13,7 +15,6 @@ class MossService:
                 moss.addFile(path, name.replace(' ', '_'))
             return str(moss.send())
         # pylint: disable=broad-exception-caught
-        except Exception as e:
-            # TODO send email
-            print(str(e))
+        except Exception:
+            CodemazeLogger.shared().exception('MOSS Service has failed.')
             return None

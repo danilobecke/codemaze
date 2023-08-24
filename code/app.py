@@ -7,6 +7,7 @@ from flask.testing import FlaskClient
 
 from error_handler import ErrorHandler
 from helpers.config import Config
+from helpers.codemaze_logger import CodemazeLogger
 from repository.database import Database
 from router import Router
 from services.session_service import SessionService
@@ -15,6 +16,7 @@ def __init_app(db_string: str, storage_path: str, resetting_db: bool = False) ->
     key = __get_env('CODEMAZE_KEY')
     app = Flask(__name__)
     app.config['STORAGE_PATH'] = storage_path
+    CodemazeLogger.start(app)
     Database.initialize(db_string, resetting_db)
     Config.initialize(os.path.join(os.path.realpath(os.path.curdir), 'code', 'config.toml'))
     SessionService.initialize(key)
@@ -29,6 +31,7 @@ def __get_env(name: str) -> str:
     return var
 
 def __set_up() -> None:
+    CodemazeLogger.set_up()
     load_dotenv()
 
 def run_as_debug() -> None:
