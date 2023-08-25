@@ -14,9 +14,10 @@ class CodemazeLogger:
         return unwrap(CodemazeLogger.__shared)
 
     @staticmethod
-    def set_up(log_tail_key: str | None) -> None:
-        if not os.path.exists('logs'):
-            os.mkdir('logs')
+    def set_up(root_path: str, papertrail_address: str | None) -> None:
+        logs_path = os.path.join(root_path, 'logs')
+        if not os.path.exists(logs_path):
+            os.mkdir(logs_path)
         handlers = {
             'console': {
                 'class': 'logging.StreamHandler',
@@ -25,7 +26,7 @@ class CodemazeLogger:
             },
             'time-rotate': {
                 'class': 'logging.handlers.TimedRotatingFileHandler',
-                'filename': 'logs/codemaze.log',
+                'filename': os.path.join(logs_path, 'codemaze.log'),
                 'when': 'D',
                 'interval': 1,
                 'backupCount': 10,
@@ -33,15 +34,17 @@ class CodemazeLogger:
             }
         }
         handlers_array = ['console', 'time-rotate']
-        if log_tail_key is not None:
-            handlers['logtail'] = {
-                'class': 'logtail.LogtailHandler',
-                'source_token': log_tail_key,
+        if papertrail_address is not None:
+            host, port = papertrail_address.split(':', 1)
+            handlers['SysLog'] = {
+                'class': 'logging.handlers.SysLogHandler',
+                'address': (host, int(port)),
                 'formatter': 'default',
             }
-            handlers_array.append('logtail')
+            handlers_array.append('SysLog')
         config = {
             'version': 1,
+            'disable_existing_loggers': False,
             'formatters': {
                 'default': {
                     'format': '[%(asctime)s] %(levelname)s | %(module)s >>> %(message)s',
