@@ -14,8 +14,8 @@ from services.session_service import SessionService
 
 def __get_path(*relative_path: str) -> str:
     cur_dir = os.path.realpath(os.path.curdir)
-    code_path = os.path.join('codemaze', 'code')
-    while cur_dir.find(code_path) != -1:
+    current_path = os.path.split(cur_dir)[1]
+    if current_path == 'code':
         # back to root dir (/codemaze)
         cur_dir = os.path.normpath(os.path.join(cur_dir, '..'))
     return os.path.join(cur_dir, *relative_path)
