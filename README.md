@@ -44,18 +44,17 @@ Add your user ID as the environment var `MOSS_USER_ID`.
 
 ## Logs
 
-Codemaze will keep logs from the past **10 days** in the `/logs` directory. Optionally, you can have your logs on Better Stack. To do so, the following steps must be followed:
+Codemaze will keep logs from the past **10 days** in the `/logs` directory. Optionally, you can have your logs on Papertrail. To do so, the following steps must be followed:
 
-### Get a source token:
+### Get a destination address:
 
-1. Create an account on [https://betterstack.com/logs](https://betterstack.com/logs);
-2. Go to *SOURCES* and *CONNECT SOURCE*;
-3. Choose a name and set `Platform: Python`;
-4. Copy your source token.
+1. Create an account on [https://papertrailapp.com/signup](https://papertrailapp.com/signup?plan=free);
+2. Go to *Settings* and *Log Destinations*;
+3. Copy your address. Format: *logsN.papertrailapp.com:XXXXX*;
 
 ### Add the env var
 
-Add your source token as the environment var `LOG_TAIL_KEY`.
+Add your destination address as the environment var `PAPERTRAIL_ADDRESS`.
 
 ## Running
 
@@ -74,7 +73,7 @@ CODEMAZE_KEY="=your-secret"
 DEBUG_DB_STRING="postgres://your@debug_url"
 TEST_DB_STRING="postgresql://your@test_url"
 MOSS_USER_ID="999999999"
-LOG_TAIL_KEY="source-token"
+PAPERTRAIL_ADDRESS="logsN.papertrailapp.com:XXXXX"
 ```
 
 ### As debug (localhost:48345)
@@ -121,15 +120,14 @@ The Swagger documentation is hosted at the `/api/v1/docs` URL.
 
 ## Technologies
 
-- [Better Stack](https://betterstack.com)
 - [coverage-badge](https://pypi.org/project/coverage-badge/)
 - [Docker](https://www.docker.com)
 - [Flask](https://flask.palletsprojects.com/en/2.3.x/)
 - [flask-restx](https://flask-restx.readthedocs.io/en/latest/)
-- [logtail-python](https://pypi.org/project/logtail-python/)
 - [MOSS](https://theory.stanford.edu/~aiken/moss/)
 - [mosspy](https://pypi.org/project/mosspy/)
 - [mypy](https://mypy-lang.org)
+- [Papertrail](https://www.papertrail.com)
 - [PostgreSQL](https://www.postgresql.org)
 - [pyclean](https://pypi.org/project/pyclean/)
 - [PyJWT](https://pyjwt.readthedocs.io/en/stable/)
