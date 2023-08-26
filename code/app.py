@@ -42,6 +42,12 @@ def __set_up() -> None:
     load_dotenv()
     CodemazeLogger.set_up(__get_path(), os.getenv('PAPERTRAIL_ADDRESS'))
 
+def run() -> Flask:
+    __set_up()
+    db_string = __get_env('CODEMAZE_DB_STRING')
+    storage_path = __get_path('files', 'production')
+    return __init_app(db_string, storage_path)
+
 def run_as_debug() -> None:
     __set_up()
     db_string = __get_env('DEBUG_DB_STRING')

@@ -27,8 +27,8 @@ class TestTask:
         assert json['name'] == payload['name']
         assert json['max_attempts'] == payload['max_attempts']
         assert json['languages'] == payload['languages']
-        assert json['starts_on'] == payload['starts_on']
-        assert json['ends_on'] == payload['ends_on']
+        assert datetime.fromisoformat(str(json['starts_on'])) == datetime.fromisoformat(str(payload['starts_on']))
+        assert datetime.fromisoformat(str(json['ends_on'])) == datetime.fromisoformat(str(payload['ends_on']))
         assert json['file_url'] == f'/api/v1/tasks/{id}/task'
 
     @pytest.mark.smoke
@@ -342,8 +342,8 @@ class TestTask:
         assert json['name'] == update_payload['name']
         assert json['max_attempts'] == update_payload['max_attempts']
         assert json['languages'] == payload['languages']
-        assert json['starts_on'] == update_payload['starts_on']
-        assert json['ends_on'] == update_payload['ends_on']
+        assert datetime.fromisoformat(str(json['starts_on'])) == datetime.fromisoformat(str(update_payload['starts_on']))
+        assert datetime.fromisoformat(str(json['ends_on'])) == datetime.fromisoformat(str(update_payload['ends_on']))
         assert json['file_url'] == task['file_url']
 
         download_response = get(json['file_url'], manager_id_token[1], decode_as_json=False)
