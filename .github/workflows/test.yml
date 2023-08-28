@@ -4,13 +4,6 @@ on: [push]
 jobs:
     run-tests:
         runs-on: ubuntu-latest
-        services:
-            postgres:
-              image: postgres
-              env:
-                POSTGRES_PASSWORD: postgres
-              ports:
-                - 5432:5432 # Maps port 5432 on service container to the host
         steps:
             - name: Checkout
               uses: actions/checkout@v3
@@ -21,21 +14,19 @@ jobs:
               uses: actions/setup-python@v4
               with:
                 python-version: 3.11
-            - name: Generate .env
+            - name: Generate .env.test
               run: |
-                  echo CODEMAZE_KEY=\"$(openssl rand -base64 32)\" > .env
-                  echo TEST_DB_STRING=\"postgresql://postgres:postgres@localhost:5432/postgres\" >> .env
-                  echo MOSS_USER_ID=\"${{ secrets.MOSS_USER_ID }}\" >> .env
-                  echo PAPERTRAIL_ADDRESS=\"${{ secrets.PAPERTRAIL_ADDRESS }}\" >> .env
+                  echo MOSS_USER_ID=\"${{ secrets.MOSS_USER_ID }}\" > .env.test
+                  echo PAPERTRAIL_ADDRESS=\"${{ secrets.PAPERTRAIL_ADDRESS }}\" >> .env.test
             - name: Install dependencies
               run: |
-                 make setup
+                 make setup-test
             - name: Run tests
               run: |
                   make test
-            - name: Stop gcc-container
+            - name: Stop containers
               run: |
-                  make stop
+                  make stop-test
             - name: Verify Changed files
               uses: tj-actions/verify-changed-files@v16
               id: verify-changed-files
