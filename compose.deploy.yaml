@@ -1,0 +1,27 @@
+services:
+  postgres:
+    container_name: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    expose:
+      - 5432
+
+  codemaze:
+    container_name: codemaze
+    build:
+      dockerfile: Dockerfile.deploy
+    volumes:
+      - codemaze_files:/codemaze/files/production
+      - codemaze_logs:/codemaze/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: uwsgi deploy.ini
+    ports:
+      - 80:3031
+    restart: always
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  codemaze_files:
+  codemaze_logs:

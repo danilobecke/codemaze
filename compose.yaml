@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:latest
+    env_file:
+      - .env.postgres
+    environment:
+      - POSTGRES_USER=codemaze
+      - POSTGRES_DB=codemaze_db
+    restart: always
+
+  gcc:
+    image: gcc:latest
+    working_dir: /sandbox
+    restart: always
+    container_name: gcc-container
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t

@@ -1,0 +1,10 @@
+services:
+  postgres:
+    container_name: postgres-debug
+    volumes:
+      - postgres_data_debug:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data_debug:

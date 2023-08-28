@@ -1,0 +1,5 @@
+services:
+  postgres:
+    container_name: postgres-test
+    ports:
+      - "5432:5432"

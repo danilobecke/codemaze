@@ -6,39 +6,67 @@ COVERAGE_BADGE = $(VENV)/bin/coverage-badge
 PYCLEAN = $(VENV)/bin/pyclean
 PYLINT = $(VENV)/bin/pylint
 MYPY = $(VENV)/bin/mypy
+PIPREMOVE = $(VENV)/bin/pip-autoremove
 
-# setup, run, test, lint, type-ceck, and stop
-setup: requirements.txt
+# deploy
+build:
+	./scripts/create_dot_env.sh deploy
+	docker compose -f compose.yaml -f compose.deploy.yaml build
+deploy:
+	./scripts/create_dot_env.sh deploy
+	docker compose -f compose.yaml -f compose.deploy.yaml up -d
+stop-deploy:
+	docker compose -f compose.yaml -f compose.deploy.yaml down
+
+# setup
+_setup: requirements.txt
 	python -m venv $(VENV)
 	$(PIP) install -r requirements.txt
 	chmod 777 scripts/pre-commit
-	chmod 777 scripts/run_gcc_container_if_needed.sh
-	chmod 777 scripts/stop_gcc_container.sh
+	chmod 777 scripts/create_dot_env.sh
 	git config core.hooksPath scripts
-	docker build -t gcc-image . 
-run:
-	./scripts/run_gcc_container_if_needed.sh
-	$(PYTHON) code/app.py
-test:
-	./scripts/run_gcc_container_if_needed.sh
+
+# test (setup, up, test, stop)
+setup-test: _setup
+	./scripts/create_dot_env.sh test
+	docker compose -f compose.yaml -f compose.test.yaml build
+up-test:
+	./scripts/create_dot_env.sh test
+	docker compose -f compose.yaml -f compose.test.yaml up -d
+test: up-test
 	$(PYTEST) --cov-report term-missing:skip-covered -c configs/pytest.ini
 	$(COVERAGE_BADGE) -f -o metadata/coverage.svg
+stop-test:
+	docker compose -f compose.yaml -f compose.test.yaml down
+
+# debug (setup, up, debug, stop)
+setup-debug: _setup
+	./scripts/create_dot_env.sh debug
+	docker compose -f compose.yaml -f compose.debug.yaml build
+up-debug:
+	./scripts/create_dot_env.sh debug
+	docker compose -f compose.yaml -f compose.debug.yaml up -d
+debug: up-debug
+	$(PYTHON) code/app.py
+stop-debug:
+	docker compose -f compose.yaml -f compose.debug.yaml down
+
+# lint and type-check
 lint:
 	$(PYLINT) code --rcfile=configs/.pylintrc
 type-check:
 	$(MYPY) code --config-file configs/mypy.ini
-stop:
-	./scripts/stop_gcc_container.sh
 
-# pip install and freeze
+# pip install, freeze, and remove
 add:
 	$(PIP) install $(package)
 freeze:
 	$(PIP) freeze > requirements.txt
+remove:
+	$(PIPREMOVE) $(package) -y
 
 # pre-commit helpers
-smoke-test:
-	./scripts/run_gcc_container_if_needed.sh
+smoke-test: up-test
 	$(PYTEST) -c configs/pytest.ini --cov-report= -m smoke
 lint-hook:
 	$(PYLINT) --rcfile=configs/.pylintrc $(files)

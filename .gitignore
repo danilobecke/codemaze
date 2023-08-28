@@ -164,3 +164,9 @@ files/debug/*
 files/test/*
 !files/debug/.gitkeep
 !files/test/.gitkeep
+
+#custom environment
+.env.*
+
+#logs
+logs

@@ -1,0 +1,12 @@
+FROM python:3.11-alpine3.18
+WORKDIR /codemaze
+
+COPY code /codemaze/code
+COPY requirements.txt /codemaze
+COPY configs/deploy.ini /codemaze
+COPY .env /codemaze/.env
+COPY config.toml /codemaze
+
+RUN apk add --no-cache build-base linux-headers docker
+RUN pip install --no-cache-dir -r requirements.txt
+RUN mkdir -p files/production
