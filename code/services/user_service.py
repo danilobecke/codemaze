@@ -18,7 +18,7 @@ class UserService:
         dto.email = email
         dto.name = name
         dto.password = password
-        stored_dto = self.__manager_repository.add(dto)
+        stored_dto = self.__manager_repository.add(dto, raise_unique_violation_error=True)
         vo = UserVO.import_from_dto(stored_dto)
         vo.role = Role.MANAGER
         return vo
@@ -28,7 +28,7 @@ class UserService:
         dto.email = email
         dto.name = name
         dto.password = password
-        stored_dto = self.__student_repository.add(dto)
+        stored_dto = self.__student_repository.add(dto, raise_unique_violation_error=True)
         vo = UserVO.import_from_dto(stored_dto)
         vo.role = Role.STUDENT
         return vo

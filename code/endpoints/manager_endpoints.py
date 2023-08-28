@@ -4,7 +4,7 @@ from flask_restx import Api, Resource, Namespace, fields
 from endpoints.models.user import UserVO
 from endpoints.session_endpoints import user_model
 from helpers.email_validation_decorator import validate_email
-from helpers.exceptions import ServerError
+from helpers.exceptions import ServerError, Internal_UniqueViolation, Conflict
 from helpers.role import Role
 from helpers.unwrapper import json_unwrapped, unwrap
 from services.session_service import SessionService
@@ -30,6 +30,8 @@ class ManagerResource(Resource): # type: ignore
         password = json_unwrapped()['password']
         try:
             return unwrap(SessionService.shared).create_user(email, name, password, Role.MANAGER), 201
+        except Internal_UniqueViolation:
+            abort(409, str(Conflict()))
         except ServerError as e:
             abort(500, str(e))
 

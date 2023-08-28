@@ -67,6 +67,14 @@ def delete(path: str, token: str | None = None) -> HTTPResponse:
 def get_random_name() -> str:
     return str(uuid.uuid1())
 
+def get_user_payload() -> dict[str, str]:
+    name = get_random_name()
+    return {
+        'name': name,
+        'email': name + '@mail.com',
+        'password': get_random_name()
+    }
+
 def get_manager_id_token() -> tuple[str, str]:
     manager_email = 'manager@email.com'
     manager_password = 'manager'
