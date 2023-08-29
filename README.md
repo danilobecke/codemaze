@@ -174,6 +174,8 @@ make stop-test # if testing
 <a name=lic></a>
 ## License
 
+Introduced by Danilo Cleber Becke in 2023, the BSD 2-Clause License outlines the terms under which the software can be utilized and distributed. Users are free to modify the software, as long as they adhere to two main conditions: 1) they must include the original copyright notice and a list of conditions, and 2) if they distribute the software in binary form, they must reproduce the copyright notice and conditions in the documentation or accompanying materials. The copyright holder and contributors are not liable for any direct, indirect, incidental, consequential, or other damages arising from the use of the software, regardless of the legal theory applied.
+
 <a name=tech></a>
 ## Technologies
 
