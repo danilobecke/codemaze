@@ -1,5 +1,9 @@
+from typing import Any
+from unittest.mock import patch
+
 import pytest
 
+from helpers.config import Config
 from tests.helper import post, get_random_name, assert_user_response, get_user_payload
 
 class TestManager:
@@ -69,3 +73,27 @@ class TestManager:
         response = post('/api/v1/managers', payload)
 
         assert response[0] == 400
+
+    @pytest.mark.smoke
+    def test_create_manager_with_whitelist_should_create_for_allowed_and_return_forbidden_for_not_allowed(self) -> None:
+        allowed_mail = get_random_name() + '@mail.com'
+        def get_item_mock(self: Config, key: str) -> Any: # pylint: disable=unused-argument
+            if key == 'admin':
+                return {'managers-mail-list': [allowed_mail]}
+            assert False
+        with patch.object(Config, '__getitem__', get_item_mock):
+            allowed_payload = {
+                'name': 'Allowed Manager',
+                'email': allowed_mail,
+                'password': 'password'
+            }
+            allowed_response = post('/api/v1/managers', allowed_payload)
+            assert_user_response(allowed_response, allowed_payload['name'], allowed_payload['email'], 'manager')
+
+            not_allowed_payload = {
+                'name': 'Not Allowed Manager',
+                'email': 'not-allowed@mail.com',
+                'password': 'password'
+            }
+            not_allowed_response = post('/api/v1/managers', not_allowed_payload)
+            assert not_allowed_response[0] == 403

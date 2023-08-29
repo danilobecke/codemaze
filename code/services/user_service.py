@@ -1,6 +1,10 @@
+from typing import Any
+
 from endpoints.models.user import UserVO
+from helpers.config import Config
 from helpers.exceptions import Forbidden, NotFound, ServerError
 from helpers.role import Role
+from helpers.unwrapper import unwrap
 from repository.dto.manager import ManagerDTO
 from repository.dto.student import StudentDTO
 from repository.manager_repository import ManagerRepository
@@ -14,6 +18,10 @@ class UserService:
         self.__student_repository = StudentRepository()
 
     def create_manager(self, name: str, email: str, password: str) -> UserVO:
+        adming_dict = dict[str, Any](unwrap(Config.shared)['admin']) # pylint: disable=unsubscriptable-object
+        allowed_managers_list = list[str](adming_dict['managers-mail-list'])
+        if len(allowed_managers_list) != 0 and email not in allowed_managers_list:
+            raise Forbidden()
         dto = ManagerDTO()
         dto.email = email
         dto.name = name

@@ -1,5 +1,5 @@
 [admin]
-mail-list = []
+managers-mail-list = []
 
 [runners]
 timeout = 2
