@@ -2,6 +2,8 @@
 
 [![Tests](https://github.com/danilobecke/codemaze/actions/workflows/test.yml/badge.svg)](https://github.com/danilobecke/codemaze/actions/workflows/test.yml) ![coverage-badge](./metadata/coverage.svg) [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint) [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 
+Codemaze is an advanced platform specifically designed to enhance the programming education experience in higher education. Providing a virtual environment for code execution, Codemaze allows users to practice, test, and evaluate their programs across various programming languages. Furthermore, the software integrates powerful features including plagiarism detection reports, detailed logging capabilities, and Swagger documentation for easy reference. With support for adding programming languages, customizable configurations, and a flexible architecture built on Docker containers, Codemaze empowers both instructors and higher education students to collaboratively and efficiently explore the realm of programming.
+
 ## Table of contents
 
 1. [Prerequisites](#prereq)
