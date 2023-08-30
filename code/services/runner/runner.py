@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from io import TextIOWrapper
 
 from helpers.commons import file_extension
 
@@ -23,18 +22,15 @@ class Runner(ABC):
     def help(self) -> str:
         pass
 
+    @property
     @abstractmethod
-    def add_to_sandbox(self, source_path: str, destination_directory: str) -> str:
+    def container_name(self) -> str:
         pass
 
     @abstractmethod
-    def compile(self, source_path: str, destination_directory: str) -> str:
+    def compilation_command(self, source_path: str, executable: str) -> str:
         pass
 
     @abstractmethod
-    def run(self, executable_path: str, stdin: TextIOWrapper, timeout: float) -> str:
-        pass
-
-    @abstractmethod
-    def remove_directory(self, path: str) -> None:
+    def execution_command(self, executable_path: str) -> str:
         pass
