@@ -1,3 +1,5 @@
+# pylint: disable=duplicate-code
+
 from flask import request, abort, jsonify
 from flask.wrappers import Response
 from flask_restx import Api, Resource, Namespace, fields
