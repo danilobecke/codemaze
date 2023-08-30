@@ -37,7 +37,7 @@ class TestTask:
         group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
         payload = {
             'name': get_random_name(),
-            'languages': ['c'],
+            'languages': ['c', 'python'],
             'file': (BytesIO(b'Random file content.'), 'file_name.txt')
         }
         response = post(f'/api/v1/groups/{group_id_code[0]}/tasks', payload, manager_id_token[1], CONTENT_TYPE_FORM_DATA)

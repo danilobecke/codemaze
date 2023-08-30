@@ -37,6 +37,11 @@ int main() {
 }
 '''
 
+VALID_PYTHON_CODE = '''
+a, b = input().split()
+print(int(a)+int(b))
+'''
+
 # fail second open test and first closed test
 FAIL_TWO_TESTS_C_CODE = '''
 #include<stdio.h>
@@ -57,7 +62,7 @@ class TestResult:
         manager_token = get_manager_id_token()[1]
         student_token = get_student_id_token()[1]
         group_id = create_join_request_group_id(student_token, manager_token, approve=True)
-        task_id = create_task_json(manager_token, group_id)['id']
+        task_id = create_task_json(manager_token, group_id, languages=['c', 'python'])['id']
         create_test_case_json(manager_token, task_id, closed=False, content_in='1 2', content_out='3')
         create_test_case_json(manager_token, task_id, closed=False, content_in='3 4', content_out='7')
         create_test_case_json(manager_token, task_id, closed=True, content_in='5 6', content_out='11')
@@ -241,10 +246,10 @@ class TestResult:
         assert all(result['success'] is False for result in closed_results)
         assert all(result.get('diff') is None for result in closed_results)
 
-    def test_post_result_with_valid_c_code_should_succeed_and_succeed_all_tests(self) -> None:
+    def __run_with_valid_code(self, code: str, filename: str) -> None:
         task_id, student_token = self.__set_up_valid_2_open_2_closed_tests_task_id_student_token()
         payload = {
-            'code': (BytesIO(VALID_C_CODE.encode('utf-8')), 'code.c')
+            'code': (BytesIO(code.encode('utf-8')), filename)
         }
         response = post(f'/api/v1/tasks/{task_id}/results', payload, student_token, CONTENT_TYPE_FORM_DATA)
 
@@ -263,6 +268,12 @@ class TestResult:
         assert len(closed_results) == 2
         assert all(result['success'] is True for result in closed_results)
         assert all(result.get('diff') is None for result in closed_results)
+
+    def test_post_result_with_valid_c_code_should_succeed_and_succeed_all_tests(self) -> None:
+        self.__run_with_valid_code(VALID_C_CODE, 'code.c')
+
+    def test_post_result_with_valid_python_code_should_succeed_and_succeed_all_tests(self) -> None:
+        self.__run_with_valid_code(VALID_PYTHON_CODE, 'code.py')
 
     def test_post_result_with_timeout_should_succeed_and_fail_tests_with_timeout(self) -> None:
         task_id, student_token = set_up_task_id_student_token()

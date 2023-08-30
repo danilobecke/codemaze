@@ -12,6 +12,7 @@ from helpers.unwrapper import unwrap
 from repository.tcase_result_repository import TCaseResultRepository
 from repository.dto.test_case_result import TestCaseResultDTO
 from services.runner.c_runner import CRunner
+from services.runner.python_runner import PythonRunner
 from services.runner.runner import Runner
 
 class RunnerService:
@@ -19,6 +20,7 @@ class RunnerService:
         self.__tcase_result_repository = TCaseResultRepository()
         self.__runners: list[Runner] = [
             CRunner(),
+            PythonRunner(),
         ]
 
     def allowed_languages(self) -> set[str]:
