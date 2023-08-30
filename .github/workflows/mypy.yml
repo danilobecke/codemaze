@@ -1,0 +1,26 @@
+name: Type-Check (MyPy)
+run-name: Running MyPy
+on:
+  push:
+    branches:
+      - main
+  pull-request:
+jobs:
+    type-check:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+              with:
+                persist-credentials: false
+                fetch-depth: 0
+            - name: Set up python
+              uses: actions/setup-python@v4
+              with:
+                python-version: 3.11
+            - name: Install dependencies
+              run: |
+                 make _setup
+            - name: Run MyPy
+              run: |
+                  make type-check
