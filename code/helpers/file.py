@@ -20,4 +20,4 @@ class File:
         full_path = os.path.join(commons.storage_path(), secure_filename)
         with open(full_path, 'wb') as file:
             file.write(self.blob)
-        return full_path
+            return full_path

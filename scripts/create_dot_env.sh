@@ -11,7 +11,7 @@ fi
 
 # postgres password
 POSTGRES_DOT_ENV=".env.postgres.$ENV"
-POSTGRES_PASSWORD=`openssl rand -base64 32`
+POSTGRES_PASSWORD=`openssl rand -hex 32`
 if test -f "$POSTGRES_DOT_ENV"; then
     if [[ `cat "$POSTGRES_DOT_ENV"` =~ .*=\"(.*)\" ]]; then
         POSTGRES_PASSWORD=${BASH_REMATCH[1]}

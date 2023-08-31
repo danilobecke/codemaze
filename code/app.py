@@ -20,12 +20,12 @@ def __get_path(*relative_path: str) -> str:
         cur_dir = os.path.normpath(os.path.join(cur_dir, '..'))
     return os.path.join(cur_dir, *relative_path)
 
-def __init_app(storage_path: str, resetting_db: bool = False) -> Flask:
+def __init_app(storage_path: str) -> Flask:
     key = __get_env('CODEMAZE_KEY')
     app = Flask(__name__)
     app.config['STORAGE_PATH'] = storage_path
     CodemazeLogger.start(app)
-    Database.initialize(__get_env('CODEMAZE_DB_STRING'), resetting_db)
+    Database.initialize(__get_env('CODEMAZE_DB_STRING'))
     Config.initialize(__get_path('config.toml'))
     SessionService.initialize(key)
     Router(os.getenv('MOSS_USER_ID')).create_routes(app)
@@ -58,7 +58,7 @@ def run_as_test() -> FlaskClient:
     storage_path = __get_path('files', 'test')
     for file in glob.glob(os.path.join(storage_path, '*')):
         os.remove(file)
-    app = __init_app(storage_path, resetting_db=True)
+    app = __init_app(storage_path)
     return app.test_client()
 
 if __name__ == '__main__':
