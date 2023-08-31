@@ -114,7 +114,7 @@ class TestResult:
         assert response[0] == 422
 
     def test_post_result_with_invalid_file_size_should_return_invalid_file_size(self) -> None:
-        filepath = get_filepath_of_size(round(1.1 * 1024 * 1024), extension='.c') # 1.1 MB
+        filepath = get_filepath_of_size(round(0.51 * 1024 * 1024), extension='.c') # 0.51 MB
         task_id, student_token = set_up_task_id_student_token()
 
         with open(filepath, 'rb') as file:

@@ -1,6 +1,11 @@
 [admin]
 managers-mail-list = []
 
+[files]
+task-max-size-mb = 2
+test-max-size-mb = 0.5
+code-max-size-mb = 0.5
+
 [runners]
 timeout = 2
 

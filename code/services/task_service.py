@@ -6,6 +6,7 @@ from endpoints.models.group import GroupVO
 from endpoints.models.task_vo import TaskVO
 from endpoints.models.user import UserVO
 from helpers.commons import file_extension
+from helpers.config import Config
 from helpers.exceptions import Forbidden, ParameterValidationError
 from helpers.file import File
 from helpers.unwrapper import unwrap
@@ -17,6 +18,7 @@ class TaskService:
     def __init__(self, runner_service: RunnerService) -> None:
         self.__runner_service = runner_service
         self.__task_repository = TaskRepository()
+        self.__max_task_size = float(Config.get('files.task-max-size-mb'))
 
     def __assert_is_manager(self, user: UserVO, group: GroupVO) -> None:
         if group.manager_id != user.id:
@@ -45,7 +47,7 @@ class TaskService:
         self.__assert_languages(languages)
         if ends_on is not None:
             self.__assert_date('ends_on', ends_on, starts_on if starts_on else datetime.now().astimezone())
-        full_path = file.save()
+        full_path = file.save(max_file_size_mb=self.__max_task_size)
         dto = TaskDTO()
         dto.name = name
         dto.max_attempts = max_attempts
@@ -75,7 +77,7 @@ class TaskService:
         self.__assert_is_manager(user, group)
         self.__assert_is_group_active(group)
         if file is not None:
-            new_file = file.save()
+            new_file = file.save(max_file_size_mb=self.__max_task_size)
             os.remove(dto.file_path)
             dto.file_path = new_file
         if name is not None and name != dto.name:

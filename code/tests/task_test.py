@@ -190,7 +190,7 @@ class TestTask:
         assert response[0] == 404
 
     def test_create_task_with_invalid_file_size_should_return_invalid_file_size(self) -> None:
-        filepath = get_filepath_of_size(round(1.1 * 1024 * 1024)) # 1.1 MB
+        filepath = get_filepath_of_size(round(2.1 * 1024 * 1024)) # 2.1 MB
         manager_id_token = get_manager_id_token()
         group_id_code = get_new_group_id_code(get_random_name(), manager_id_token[1])
         with open(filepath, 'rb') as file:
@@ -446,7 +446,7 @@ class TestTask:
         assert response[0] == 404
 
     def test_update_task_file_with_invalid_file_size_should_return_invalid_file_size(self) -> None:
-        filepath = get_filepath_of_size(round(1.1 * 1024 * 1024)) # 1.1 MB
+        filepath = get_filepath_of_size(round(2.1 * 1024 * 1024)) # 2.1 MB
         manager_id_token = get_manager_id_token()
         task_id = create_task_json(manager_id_token[1])['id']
         with open(filepath, 'rb') as file:

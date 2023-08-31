@@ -1,7 +1,10 @@
 from io import BytesIO
+from typing import Any
+from unittest.mock import patch as mock_patch
 
 import pytest
 
+from helpers.config import Config
 from tests.helper import get_manager_id_token, create_task_json, post, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_student_id_token, create_join_request_group_id, get_random_manager_token, create_test_case_json, get, delete, get_new_group_id_code, get_random_name, patch
 
 # pylint: disable=too-many-public-methods
@@ -107,7 +110,7 @@ class TestTCase:
         assert response[0] == 422
 
     def test_add_test_case_with_invalid_input_size_should_return_invalid_file_size(self) -> None:
-        filepath = get_filepath_of_size(round(1.1 * 1024 * 1024)) # 1.1 MB
+        filepath = get_filepath_of_size(round(0.51 * 1024 * 1024)) # 0.51 MB
         manager_token = get_manager_id_token()[1]
         task_id = create_task_json(manager_token)['id']
         with open(filepath, 'rb') as file:
@@ -121,18 +124,25 @@ class TestTCase:
             assert response[0] == 413
 
     def test_add_test_case_with_invalid_output_size_should_return_invalid_file_size(self) -> None:
-        filepath = get_filepath_of_size(round(1.1 * 1024 * 1024)) # 1.1 MB
-        manager_token = get_manager_id_token()[1]
-        task_id = create_task_json(manager_token)['id']
-        with open(filepath, 'rb') as file:
-            payload = {
-                'input': (BytesIO(b'Input.'), 'input.in'),
-                'output': (file, 'output.out'),
-                'closed': True
-            }
-            response = post(f'/api/v1/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
+        def get_mock(key_path: str) -> Any:
+            if key_path == 'admin.managers-mail-list':
+                return []
+            if key_path == 'files.test-max-size-mb':
+                return 0.3
+            assert False
+        with mock_patch.object(Config, 'get', get_mock):
+            filepath = get_filepath_of_size(round(0.31 * 1024 * 1024)) # 0.31 MB
+            manager_token = get_manager_id_token()[1]
+            task_id = create_task_json(manager_token)['id']
+            with open(filepath, 'rb') as file:
+                payload = {
+                    'input': (BytesIO(b'Input.'), 'input.in'),
+                    'output': (file, 'output.out'),
+                    'closed': True
+                }
+                response = post(f'/api/v1/tasks/{task_id}/tests', payload, manager_token, CONTENT_TYPE_FORM_DATA)
 
-            assert response[0] == 413
+                assert response[0] == 413
 
     def test_add_test_case_with_invalid_id_should_return_not_found(self) -> None:
         manager_token = get_manager_id_token()[1]

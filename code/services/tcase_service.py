@@ -4,6 +4,7 @@ from endpoints.models.all_tests_vo import AllTestsVO
 from endpoints.models.group import GroupVO
 from endpoints.models.task_vo import TaskVO
 from endpoints.models.tcase_vo import TCaseVO
+from helpers.config import Config
 from helpers.exceptions import Forbidden
 from helpers.file import File
 from repository.dto.test_case import TestCaseDTO
@@ -16,8 +17,9 @@ class TCaseService:
     def add_test_case(self, task: TaskVO, input_file: File, output_file: File, closed: bool) -> TCaseVO:
         dto = TestCaseDTO()
         dto.task_id = task.id
-        dto.input_file_path = input_file.save()
-        dto.output_file_path = output_file.save()
+        max_test_size = float(Config.get('files.test-max-size-mb'))
+        dto.input_file_path = input_file.save(max_file_size_mb=max_test_size)
+        dto.output_file_path = output_file.save(max_file_size_mb=max_test_size)
         dto.closed = closed
         stored = self.__tcase_repository.add(dto)
         return TCaseVO.import_from_dto(stored, is_manager=True)

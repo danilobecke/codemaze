@@ -10,7 +10,7 @@ class File:
         self.blob = blob
 
     # pylint: disable=dangerous-default-value
-    def save(self, allowed_extensions: set[str] = commons.ALLOWED_TEXT_EXTENSIONS, max_file_size_mb: int = 1) -> str:
+    def save(self, allowed_extensions: set[str] = commons.ALLOWED_TEXT_EXTENSIONS, max_file_size_mb: float = 1) -> str:
         file_extension = commons.file_extension(self.filename)
         if self.filename.strip() == '' or file_extension not in allowed_extensions:
             raise InvalidFileExtension(allowed_extensions)

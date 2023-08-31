@@ -13,6 +13,7 @@ from endpoints.models.task_vo import TaskVO
 from endpoints.models.tcase_result_vo import TCaseResultVO
 from endpoints.models.user import UserVO
 from helpers.commons import file_extension, source_code_download_url
+from helpers.config import Config
 from helpers.exceptions import Forbidden
 from helpers.file import File
 from helpers.role import Role
@@ -40,7 +41,8 @@ class ResultService:
         attempt_number = self.__result_repository.get_number_of_results(user.id, task.id) + 1
         if task.max_attempts is not None and attempt_number > task.max_attempts:
             raise Forbidden()
-        file_path = file.save(self.__runner_service.allowed_extensions(task.languages))
+        code_max_size_mb = float(Config.get('files.code-max-size-mb'))
+        file_path = file.save(self.__runner_service.allowed_extensions(task.languages), max_file_size_mb=code_max_size_mb)
         dto = ResultDTO()
         dto.correct_open = 0
         dto.correct_closed = 0
