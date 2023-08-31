@@ -1,12 +1,9 @@
-from typing import Any
-
 from helpers.config import Config
-from helpers.unwrapper import unwrap
 from services.runner.runner import Runner
 
 class CRunner(Runner):
     def __init__(self) -> None:
-        self.__config = dict[str, Any](unwrap(Config.shared)['runners']['c'])
+        self.__gcc_params = str(Config.get('runners.c.gcc-parameters'))
 
     @property
     def language_name(self) -> str:
@@ -26,7 +23,7 @@ class CRunner(Runner):
         return 'gcc-container'
 
     def __gcc_command(self, executable: str, source_path: str) -> str:
-        gcc_options = str(self.__config['gcc-parameters'])
+        gcc_options = str(self.__gcc_params)
         return f'gcc {gcc_options} -o {executable} {source_path}'
 
     def compilation_command(self, source_path: str, executable: str) -> str:

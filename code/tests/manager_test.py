@@ -77,11 +77,11 @@ class TestManager:
     @pytest.mark.smoke
     def test_create_manager_with_whitelist_should_create_for_allowed_and_return_forbidden_for_not_allowed(self) -> None:
         allowed_mail = get_random_name() + '@mail.com'
-        def get_item_mock(self: Config, key: str) -> Any: # pylint: disable=unused-argument
-            if key == 'admin':
-                return {'managers-mail-list': [allowed_mail]}
+        def get_mock(key_path: str) -> Any:
+            if key_path == 'admin.managers-mail-list':
+                return [allowed_mail]
             assert False
-        with patch.object(Config, '__getitem__', get_item_mock):
+        with patch.object(Config, 'get', get_mock):
             allowed_payload = {
                 'name': 'Allowed Manager',
                 'email': allowed_mail,

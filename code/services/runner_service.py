@@ -87,7 +87,7 @@ class RunnerService:
             executable_path = f'{dest}/{str(uuid.uuid1())}'
             self.__compile(runner.compilation_command(source_path, executable_path), runner.container_name)
             self.__remove_source_path(source_path, runner.container_name)
-            timeout = float(unwrap(Config.shared)['runners']['timeout']) # pylint: disable=unsubscriptable-object
+            timeout = float(Config.get('runners.timeout'))
             for test in tests.open_tests + tests.closed_tests:
                 dto = TestCaseResultDTO()
                 dto.test_case_id = test.id
