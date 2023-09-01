@@ -8,6 +8,7 @@ code-max-size-mb = 0.5
 
 [runners]
 timeout = 2
+max-memory-mb=256
 
 [runners.c]
 gcc-parameters = '-Wall -g -ansi -pedantic -lm'
