@@ -13,7 +13,6 @@ build:
 	./scripts/create_dot_env.sh deploy
 	docker compose -f compose.yaml -f compose.deploy.yaml build
 deploy:
-	./scripts/create_dot_env.sh deploy
 	docker compose -f compose.yaml -f compose.deploy.yaml up -d
 stop-deploy:
 	docker compose -f compose.yaml -f compose.deploy.yaml down
