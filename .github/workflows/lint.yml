@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - code/**
+      - configs/.pylintrc
   pull_request:
 jobs:
     type-check:

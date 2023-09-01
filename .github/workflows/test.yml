@@ -4,6 +4,14 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
+      - 'scripts/pre-commit'
+      - 'metadata/**'
+      - configs/mypy.ini
+      - configs/deploy.ini
+      - configs/.pylintrc
   pull_request:
 jobs:
     run-tests:
