@@ -24,6 +24,7 @@ Codemaze is an advanced platform specifically designed to enhance the programmin
 1. [Stopping](#stop)
 1. [License](#lic)
 2. [Technologies](#tech)
+1. [Contact Info](#contact)
 
 <a name=prereq></a>
 ## Prerequisites
@@ -42,7 +43,7 @@ make build
 make run
 ```
 
-By doing this, Codemaze will be running in the `:80` port. You can customize the port updating the [compose.deploy.yaml](./compose.deploy.yaml).
+By doing this, Codemaze will be running in the `:8080` port. You can customize the port updating the [compose.deploy.yaml](./compose.deploy.yaml).
 
 <a name=env-deploy></a>
 ### Environment
@@ -62,7 +63,7 @@ The [config.toml](./config.toml) file contains admin-level settings:
 | `task-max-size-mb` | Max size allowed for each task description (MB). | Float |
 | `test-max-size-mb` | Max size allowed for each test case (MB). | Float |
 | `code-max-size-mb` | Max size allowed for each source code (MB). | Float |
-| `timeout` | Timeout for the student's code run. | Float |
+| `timeout` | Timeout for the student's code run (seconds). | Float |
 | `max-memory-mb` | Max memory allowed to be used for each container running students' code (MB). | Integer |
 | `gcc-parameters` | Compilation flags for the GCC (C compiler). | String |
 
@@ -149,7 +150,7 @@ Optionally, you can have a `.env.test` file in the same way as the [.env.deploy]
 <a name=add-runner></a>
 ### Adding Supported Programming Languages
 
-In order to add support for another programming language, you must implement a class inheriting from the [Runner class](./code/services/runner/runner.py) and add an object of this class in the runner's list of the [RunnerService](./code/services/runner_service.py#19). Each runner must have its own Docker Container and run the student's code inside of it. See [CRunner](./code/services/runner/c_runner.py) for reference.
+In order to add support for another programming language, you must implement a class inheriting from the [Runner class](./code/services/runner/runner.py) and add an object of this class in the runner's list of the [RunnerService](./code/services/runner_service.py#19). Each runner must have its own Docker Container and run the student's code inside of it. See [CRunner](./code/services/runner/c_runner.py) and [this commit](48d0869a0c50ae149edec305b8570c38c858a376) for reference.
 
 <a name=mod></a>
 ### Modelling
@@ -202,3 +203,8 @@ Introduced by Danilo Cleber Becke in 2023, the BSD 2-Clause License outlines the
 - [SQLAlchemy](https://www.sqlalchemy.org)
 - [SQLAlchemy-Utils](https://sqlalchemy-utils.readthedocs.io/en/latest/)
 - [uWSGI](https://uwsgi-docs.readthedocs.io)
+
+<a name=contact></a>
+## Contact Info
+
+You can reach me at [danilobecke@gmail.com](mailto:danilobecke@gmail.com) and [http://linkedin.com/in/danilobecke/](http://linkedin.com/in/danilobecke/).
