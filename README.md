@@ -63,6 +63,7 @@ The [config.toml](./config.toml) file contains admin-level settings:
 | `test-max-size-mb` | Max size allowed for each test case (MB). | Float |
 | `code-max-size-mb` | Max size allowed for each source code (MB). | Float |
 | `timeout` | Timeout for the student's code run. | Float |
+| `max-memory-mb` | Max memory allowed to be used for each container running students' code (MB). | Integer |
 | `gcc-parameters` | Compilation flags for the GCC (C compiler). | String |
 
 <a name=plugins></a>
