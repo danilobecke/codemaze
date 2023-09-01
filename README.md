@@ -59,6 +59,9 @@ The [config.toml](./config.toml) file contains admin-level settings:
 | Key   |      Description      |  Kind |
 |----------|:-------------:|:------:|
 | `managers-mail-list` | [Can be empty] - if not empty, list of emails allowed to register as manager. | Strings array |
+| `task-max-size-mb` | Max size allowed for each task description (MB). | Float |
+| `test-max-size-mb` | Max size allowed for each test case (MB). | Float |
+| `code-max-size-mb` | Max size allowed for each source code (MB). | Float |
 | `timeout` | Timeout for the student's code run. | Float |
 | `gcc-parameters` | Compilation flags for the GCC (C compiler). | String |
 
