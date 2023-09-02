@@ -200,6 +200,8 @@ Introduced by Danilo Cleber Becke in 2023, the BSD 2-Clause License outlines the
 - [pytest](https://docs.pytest.org/en/7.3.x/)
 - [pytest-cov](https://pytest-cov.readthedocs.io)
 - [python-dotenv](https://pypi.org/project/python-dotenv/)
+- [Redis](https://redis.io)
+- [redis-py](https://redis-py.readthedocs.io/en/stable/)
 - [SQLAlchemy](https://www.sqlalchemy.org)
 - [SQLAlchemy-Utils](https://sqlalchemy-utils.readthedocs.io/en/latest/)
 - [uWSGI](https://uwsgi-docs.readthedocs.io)
