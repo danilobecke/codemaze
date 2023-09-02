@@ -22,6 +22,7 @@ Codemaze is an advanced platform specifically designed to enhance the programmin
 		1. [ERD](#erd)
 		8. [DSD](#dsd)
 1. [Stopping](#stop)
+2. [TODO](#todo)
 1. [License](#lic)
 2. [Technologies](#tech)
 1. [Contact Info](#contact)
@@ -175,6 +176,14 @@ make stop-deploy # if deploy
 make stop-debug # if debugging
 make stop-test # if testing
 ```
+
+<a name=todo></a>
+## TODO
+
+- [ ] `POST /session/reset_password` - authorization: user
+- [ ] `PATCH /users/:id:` - authorization: user
+- [ ] `DELETE /tasks/:id:` - authorization: manager
+- [ ] `DELETE /groups/:id:` - authorization: manager
 
 <a name=lic></a>
 ## License
