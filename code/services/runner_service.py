@@ -8,6 +8,7 @@ from endpoints.models.tcase_result_vo import TCaseResultVO
 from helpers.commons import file_extension, filename
 from helpers.config import Config
 from helpers.exceptions import InvalidSourceCode, ExecutionError, CompilationError, ServerError
+from helpers.runner_queue_manager import RunnerQueueManager
 from helpers.unwrapper import unwrap
 from repository.tcase_result_repository import TCaseResultRepository
 from repository.dto.test_case_result import TestCaseResultDTO
@@ -78,11 +79,16 @@ class RunnerService:
     def __remove_directory(self, path: str, container: str) -> None:
         subprocess.run(self.__execution_command(f'rm -rf {path}', container), check=True)
 
+    # pylint: disable=too-many-branches,too-many-statements
     def run(self, path: str, tests: AllTestsVO, result_id: int) -> list[TCaseResultVO]:
         results: list[TCaseResultVO] = []
         try:
             runner = next(_runner for _runner in self.__runners if _runner.is_source_code(path))
-            dest = str(uuid.uuid1())
+            if not RunnerQueueManager.check_container_available(runner):
+                RunnerQueueManager.continue_when_available(runner)
+                self.run(path, tests, result_id)
+            RunnerQueueManager.set_using_container(runner)
+            dest = str(uuid.uuid1()) # temp folder
             source_path = self.__add_to_sandbox(path, dest, runner.container_name)
             executable_path = f'{dest}/{str(uuid.uuid1())}'
             self.__compile(runner.compilation_command(source_path, executable_path), runner.container_name)
@@ -110,8 +116,10 @@ class RunnerService:
                 finally:
                     results.append(TCaseResultVO.import_from_dto(self.__tcase_result_repository.add(dto)))
             self.__remove_directory(dest, runner.container_name)
+            RunnerQueueManager.release_container(runner)
             return results
         except StopIteration:
+            # no runner found
             # pylint: disable=raise-missing-from
             raise InvalidSourceCode(file_extension(path))
         except CompilationError as e:
@@ -122,9 +130,13 @@ class RunnerService:
                 dto.success = False
                 dto.diff = str(e)
                 results.append(TCaseResultVO.import_from_dto(self.__tcase_result_repository.add(dto)))
-            self.__remove_directory(dest, runner.container_name)
+            if runner:
+                self.__remove_directory(dest, runner.container_name)
+                RunnerQueueManager.release_container(runner)
             return results
         except Exception as e:
+            if runner:
+                RunnerQueueManager.release_container(runner)
             raise ServerError from e
 
     def get_test_results(self, result_id: int) -> list[TCaseResultVO]:

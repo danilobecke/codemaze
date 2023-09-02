@@ -4,20 +4,18 @@ from typing import Optional, Any
 
 from helpers.unwrapper import unwrap
 
-# https://github.com/pylint-dev/pylint/issues/8987
-# pylint: disable=protected-access,unused-private-member
 class Config:
     __shared: Optional[Config] = None
 
     def __init__(self, config_path: str) -> None:
         with open(config_path, 'rb') as config_file:
-            self.__dict = load(config_file)
+            self.dict_config = load(config_file)
 
     @staticmethod
     def get(key_path: str) -> Any:
         keys = key_path.split('.')
         keys_size = len(keys)
-        current_dict = unwrap(Config.__shared).__dict.copy()
+        current_dict = unwrap(Config.__shared).dict_config.copy()
         value: Any | None = None
         for position, key in enumerate(keys):
             if position == keys_size - 1:

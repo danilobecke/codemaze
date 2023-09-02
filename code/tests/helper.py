@@ -148,7 +148,10 @@ def create_expired_token(user_id: str) -> str:
             'iat': datetime.datetime.utcnow(),
             'sub': user_id,
         }
-    token = jwt.encode(payload, key=os.getenv('CODEMAZE_KEY'), algorithm='HS256')
+    env = os.getenv('CODEMAZE_KEY')
+    if env is None:
+        assert False
+    token = jwt.encode(payload, key=env, algorithm='HS256')
     time.sleep(0.2) # expire the token
     return token
 

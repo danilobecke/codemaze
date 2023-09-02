@@ -8,6 +8,10 @@ services:
       - POSTGRES_DB=codemaze_db
     restart: always
 
+  redis:
+    image: redis:7.2-alpine
+    restart: always
+
   gcc:
     image: gcc:latest
     working_dir: /sandbox

@@ -6,6 +6,11 @@ services:
     expose:
       - 5432
 
+  redis:
+    container_name: redis
+    expose:
+      - 6379
+
   codemaze:
     container_name: codemaze
     build:

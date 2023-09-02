@@ -3,3 +3,8 @@ services:
     container_name: postgres-test
     ports:
       - "5432:5432"
+
+  redis:
+    container_name: redis-test
+    ports:
+      - "6379:6379"

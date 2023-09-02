@@ -8,6 +8,7 @@ from flask.testing import FlaskClient
 from error_handler import ErrorHandler
 from helpers.config import Config
 from helpers.codemaze_logger import CodemazeLogger
+from helpers.runner_queue_manager import RunnerQueueManager
 from repository.database import Database
 from router import Router
 from services.session_service import SessionService
@@ -27,6 +28,7 @@ def __init_app(storage_path: str) -> Flask:
     CodemazeLogger.start(app)
     Database.initialize(__get_env('CODEMAZE_DB_STRING'))
     Config.initialize(__get_path('config.toml'))
+    RunnerQueueManager.initialize(__get_env('REDIS_ADDRESS'))
     SessionService.initialize(key)
     Router(os.getenv('MOSS_USER_ID')).create_routes(app)
     ErrorHandler.register(app)

@@ -2,6 +2,7 @@ from collections import Counter
 from datetime import datetime, timedelta
 from functools import reduce
 from itertools import groupby
+import os
 from threading import Thread
 from typing import Callable, Optional
 
@@ -14,7 +15,7 @@ from endpoints.models.tcase_result_vo import TCaseResultVO
 from endpoints.models.user import UserVO
 from helpers.commons import file_extension, source_code_download_url
 from helpers.config import Config
-from helpers.exceptions import Forbidden
+from helpers.exceptions import Forbidden, ServerError
 from helpers.file import File
 from helpers.role import Role
 from helpers.unwrapper import unwrap
@@ -50,16 +51,22 @@ class ResultService:
         dto.student_id = user.id
         dto.task_id = task.id
         stored = self.__result_repository.add(dto)
-        results = self.__runner_service.run(file_path, tests, stored.id)
-        open_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.open_tests) , results))
-        closed_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.closed_tests) , results))
-        reducer: Callable[[int, TCaseResultVO], int] = lambda current, result: current + (1 if result.success else 0)
-        stored.correct_open = reduce(reducer, open_results, 0)
-        stored.correct_closed = reduce(reducer, closed_results, 0)
-        self.__result_repository.update_session()
-        for result in closed_results:
-            result.diff = None
-        return ResultVO.import_from_dto(stored, attempt_number, open_results, closed_results)
+        try:
+            results = self.__runner_service.run(file_path, tests, stored.id)
+            open_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.open_tests) , results))
+            closed_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.closed_tests) , results))
+            reducer: Callable[[int, TCaseResultVO], int] = lambda current, result: current + (1 if result.success else 0)
+            stored.correct_open = reduce(reducer, open_results, 0)
+            stored.correct_closed = reduce(reducer, closed_results, 0)
+            self.__result_repository.update_session()
+            for result in closed_results:
+                result.diff = None
+            return ResultVO.import_from_dto(stored, attempt_number, open_results, closed_results)
+        except ServerError as e:
+            # rollback
+            os.remove(file_path)
+            self.__result_repository.delete(stored.id)
+            raise e
 
     def get_latest_source_code_name_path(self, task: TaskVO, user_id: int) -> tuple[str, str]:
         dto = self.__result_repository.get_latest_result(user_id, task.id)

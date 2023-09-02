@@ -17,12 +17,15 @@ echo POSTGRES_PASSWORD=\""$POSTGRES_PASSWORD"\" > "$POSTGRES_DOT_ENV"
 # JWT key
 echo CODEMAZE_KEY=\"$(openssl rand -base64 32)\" > "$DOT_ENV"
 
-# DB address
+# DB and redis address
 DB_ADDRESS="localhost:5432"
+REDIS_ADDRESS="localhost:6379"
 if [ "$ENV" = "deploy" ]; then
     DB_ADDRESS="postgres:5432"
+    REDIS_ADDRESS="redis:6379"
 fi
 echo CODEMAZE_DB_STRING=\"postgresql://codemaze:"$POSTGRES_PASSWORD"@"$DB_ADDRESS"/codemaze_db\" >> "$DOT_ENV"
+echo REDIS_ADDRESS=\""$REDIS_ADDRESS"\" >> "$DOT_ENV"
 
 # custom keys
 ENV_DOT_ENV=".env.$ENV"

@@ -7,6 +7,6 @@ COPY configs/deploy.ini /codemaze
 COPY .env /codemaze/.env
 COPY config.toml /codemaze
 
-RUN apk add --no-cache build-base linux-headers docker
+RUN apk add --no-cache build-base linux-headers libffi-dev docker
 RUN pip install --no-cache-dir -r requirements.txt
 RUN mkdir -p files/production
