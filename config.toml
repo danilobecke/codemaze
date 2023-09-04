@@ -11,4 +11,4 @@ timeout = 2
 max-memory-mb=256
 
 [runners.c]
-gcc-parameters = '-Wall -g -ansi -pedantic -lm'
+gcc-parameters = '-Wall -Wextra -g -ansi -pedantic -lm'
