@@ -1,5 +1,6 @@
 [admin]
 managers-mail-list = []
+allowed-origins = ['*']
 
 [files]
 task-max-size-mb = 2

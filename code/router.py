@@ -1,4 +1,5 @@
 from flask import Flask, Blueprint
+from flask_cors import CORS
 from flask_restx import Api
 from jsonschema import FormatChecker
 
@@ -10,6 +11,7 @@ from endpoints.session_endpoints import SessionEndpoints
 from endpoints.student_endpoints import StudentEndpoints
 from endpoints.task_endpoints import TaskEndpoints
 from endpoints.tcase_endpoints import TCaseEndpoints
+from helpers.config import Config
 from services.config_service import ConfigService
 from services.group_service import GroupService
 from services.moss_service import MossService
@@ -27,6 +29,12 @@ class Router:
         self.__tcase_service = TCaseService()
         self.__result_service = ResultService(self.__runner_service, self.__moss_service)
         self.__config_service = ConfigService(self.__runner_service)
+
+    def __set_up_cors(self, app: Flask) -> None:
+        allowed_origins = list[str](Config.get('admin.allowed-origins'))
+        CORS(app, resources={
+            r'/api/v1/*': {'origins': allowed_origins}
+        })
 
     def __create_v1_api(self, blueprint: Blueprint) -> Api:
         return Api(
@@ -61,4 +69,5 @@ class Router:
         app.register_blueprint(v1_blueprint)
 
     def create_routes(self, app: Flask) -> None:
+        self.__set_up_cors(app)
         self.__register_v1_routes(app)
