@@ -40,7 +40,7 @@ class UserService:
     def login(self, email: str, password: str) -> int:
         try:
             dto = self.__user_repository.find_email(email)
-            if dto.password != password:
+            if not dto.authenticate(password):
                 raise Forbidden()
             return dto.id
         except NotFound as e:
