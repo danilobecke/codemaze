@@ -61,6 +61,7 @@ The [config.toml](./config.toml) file contains admin-level settings:
 | Key   |      Description      |  Kind |
 |----------|:-------------:|:------:|
 | `managers-mail-list` | [Can be empty] - if not empty, list of emails allowed to register as manager. | Strings array |
+| `allowed-origins` | Allowed origins (CORS). | Strings array - REGEX supported |
 | `task-max-size-mb` | Max size allowed for each task description (MB). | Float |
 | `test-max-size-mb` | Max size allowed for each test case (MB). | Float |
 | `code-max-size-mb` | Max size allowed for each source code (MB). | Float |
@@ -193,9 +194,11 @@ Introduced by Danilo Cleber Becke in 2023, the BSD 2-Clause License outlines the
 <a name=tech></a>
 ## Technologies
 
+- [bcrypt](https://pypi.org/project/bcrypt/)
 - [coverage-badge](https://pypi.org/project/coverage-badge/)
 - [Docker](https://www.docker.com)
 - [Flask](https://flask.palletsprojects.com/en/2.3.x/)
+- [Flask-CORS](https://flask-cors.readthedocs.io/en/latest/)
 - [flask-restx](https://flask-restx.readthedocs.io/en/latest/)
 - [MOSS](https://theory.stanford.edu/~aiken/moss/)
 - [mosspy](https://pypi.org/project/mosspy/)
@@ -212,7 +215,6 @@ Introduced by Danilo Cleber Becke in 2023, the BSD 2-Clause License outlines the
 - [Redis](https://redis.io)
 - [redis-py](https://redis-py.readthedocs.io/en/stable/)
 - [SQLAlchemy](https://www.sqlalchemy.org)
-- [SQLAlchemy-Utils](https://sqlalchemy-utils.readthedocs.io/en/latest/)
 - [uWSGI](https://uwsgi-docs.readthedocs.io)
 
 <a name=contact></a>
