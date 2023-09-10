@@ -8,7 +8,7 @@ class JoinRequestVO:
         self.student = ""
 
     @staticmethod
-    def import_from_user(dto: UserDTO) -> JoinRequestVO:
+    def import_from_student(dto: UserDTO) -> JoinRequestVO:
         vo = JoinRequestVO()
         vo.id = dto.id
         vo.student = dto.name

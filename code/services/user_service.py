@@ -2,32 +2,37 @@ from endpoints.models.user import UserVO
 from helpers.config import Config
 from helpers.exceptions import Forbidden, NotFound, ServerError
 from helpers.role import Role
-from repository.dto.user_dto import UserDTO
+from repository.dto.manager import ManagerDTO
+from repository.dto.student import StudentDTO
+from repository.manager_repository import ManagerRepository
+from repository.student_repository import StudentRepository
 from repository.user_repository import UserRepository
 
 class UserService:
     def __init__(self) -> None:
         self.__user_repository = UserRepository()
+        self.__manager_repository = ManagerRepository()
+        self.__student_repository = StudentRepository()
 
     def create_manager(self, name: str, email: str, password: str) -> UserVO:
         allowed_managers_list = list[str](Config.get('admin.managers-mail-list'))
         if len(allowed_managers_list) != 0 and email not in allowed_managers_list:
             raise Forbidden()
-        dto = UserDTO()
+        dto = ManagerDTO()
         dto.email = email
         dto.name = name
         dto.password = password
-        stored_dto = self.__user_repository.add_manager(dto)
+        stored_dto = self.__manager_repository.add(dto, raise_unique_violation_error=True)
         vo = UserVO.import_from_dto(stored_dto)
         vo.role = Role.MANAGER
         return vo
 
     def create_student(self, name: str, email: str, password: str) -> UserVO:
-        dto = UserDTO()
+        dto = StudentDTO()
         dto.email = email
         dto.name = name
         dto.password = password
-        stored_dto = self.__user_repository.add_student(dto)
+        stored_dto = self.__student_repository.add(dto, raise_unique_violation_error=True)
         vo = UserVO.import_from_dto(stored_dto)
         vo.role = Role.STUDENT
         return vo
@@ -46,13 +51,13 @@ class UserService:
             raise ServerError() from e
 
     def get_manager(self, id: int) -> UserVO:
-        dto = self.__user_repository.find_manager(id)
+        dto = self.__manager_repository.find(id)
         vo = UserVO.import_from_dto(dto)
         vo.role = Role.MANAGER
         return vo
 
     def get_student(self, id: int) -> UserVO:
-        dto = self.__user_repository.find_student(id)
+        dto = self.__student_repository.find(id)
         vo = UserVO.import_from_dto(dto)
         vo.role = Role.STUDENT
         return vo

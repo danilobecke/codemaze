@@ -29,7 +29,6 @@ class AbstractRepository(Generic[M]):
     def add(self, model: M, raise_unique_violation_error: bool = False) -> M:
         try:
             self._session.add(model)
-            self._session.flush()
             self._session.commit()
             return model
         except IntegrityError as e:
@@ -43,14 +42,13 @@ class AbstractRepository(Generic[M]):
         obj = self.find(id)
         try:
             self._session.delete(obj)
-            self.update_session()
+            self._session.commit()
         except Exception as e:
             self._session.rollback()
             raise ServerError() from e
 
     def update_session(self) -> None:
         try:
-            self._session.flush()
             self._session.commit()
         except Exception as e:
             self._session.rollback()
