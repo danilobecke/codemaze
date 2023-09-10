@@ -11,7 +11,6 @@ class UserDTO(Base):
     email: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     _password: Mapped[str] = mapped_column('password', String)
     name: Mapped[str]
-    type: Mapped[str]
 
     @property
     def password(self) -> str:
@@ -24,8 +23,3 @@ class UserDTO(Base):
 
     def authenticate(self, password: str) -> bool:
         return checkpw(password.encode('utf-8'), self._password.encode('utf-8'))
-
-    __mapper_args__ = {
-        'polymorphic_identity':'user',
-        'polymorphic_on':'type'
-    }
