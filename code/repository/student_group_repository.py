@@ -4,19 +4,19 @@ from helpers.exceptions import NotFound, ServerError
 from helpers.role import Role
 from repository.abstract_repository import AbstractRepository
 from repository.dto.group_dto import GroupDTO
-from repository.dto.student import StudentDTO
 from repository.dto.student_group import StudentGroupDTO
+from repository.dto.user_dto import UserDTO
 
 # pylint: disable=singleton-comparison
 class StudentGroupRepository(AbstractRepository[StudentGroupDTO]):
     def __init__(self) -> None:
         super().__init__(StudentGroupDTO)
 
-    def get_students_with_join_request(self, group_id: int, approved: bool = False) -> list[StudentDTO]:
-        stm = select(StudentDTO)\
-            .join(StudentGroupDTO, StudentDTO.id == StudentGroupDTO.student_id)\
+    def get_students_with_join_request(self, group_id: int, approved: bool = False) -> list[UserDTO]:
+        stm = select(UserDTO)\
+            .join(StudentGroupDTO, UserDTO.id == StudentGroupDTO.student_id)\
             .where(and_(StudentGroupDTO.group_id == group_id, StudentGroupDTO.approved == approved))\
-            .order_by(StudentDTO.name)
+            .order_by(UserDTO.name)
         return list(self._session.scalars(stm).all())
 
     def __find_opened_join_request(self, group_id: int, student_id: int) -> StudentGroupDTO:
@@ -55,8 +55,8 @@ class StudentGroupRepository(AbstractRepository[StudentGroupDTO]):
             case Role.STUDENT:
                 stm = select(GroupDTO)\
                     .join(StudentGroupDTO, GroupDTO.id == StudentGroupDTO.group_id)\
-                    .join(StudentDTO, StudentDTO.id == StudentGroupDTO.student_id)\
-                    .where(and_(StudentDTO.id == id, StudentGroupDTO.approved == True))\
+                    .join(UserDTO, UserDTO.id == StudentGroupDTO.student_id)\
+                    .where(and_(UserDTO.id == id, StudentGroupDTO.approved == True))\
                     .order_by(GroupDTO.name)
                 result = list(self._session.scalars(stm).all())
         return result

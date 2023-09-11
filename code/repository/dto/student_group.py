@@ -5,6 +5,6 @@ from repository.base import Base
 
 class StudentGroupDTO(Base):
     __tablename__ = 'student_group'
-    student_id: Mapped[int] = mapped_column(Integer, ForeignKey('student.id'), nullable=False, primary_key=True)
+    student_id: Mapped[int] = mapped_column(Integer, ForeignKey('user.id'), nullable=False, primary_key=True)
     group_id: Mapped[int] = mapped_column(Integer, ForeignKey('group.id'), nullable=False, primary_key=True)
     approved: Mapped[bool]

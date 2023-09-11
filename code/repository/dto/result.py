@@ -10,5 +10,5 @@ class ResultDTO(Base):
     correct_open: Mapped[int]
     correct_closed: Mapped[int]
     file_path: Mapped[str]
-    student_id: Mapped[int] = mapped_column(Integer, ForeignKey('student.id'), nullable=False)
+    student_id: Mapped[int] = mapped_column(Integer, ForeignKey('user.id'), nullable=False)
     task_id: Mapped[int] = mapped_column(Integer, ForeignKey('task.id'), nullable=False)

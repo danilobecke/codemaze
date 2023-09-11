@@ -1,7 +1,9 @@
 from bcrypt import hashpw, checkpw, gensalt
 from sqlalchemy import Integer, Sequence, String
 from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.types import Enum
 
+from helpers.role import Role
 from repository.base import Base
 
 class UserDTO(Base):
@@ -11,7 +13,7 @@ class UserDTO(Base):
     email: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     _password: Mapped[str] = mapped_column('password', String)
     name: Mapped[str]
-    type: Mapped[str]
+    role: Mapped[Role] = mapped_column(Enum(Role))
 
     @property
     def password(self) -> str:
@@ -24,8 +26,3 @@ class UserDTO(Base):
 
     def authenticate(self, password: str) -> bool:
         return checkpw(password.encode('utf-8'), self._password.encode('utf-8'))
-
-    __mapper_args__ = {
-        'polymorphic_identity':'user',
-        'polymorphic_on':'type'
-    }

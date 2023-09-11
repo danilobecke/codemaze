@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from endpoints.models.user import UserVO
-from helpers.exceptions import NotFound
 from helpers.role import Role
 from services.jwt_service import JWTService
 from services.user_service import UserService
@@ -24,30 +23,16 @@ class SessionService:
                 vo.token = self.__jwt_service.create_token(vo.id)
                 return vo
 
-    def __get_user(self, id: int) -> UserVO:
-        vo: UserVO | None = None
-        try:
-            vo = self.__user_service.get_manager(id)
-        except NotFound:
-            vo = self.__user_service.get_student(id)
-        return vo
-
     def login(self, email: str, password: str) -> UserVO:
         user_id = self.__user_service.login(email, password)
-        vo = self.__get_user(user_id)
+        vo = self.__user_service.get_user_with_role(user_id, None)
         token = self.__jwt_service.create_token(user_id)
         vo.token = token
         return vo
 
     def validate_token(self, token: str, role: Role | None) -> UserVO:
         user_id = self.__jwt_service.decode_token(token)
-        if not role:
-            return self.__get_user(user_id)
-        match role:
-            case Role.MANAGER:
-                return self.__user_service.get_manager(user_id)
-            case Role.STUDENT:
-                return self.__user_service.get_student(user_id)
+        return self.__user_service.get_user_with_role(user_id, role)
 
     @staticmethod
     def initialize(key: str) -> None:

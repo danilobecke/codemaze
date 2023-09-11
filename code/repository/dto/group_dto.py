@@ -10,4 +10,4 @@ class GroupDTO(Base):
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     name: Mapped[str]
     code: Mapped[str] = mapped_column(String(6), nullable=False, unique=True)
-    manager_id: Mapped[int] = mapped_column(Integer, ForeignKey('manager.id'), nullable=False)
+    manager_id: Mapped[int] = mapped_column(Integer, ForeignKey('user.id'), nullable=False)

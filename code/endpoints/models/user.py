@@ -17,4 +17,5 @@ class UserVO:
         vo.id = dto.id
         vo.email = dto.email
         vo.name = dto.name
+        vo.role = dto.role
         return vo
