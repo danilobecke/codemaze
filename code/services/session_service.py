@@ -34,6 +34,9 @@ class SessionService:
         user_id = self.__jwt_service.decode_token(token)
         return self.__user_service.get_user_with_role(user_id, role)
 
+    def get_user(self, id: int) -> UserVO:
+        return self.__user_service.get_user_with_role(id, None)
+
     @staticmethod
     def initialize(key: str) -> None:
         if SessionService.shared is not None:

@@ -14,6 +14,7 @@ from helpers.file import File
 from helpers.role import Role
 from helpers.unwrapper import unwrap
 from services.group_service import GroupService
+from services.session_service import SessionService
 from services.task_service import TaskService
 from services.tcase_service import TCaseService
 
@@ -62,7 +63,7 @@ class TestsResource(Resource): # type: ignore
         output_storage: FileStorage = args['output']
         closed = args['closed']
         try:
-            user_groups = unwrap(TestsResource._group_service).get_all(user)
+            user_groups = unwrap(TestsResource._group_service).get_all(user, unwrap(SessionService.shared).get_user)
             task = unwrap(TestsResource._task_service).get_task(task_id, user.id, user_groups, active_required=True)
             input_file = File(unwrap(input_storage.filename), input_storage.stream.read())
             output_file = File(unwrap(output_storage.filename), output_storage.stream.read())
@@ -88,7 +89,7 @@ class TestsResource(Resource): # type: ignore
     @authentication_required()
     def get(self, task_id: int, user: UserVO) -> AllTestsVO:
         try:
-            user_groups = unwrap(TestsResource._group_service).get_all(user)
+            user_groups = unwrap(TestsResource._group_service).get_all(user, unwrap(SessionService.shared).get_user)
             task = unwrap(TestsResource._task_service).get_task(task_id, user.id, user_groups, active_required=False)
             return unwrap(TestsResource._tcase_service).get_tests(user.id, task, user_groups)
         except Forbidden as e:
@@ -112,7 +113,7 @@ class TestResource(Resource): # type: ignore
     @authentication_required(role=Role.MANAGER)
     def delete(self, id: int, user: UserVO) -> Response:
         try:
-            user_groups = unwrap(TestResource._group_service).get_all(user)
+            user_groups = unwrap(TestResource._group_service).get_all(user, unwrap(SessionService.shared).get_user)
             unwrap(TestResource._tcase_service).delete_test(id, user.id, unwrap(TestResource._task_service).get_task, user_groups)
             return jsonify(message='Success')
         except Forbidden as e:
@@ -136,7 +137,7 @@ class TestDownloadInResource(Resource): # type: ignore
     @authentication_required()
     def get(self, id: int, user: UserVO) -> Response:
         try:
-            user_groups = unwrap(TestDownloadInResource._group_service).get_all(user)
+            user_groups = unwrap(TestDownloadInResource._group_service).get_all(user, unwrap(SessionService.shared).get_user)
             path = unwrap(TestDownloadInResource._tcase_service).get_test_case_in_path(id, user.id, unwrap(TestDownloadInResource._task_service).get_task, user_groups)
             return send_file(path, download_name='test.in')
         except Forbidden as e:
@@ -160,7 +161,7 @@ class TestDownloadOutResource(Resource): # type: ignore
     @authentication_required()
     def get(self, id: int, user: UserVO) -> Response:
         try:
-            user_groups = unwrap(TestDownloadOutResource._group_service).get_all(user)
+            user_groups = unwrap(TestDownloadOutResource._group_service).get_all(user, unwrap(SessionService.shared).get_user)
             path = unwrap(TestDownloadOutResource._tcase_service).get_test_case_out_path(id, user.id, unwrap(TestDownloadOutResource._task_service).get_task, user_groups)
             return send_file(path, download_name='test.out')
         except Forbidden as e:

@@ -12,6 +12,7 @@ from helpers.exceptions import ServerError, NotFound, Forbidden, Internal_Unique
 from helpers.role import Role
 from helpers.unwrapper import unwrap, json_unwrapped
 from services.group_service import GroupService
+from services.session_service import SessionService
 
 _namespace = Namespace('groups', description='')
 
@@ -19,12 +20,17 @@ _new_group_model = _namespace.model('New Group', {
      'name': fields.String(required=True)
 })
 
+_public_user_model = _namespace.model('Public User', {
+    'name': fields.String(required=True),
+    'email': fields.String(required=True)
+})
+
 _group_model = _namespace.model('Group', {
      'id': fields.Integer(required=True),
      'name': fields.String(required=True),
      'active': fields.Boolean(required=True),
      'code': fields.String(required=True),
-     'manager_id': fields.Integer(required=True)
+     'manager': fields.Nested(_public_user_model)
 })
 
 _update_group_model = _namespace.model('Update Group', {
@@ -45,11 +51,6 @@ _manage_request_model = _namespace.model('Manage Request', {
     'approve': fields.Boolean(required=True)
 })
 
-_public_student_model = _namespace.model('Public Student', {
-    'name': fields.String(required=True),
-    'email': fields.String(required=True)
-})
-
 class GroupsResource(Resource): # type: ignore
     _group_service: GroupService | None = None
 
@@ -64,7 +65,7 @@ class GroupsResource(Resource): # type: ignore
     def post(self, user: UserVO) -> tuple[GroupVO, int]:
         name = json_unwrapped()['name']
         try:
-            return unwrap(GroupsResource._group_service).create(name, user.id), 201
+            return unwrap(GroupsResource._group_service).create(name, user), 201
         except ServerError as e:
             abort(500, str(e))
 
@@ -85,7 +86,7 @@ class GroupsResource(Resource): # type: ignore
                 case 'false' | 'False':
                     member_of = False
         try:
-            return unwrap(GroupsResource._group_service).get_all(user if member_of else None)
+            return unwrap(GroupsResource._group_service).get_all(user if member_of else None, unwrap(SessionService.shared).get_user)
         except ServerError as e:
             abort(500, str(e))
 
@@ -106,7 +107,7 @@ class GroupResource(Resource): # type: ignore
         active: bool | None = json_unwrapped().get('active')
         name: str | None = json_unwrapped().get('name')
         try:
-            return unwrap(GroupResource._group_service).update_group(id, user.id, active, name)
+            return unwrap(GroupResource._group_service).update_group(id, user, active, name)
         except Forbidden as e:
             abort(403, str(e))
         except NotFound as e:
@@ -124,7 +125,7 @@ class GroupResource(Resource): # type: ignore
     @authentication_required()
     def get(self, id: int, user: UserVO) -> GroupVO:
         try:
-            return unwrap(GroupResource._group_service).get_group(id)
+            return unwrap(GroupResource._group_service).get_group(id, unwrap(SessionService.shared).get_user)
         except NotFound as e:
             abort(404, str(e))
         except ServerError as e:
@@ -212,7 +213,7 @@ class GroupStudentResource(Resource): # type: ignore
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(500, 'Error')
-    @_namespace.marshal_with(_public_student_model, as_list=True, envelope='students')
+    @_namespace.marshal_with(_public_user_model, as_list=True, envelope='students')
     @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
     def get(self, group_id: int, user: UserVO) -> list[UserVO]:

@@ -16,6 +16,7 @@ from helpers.role import Role
 from helpers.unwrapper import unwrap
 from services.group_service import GroupService
 from services.result_service import ResultService
+from services.session_service import SessionService
 from services.task_service import TaskService
 from services.tcase_service import TCaseService
 
@@ -101,7 +102,7 @@ class ResultsResource(Resource): # type: ignore
         filename = unwrap(file_storage.filename)
         blob = file_storage.stream.read()
         try:
-            user_groups = unwrap(ResultsResource._group_service).get_all(user)
+            user_groups = unwrap(ResultsResource._group_service).get_all(user, unwrap(SessionService.shared).get_user)
             task = unwrap(ResultsResource._task_service).get_task(task_id, user.id, user_groups, active_required=True)
             tests = unwrap(ResultsResource._tcase_service).get_tests(user.id, task, user_groups, running_context=True)
             return unwrap(ResultsResource._result_service).run(user, task, tests, File(filename, blob)), 201
@@ -127,7 +128,7 @@ class ResultsResource(Resource): # type: ignore
     @authentication_required(Role.MANAGER)
     def get(self, task_id: int, user: UserVO) -> ReportVO:
         try:
-            user_groups = unwrap(ResultsResource._group_service).get_all(user)
+            user_groups = unwrap(ResultsResource._group_service).get_all(user, unwrap(SessionService.shared).get_user)
             task = unwrap(ResultsResource._task_service).get_task(task_id, user.id, user_groups, active_required=False)
             students = unwrap(ResultsResource._group_service).get_students_of_group(task.group_id, user.id)
             tests = unwrap(ResultsResource._tcase_service).get_tests(user.id, task, user_groups, running_context=True)
@@ -153,7 +154,7 @@ class SourceCodeDownloadResource(Resource): # type: ignore
     @authentication_required(role=Role.STUDENT)
     def get(self, task_id: int, user: UserVO) -> Response:
         try:
-            user_groups = unwrap(SourceCodeDownloadResource._group_service).get_all(user)
+            user_groups = unwrap(SourceCodeDownloadResource._group_service).get_all(user, unwrap(SessionService.shared).get_user)
             task = unwrap(SourceCodeDownloadResource._task_service).get_task(task_id, user.id, user_groups, active_required=False)
             name, path = unwrap(SourceCodeDownloadResource._result_service).get_latest_source_code_name_path(task, user.id)
             return send_file(path, download_name=name)
@@ -180,7 +181,7 @@ class LatestResultResource(Resource): # type: ignore
     @authentication_required(role=Role.STUDENT)
     def get(self, task_id: int, user: UserVO) -> ResultVO:
         try:
-            user_groups = unwrap(LatestResultResource._group_service).get_all(user)
+            user_groups = unwrap(LatestResultResource._group_service).get_all(user, unwrap(SessionService.shared).get_user)
             task = unwrap(LatestResultResource._task_service).get_task(task_id, user.id, user_groups, active_required=False)
             tests = unwrap(LatestResultResource._tcase_service).get_tests(user.id, task, user_groups, running_context=True)
             return unwrap(LatestResultResource._result_service).get_latest_result(task, user, tests)
@@ -205,7 +206,7 @@ class ResultCodeResource(Resource): # type: ignore
     @authentication_required(role=Role.MANAGER)
     def get(self, id: int, user: UserVO) -> Response:
         try:
-            user_groups = unwrap(ResultCodeResource._group_service).get_all(user)
+            user_groups = unwrap(ResultCodeResource._group_service).get_all(user, unwrap(SessionService.shared).get_user)
             name, path = unwrap(ResultCodeResource._result_service).get_source_code_from_result_name_path(id, user.id, user_groups, unwrap(ResultCodeResource._task_service).get_task)
             return send_file(path, download_name=name)
         except Forbidden as e:

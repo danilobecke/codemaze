@@ -7,6 +7,7 @@ from flask_restx.reqparse import RequestParser
 from werkzeug.datastructures import FileStorage
 
 from endpoints.tcase_endpoints import test_model
+from endpoints.models.group import GroupVO
 from endpoints.models.task_vo import TaskVO
 from endpoints.models.user import UserVO
 from helpers.authenticator_decorator import authentication_required
@@ -15,6 +16,7 @@ from helpers.file import File
 from helpers.role import Role
 from helpers.unwrapper import unwrap
 from services.group_service import GroupService
+from services.session_service import SessionService
 from services.task_service import TaskService
 from services.tcase_service import TCaseService
 
@@ -80,7 +82,7 @@ class TasksResource(Resource): # type: ignore
         filename = unwrap(file_storage.filename)
         blob = file_storage.stream.read()
         try:
-            group = unwrap(TasksResource._group_service).get_group(group_id)
+            group = unwrap(TasksResource._group_service).get_group(group_id, unwrap(SessionService.shared).get_user)
             return unwrap(TasksResource._task_service).create_task(user, group, name, max_attempts, languages, starts_on, ends_on, File(filename, blob)), 201
         except ParameterValidationError as e:
             abort(400, str(e))
@@ -105,8 +107,8 @@ class TasksResource(Resource): # type: ignore
     @authentication_required()
     def get(self, group_id: int, user: UserVO) -> list[TaskVO]:
         try:
-            group = unwrap(TasksResource._group_service).get_group(group_id)
-            user_groups = unwrap(TasksResource._group_service).get_all(user)
+            group = unwrap(TasksResource._group_service).get_group(group_id, unwrap(SessionService.shared).get_user)
+            user_groups = unwrap(TasksResource._group_service).get_all(user, unwrap(SessionService.shared).get_user)
             return unwrap(TasksResource._task_service).get_tasks(user.id, group, user_groups)
         except Forbidden as e:
             abort(403, str(e))
@@ -128,7 +130,7 @@ class TaskDownloadResource(Resource): # type: ignore
     @authentication_required()
     def get(self, id: int, user: UserVO) -> Response:
         try:
-            user_groups = unwrap(TaskDownloadResource._group_service).get_all(user)
+            user_groups = unwrap(TaskDownloadResource._group_service).get_all(user, unwrap(SessionService.shared).get_user)
             name, path = unwrap(TaskDownloadResource._task_service).get_task_name_path(id, user_groups, user.id)
             return send_file(path, download_name=name)
         except Forbidden as e:
@@ -173,7 +175,9 @@ class TaskResource(Resource): # type: ignore
         if file_storage is not None:
             file = File(unwrap(file_storage.filename), file_storage.stream.read())
         try:
-            return unwrap(TaskResource._task_service).update_task(user, unwrap(TaskResource._group_service).get_group, id, name, max_attempts, languages, starts_on, ends_on, file)
+            def get_group(id: int) -> GroupVO:
+                return unwrap(TaskResource._group_service).get_group(id, unwrap(SessionService.shared).get_user)
+            return unwrap(TaskResource._task_service).update_task(user, get_group, id, name, max_attempts, languages, starts_on, ends_on, file)
         except ParameterValidationError as e:
             abort(400, str(e))
         except Forbidden as e:
@@ -197,7 +201,7 @@ class TaskResource(Resource): # type: ignore
     @authentication_required()
     def get(self, id: int, user: UserVO) -> TaskVO:
         try:
-            user_groups = unwrap(TaskResource._group_service).get_all(user)
+            user_groups = unwrap(TaskResource._group_service).get_all(user, unwrap(SessionService.shared).get_user)
             task = unwrap(TaskResource._task_service).get_task(id, user.id, user_groups, active_required=False)
             tests = unwrap(TaskResource._tcase_service).get_tests(user.id, task, user_groups)
             return task.appending_tests(tests)

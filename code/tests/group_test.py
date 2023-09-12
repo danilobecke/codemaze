@@ -19,7 +19,9 @@ class TestGroup:
         assert json['name'] == name
         assert json['active'] is True
         assert json['code'] is not None
-        assert json['manager_id'] == id_token[0]
+        manager = json['manager']
+        assert manager['name'] == 'Manager'
+        assert manager['email'] == 'manager@email.com'
 
     def test_create_group_without_name_should_return_bad_request(self) -> None:
         id_token = get_manager_id_token()
@@ -70,7 +72,7 @@ class TestGroup:
         groups = response[1]['groups']
         assert len(groups) > 0
         # must contain groups owned by current user
-        filtered = list(filter(lambda json: json['manager_id'] == manager_id_token[0], groups))
+        filtered = list(filter(lambda json: json['manager']['name'] == 'Manager' and json['manager']['email'] == 'manager@email.com', groups))
         assert filtered == groups
 
     @pytest.mark.smoke
@@ -103,7 +105,7 @@ class TestGroup:
         assert json['name'] == name
         assert json['active'] is True
         assert json['code'] is not None
-        assert json['manager_id'] is not None
+        assert json['manager'] is not None
 
     @pytest.mark.smoke
     def test_student_get_group_info_should_return_group(self) -> None:
@@ -120,7 +122,7 @@ class TestGroup:
         assert json['name'] == name
         assert json['active'] is True
         assert json['code'] is not None
-        assert json['manager_id'] is not None
+        assert json['manager'] is not None
 
     def test_get_group_info_with_invalid_id_should_return_not_found(self) -> None:
         manager_token = get_manager_id_token()[1]
