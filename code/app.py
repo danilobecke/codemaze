@@ -49,11 +49,10 @@ def run() -> Flask:
     storage_path = __get_path('files', 'production')
     return __init_app(storage_path)
 
-def run_as_debug() -> None:
+def run_as_debug() -> Flask:
     __set_up()
     storage_path = __get_path('files', 'debug')
-    app = __init_app(storage_path)
-    app.run(port=48345, debug=True)
+    return __init_app(storage_path)
 
 def run_as_test() -> FlaskClient:
     __set_up()

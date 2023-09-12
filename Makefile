@@ -18,7 +18,7 @@ stop-deploy:
 	docker compose -f compose.yaml -f compose.deploy.yaml down
 
 # setup
-_setup: requirements.txt
+setup: requirements.txt, build-test
 	python -m venv $(VENV)
 	$(PIP) install -r requirements.txt
 	chmod 777 scripts/pre-commit
@@ -26,7 +26,7 @@ _setup: requirements.txt
 	git config core.hooksPath scripts
 
 # test (setup, up, test, stop)
-setup-test: _setup
+build-test:
 	./scripts/create_dot_env.sh test
 	docker compose -f compose.yaml -f compose.test.yaml build
 up-test:
@@ -39,14 +39,11 @@ stop-test:
 	docker compose -f compose.yaml -f compose.test.yaml down
 
 # debug (setup, up, debug, stop)
-setup-debug: _setup
+build-debug:
 	./scripts/create_dot_env.sh debug
-	docker compose -f compose.yaml -f compose.debug.yaml build
-up-debug:
-	./scripts/create_dot_env.sh debug
-	docker compose -f compose.yaml -f compose.debug.yaml up -d
-debug: up-debug
-	$(PYTHON) code/app.py
+	docker compose -f compose.yaml -f compose.debug.yaml build	
+debug:
+	docker compose -f compose.yaml -f compose.debug.yaml up
 stop-debug:
 	docker compose -f compose.yaml -f compose.debug.yaml down
 

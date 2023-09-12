@@ -1,0 +1,11 @@
+FROM python:3.11-alpine3.18
+WORKDIR /codemaze
+
+COPY requirements.txt /codemaze
+COPY configs/gunicorn.debug.py /codemaze
+COPY .env /codemaze/.env
+COPY config.toml /codemaze
+
+RUN apk add --no-cache build-base libffi-dev docker
+RUN pip install --no-cache-dir -r requirements.txt
+RUN mkdir -p files/debug

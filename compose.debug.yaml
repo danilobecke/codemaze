@@ -3,13 +3,37 @@ services:
     container_name: postgres-debug
     volumes:
       - postgres_data_debug:/var/lib/postgresql/data
+    expose:
+      - 5432
     ports:
-      - "5432:5432"
+      - "5432:5432" # mapping port for debugging purposes
 
   redis:
     container_name: redis-debug
+    expose:
+      - 6379
+
+  codemaze-debug:
+    container_name: codemaze-debug
+    build:
+      dockerfile: Dockerfile.debug
+    volumes:
+      - codemaze_files_debug:/codemaze/files/debug
+      - codemaze_logs_debug:/codemaze/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+      - type: bind
+        source: code
+        target: /codemaze/code
+        read_only: true
+    command: gunicorn -c gunicorn.debug.py
     ports:
-      - "6379:6379"
+      - 8080:3031
+    restart: always
+    depends_on:
+      - postgres
+      - redis
 
 volumes:
   postgres_data_debug:
+  codemaze_files_debug:
+  codemaze_logs_debug:
