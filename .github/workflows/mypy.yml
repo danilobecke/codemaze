@@ -23,7 +23,7 @@ jobs:
                 python-version: 3.11
             - name: Install dependencies
               run: |
-                 make _setup
+                 make setup
             - name: Run MyPy
               run: |
                   make type-check

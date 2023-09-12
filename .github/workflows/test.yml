@@ -32,7 +32,10 @@ jobs:
                   echo PAPERTRAIL_ADDRESS=\"${{ secrets.PAPERTRAIL_ADDRESS }}\" >> .env.test
             - name: Install dependencies
               run: |
-                 make setup-test
+                  make setup
+            - name: Build test containers
+              run: |
+                  make build-test
             - name: Run tests
               run: |
                   make test

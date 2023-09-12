@@ -23,7 +23,7 @@ jobs:
                 python-version: 3.11
             - name: Install dependencies
               run: |
-                 make _setup
+                 make setup
             - name: Run Pylint
               run: |
                   make lint
