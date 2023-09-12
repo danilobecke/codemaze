@@ -41,7 +41,7 @@ Clone this repository in the host machine and run:
 
 ```sh
 make build
-make run
+make deploy
 ```
 
 By doing this, Codemaze will be running in the `:8080` port. You can customize the port updating the [compose.deploy.yaml](./compose.deploy.yaml).
@@ -126,12 +126,12 @@ The Swagger documentation is hosted at the `/api/v1/docs` URL.
 You can run Codemaze locally for debugging and testing purposes:
 
 <a name=debug></a>
-### As debug (localhost:48345)
+### As debug (localhost:8080)
 
 Navigate to the root folder and run:
 
 ```bash
-make setup-debug
+make build-debug
 make debug
 ```
 
@@ -200,6 +200,7 @@ Introduced by Danilo Cleber Becke in 2023, the BSD 2-Clause License outlines the
 - [Flask](https://flask.palletsprojects.com/en/2.3.x/)
 - [Flask-CORS](https://flask-cors.readthedocs.io/en/latest/)
 - [flask-restx](https://flask-restx.readthedocs.io/en/latest/)
+- [Gunicorn](https://gunicorn.org)
 - [MOSS](https://theory.stanford.edu/~aiken/moss/)
 - [mosspy](https://pypi.org/project/mosspy/)
 - [mypy](https://mypy-lang.org)
@@ -215,7 +216,6 @@ Introduced by Danilo Cleber Becke in 2023, the BSD 2-Clause License outlines the
 - [Redis](https://redis.io)
 - [redis-py](https://redis-py.readthedocs.io/en/stable/)
 - [SQLAlchemy](https://www.sqlalchemy.org)
-- [uWSGI](https://uwsgi-docs.readthedocs.io)
 
 <a name=contact></a>
 ## Contact Info
