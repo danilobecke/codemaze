@@ -18,7 +18,7 @@ stop-deploy:
 	docker compose -f compose.yaml -f compose.deploy.yaml down
 
 # setup
-setup: requirements.txt, build-test
+setup: build-test
 	python -m venv $(VENV)
 	$(PIP) install -r requirements.txt
 	chmod 777 scripts/pre-commit
