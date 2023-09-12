@@ -19,12 +19,13 @@ services:
       - codemaze_files:/codemaze/files/production
       - codemaze_logs:/codemaze/logs
       - /var/run/docker.sock:/var/run/docker.sock
-    command: uwsgi deploy.ini
+    command: gunicorn -c gunicorn.deploy.py
     ports:
       - 8080:3031
     restart: always
     depends_on:
       - postgres
+      - redis
 
 volumes:
   postgres_data:
