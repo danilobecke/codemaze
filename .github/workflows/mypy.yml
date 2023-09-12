@@ -8,6 +8,7 @@ on:
       - code/**
       - configs/mypy.ini
   pull_request:
+  workflow_dispatch:
 jobs:
     type-check:
         runs-on: ubuntu-latest
