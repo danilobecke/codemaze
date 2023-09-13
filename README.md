@@ -123,7 +123,13 @@ The Swagger documentation is hosted at the `/api/v1/docs` URL.
 <a name=contr></a>
 ## Contributing
 
-You can run Codemaze locally for debugging and testing purposes:
+You can run Codemaze locally for debugging and testing purposes.
+
+To install the dependencies, navigate to the root folder and run:
+
+```bash
+make setup
+```
 
 <a name=debug></a>
 ### As debug (localhost:8080)
@@ -143,7 +149,6 @@ Optionally, you can have a `.env.debug` file in the same way as the [.env.deploy
 Navigate to the root folder and run:
 
 ```bash
-make setup-test
 make test # or make smoke-test
 ```
 
