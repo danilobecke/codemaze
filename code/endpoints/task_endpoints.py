@@ -35,7 +35,7 @@ def _set_up_task_parser(parser: RequestParser, updating: bool) -> None:
     parser.add_argument('file', type=FileStorage, required=required, location='files')
 
 _task_model = _namespace.model('Task', {
-    'id': fields.String(required=True),
+    'id': fields.Integer(required=True),
     'name': fields.String(required=True),
     'max_attempts': fields.Integer,
     'languages': fields.List(fields.String),
