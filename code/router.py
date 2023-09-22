@@ -32,7 +32,7 @@ class Router:
 
     def __set_up_cors(self, app: Flask) -> None:
         allowed_origins = list[str](Config.get('admin.allowed-origins'))
-        CORS(app, resources={
+        CORS(app, expose_headers='*', resources={
             r'/api/v1/*': {'origins': allowed_origins}
         })
 
