@@ -1,7 +1,6 @@
 # pylint: disable=duplicate-code
 
-from flask import request, abort, jsonify
-from flask.wrappers import Response
+from flask import request, abort
 from flask_restx import Api, Resource, Namespace, fields
 
 from endpoints.models.group import GroupVO
@@ -149,11 +148,11 @@ class JoinResource(Resource): # type: ignore
     @_namespace.marshal_with(success_model)
     @_namespace.doc(security='bearer')
     @authentication_required(Role.STUDENT)
-    def post(self, user: UserVO) -> Response:
+    def post(self, user: UserVO) -> dict[str, str]:
         code = json_unwrapped()['code']
         try:
             unwrap(JoinResource._group_service).add_join_request(code, user.id)
-            return jsonify(message='Success')
+            return {'message': 'Success'}
         except Forbidden as e:
             abort(403, str(e))
         except NotFound as e:
@@ -197,11 +196,11 @@ class RequestResource(Resource): # type: ignore
     @_namespace.marshal_with(success_model)
     @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
-    def patch(self, group_id: int, id: int, user: UserVO) -> Response:
+    def patch(self, group_id: int, id: int, user: UserVO) -> dict[str, str]:
         approve = json_unwrapped()['approve']
         try:
             unwrap(RequestResource._group_service).update_join_request(group_id, id, user.id, approve)
-            return jsonify(message='Success')
+            return {'message': 'Success'}
         except NotFound as e:
             abort(404, str(e))
         except Forbidden as e:

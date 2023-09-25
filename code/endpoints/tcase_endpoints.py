@@ -1,4 +1,4 @@
-from flask import abort, send_file, jsonify
+from flask import abort, send_file
 from flask.wrappers import Response
 from flask_restx import Api, Namespace, Resource, inputs, fields
 from flask_restx.reqparse import RequestParser
@@ -112,11 +112,11 @@ class TestResource(Resource): # type: ignore
     @_namespace.marshal_with(success_model)
     @_namespace.doc(security='bearer')
     @authentication_required(role=Role.MANAGER)
-    def delete(self, id: int, user: UserVO) -> Response:
+    def delete(self, id: int, user: UserVO) -> dict[str, str]:
         try:
             user_groups = unwrap(TestResource._group_service).get_all(user, unwrap(SessionService.shared).get_user)
             unwrap(TestResource._tcase_service).delete_test(id, user.id, unwrap(TestResource._task_service).get_task, user_groups)
-            return jsonify(message='Success')
+            return {'message': 'Success'}
         except Forbidden as e:
             abort(403, str(e))
         except NotFound as e:
