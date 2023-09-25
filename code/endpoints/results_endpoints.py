@@ -146,6 +146,7 @@ class SourceCodeDownloadResource(Resource): # type: ignore
     _result_service: ResultService | None
 
     @_namespace.doc(description='*Students only*\nDownloads the latest submitted source code for the given task.')
+    @_namespace.response(200, 'Success')
     @_namespace.response(401, 'Error')
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
@@ -198,6 +199,7 @@ class ResultCodeResource(Resource): # type: ignore
     _result_service: ResultService | None
 
     @_namespace.doc(description='*Managers only*\nDownloads the source code for the given result.')
+    @_namespace.response(200, 'Success')
     @_namespace.response(401, 'Error')
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')

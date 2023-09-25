@@ -122,6 +122,7 @@ class TaskDownloadResource(Resource): # type: ignore
     _task_service: TaskService | None = None
 
     @_namespace.doc(description='Downloads the task.')
+    @_namespace.response(200, 'Success')
     @_namespace.response(401, 'Error')
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')

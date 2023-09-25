@@ -51,6 +51,10 @@ _manage_request_model = _namespace.model('Manage Request', {
     'approve': fields.Boolean(required=True)
 })
 
+success_model = _namespace.model('Success', {
+    'message': fields.String(required=True)
+})
+
 class GroupsResource(Resource): # type: ignore
     _group_service: GroupService | None = None
 
@@ -136,13 +140,13 @@ class JoinResource(Resource): # type: ignore
 
     @_namespace.doc(description='*Students only*\nAsk to join a group.')
     @_namespace.expect(_join_group_model, validate=True)
-    @_namespace.response(200, 'Success')
     @_namespace.response(400, 'Error')
     @_namespace.response(401, 'Error')
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(409, 'Error')
     @_namespace.response(500, 'Error')
+    @_namespace.marshal_with(success_model)
     @_namespace.doc(security='bearer')
     @authentication_required(Role.STUDENT)
     def post(self, user: UserVO) -> Response:
@@ -185,12 +189,12 @@ class RequestResource(Resource): # type: ignore
 
     @_namespace.doc(description='*Managers only*\nApprove or decline a join request.')
     @_namespace.expect(_manage_request_model, validate=True)
-    @_namespace.response(200, 'Success')
     @_namespace.response(400, 'Error')
     @_namespace.response(401, 'Error')
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(500, 'Error')
+    @_namespace.marshal_with(success_model)
     @_namespace.doc(security='bearer')
     @authentication_required(Role.MANAGER)
     def patch(self, group_id: int, id: int, user: UserVO) -> Response:

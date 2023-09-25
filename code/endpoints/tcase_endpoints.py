@@ -4,7 +4,7 @@ from flask_restx import Api, Namespace, Resource, inputs, fields
 from flask_restx.reqparse import RequestParser
 from werkzeug.datastructures import FileStorage
 
-
+from endpoints.group_endpoints import success_model
 from endpoints.models.all_tests_vo import AllTestsVO
 from endpoints.models.tcase_vo import TCaseVO
 from endpoints.models.user import UserVO
@@ -109,6 +109,7 @@ class TestResource(Resource): # type: ignore
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
     @_namespace.response(500, 'Error')
+    @_namespace.marshal_with(success_model)
     @_namespace.doc(security='bearer')
     @authentication_required(role=Role.MANAGER)
     def delete(self, id: int, user: UserVO) -> Response:
@@ -129,6 +130,7 @@ class TestDownloadInResource(Resource): # type: ignore
     _tcase_service: TCaseService | None
 
     @_namespace.doc(description='Downloads the test input file.')
+    @_namespace.response(200, 'Success')
     @_namespace.response(401, 'Error')
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
@@ -153,6 +155,7 @@ class TestDownloadOutResource(Resource): # type: ignore
     _tcase_service: TCaseService | None
 
     @_namespace.doc(description='Downloads the test output file.')
+    @_namespace.response(200, 'Success')
     @_namespace.response(401, 'Error')
     @_namespace.response(403, 'Error')
     @_namespace.response(404, 'Error')
