@@ -5,7 +5,7 @@ from typing import Optional, Callable
 from endpoints.models.group import GroupVO
 from endpoints.models.task_vo import TaskVO
 from endpoints.models.user import UserVO
-from helpers.commons import file_extension
+from helpers.commons import file_extension, secure_filename
 from helpers.config import Config
 from helpers.exceptions import Forbidden, ParameterValidationError
 from helpers.file import File
@@ -65,7 +65,7 @@ class TaskService:
             group = next(_group for _group in user_groups if _group.id == task_dto.group_id)
             self.__assert_started_task(user_id, task_dto, group)
             path = task_dto.file_path
-            return (task_dto.name + file_extension(path), path)
+            return (secure_filename(task_dto.name) + file_extension(path), path)
         except StopIteration:
             # next exception
             # pylint: disable=raise-missing-from

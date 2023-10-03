@@ -1,6 +1,7 @@
 import os
 
 from flask import url_for, current_app
+from werkzeug.utils import secure_filename as w_secure_filename
 
 ALLOWED_TEXT_EXTENSIONS = { '.txt', '.pdf', '.doc', '.docx', '.md', '.in', '.out' }
 
@@ -27,3 +28,6 @@ def latest_source_code_download_url(task_id: int) -> str:
 
 def source_code_download_url(result_id: int) -> str:
     return url_for('api/v1.results_result_code_resource', id=result_id)
+
+def secure_filename(fname: str) -> str:
+    return w_secure_filename(fname)
