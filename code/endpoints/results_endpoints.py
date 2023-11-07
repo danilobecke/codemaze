@@ -210,7 +210,7 @@ class ResultCodeResource(Resource): # type: ignore
     def get(self, id: int, user: UserVO) -> Response:
         try:
             user_groups = unwrap(ResultCodeResource._group_service).get_all(user, unwrap(SessionService.shared).get_user)
-            name, path = unwrap(ResultCodeResource._result_service).get_source_code_from_result_name_path(id, user.id, user_groups, unwrap(ResultCodeResource._task_service).get_task)
+            name, path = unwrap(ResultCodeResource._result_service).get_source_code_from_result_name_path(id, user.id, user_groups, unwrap(ResultCodeResource._task_service).get_task, unwrap(SessionService.shared).get_user)
             return send_file(path, download_name=name)
         except Forbidden as e:
             abort(403, str(e))

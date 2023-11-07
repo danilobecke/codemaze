@@ -13,7 +13,7 @@ from endpoints.models.result_vo import ResultVO
 from endpoints.models.task_vo import TaskVO
 from endpoints.models.tcase_result_vo import TCaseResultVO
 from endpoints.models.user import UserVO
-from helpers.commons import file_extension, source_code_download_url
+from helpers.commons import file_extension, source_code_download_url, secure_filename
 from helpers.config import Config
 from helpers.exceptions import Forbidden, ServerError
 from helpers.file import File
@@ -84,11 +84,13 @@ class ResultService:
                 result.diff = None
         return ResultVO.import_from_dto(dto, number_off_attempts, open_results, closed_results)
 
-    def get_source_code_from_result_name_path(self, result_id: int, user_id: int, user_groups: list[GroupVO], get_task_func: Callable[[int, int, list[GroupVO]], TaskVO]) -> tuple[str, str]:
+    def get_source_code_from_result_name_path(self, result_id: int, user_id: int, user_groups: list[GroupVO], get_task_func: Callable[[int, int, list[GroupVO]], TaskVO], get_student_func: Callable[[int], UserVO]) -> tuple[str, str]:
         dto = self.__result_repository.find(result_id)
         get_task_func(dto.task_id, user_id, user_groups) # assert has access to the task -> is manager
         path = dto.file_path
-        return ('source' + file_extension(path), path)
+        student = get_student_func(dto.student_id)
+        filename = secure_filename('source_' + student.name + file_extension(path))
+        return (filename, path)
 
     def __get_students_report(self, task_results: list[ResultDTO], students: list[UserVO], tests: AllTestsVO) -> list[StudentReport]:
         number_open_tests = len(tests.open_tests)
