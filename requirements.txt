@@ -51,5 +51,5 @@ types-jsonschema==4.17.0.10
 types-pyOpenSSL==23.2.0.2
 types-redis==4.6.0.5
 typing_extensions==4.7.1
-Werkzeug==2.3.4
+Werkzeug==3.0.1
 wrapt==1.15.0
