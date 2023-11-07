@@ -57,6 +57,7 @@ _overall_report_model = _namespace.model('Overall Report', {
 })
 
 _student_report_model = _namespace.model('Student Report', {
+    'id': fields.Integer(required=True),
     'name': fields.String(required=True),
     'open_result_percentage': fields.Float(required=True),
     'closed_result_percentage': fields.Float(required=False),
