@@ -157,7 +157,7 @@ Optionally, you can have a `.env.test` file in the same way as the [.env.deploy]
 <a name=add-runner></a>
 ### Adding Supported Programming Languages
 
-In order to add support for another programming language, you must implement a class inheriting from the [Runner class](./code/services/runner/runner.py) and add an object of this class in the runner's list of the [RunnerService](./code/services/runner_service.py#19). Each runner must have its own Docker Container and run the student's code inside of it. See [CRunner](./code/services/runner/c_runner.py) and [this commit](48d0869a0c50ae149edec305b8570c38c858a376) for reference.
+In order to add support for another programming language, you must implement a class inheriting from the [Runner class](./code/services/runner/runner.py) and add an object of this class in the runner's list of the [RunnerService](./code/services/runner_service.py#19). Each runner must have its own Docker Container and run the student's code inside of it. See [CRunner](./code/services/runner/c_runner.py) and the commit 48d0869a0c50ae149edec305b8570c38c858a376 for reference.
 
 <a name=mod></a>
 ### Modelling
