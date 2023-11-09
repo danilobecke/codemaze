@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from io import BytesIO
+import os
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -211,6 +212,7 @@ int main() {{
         assert tests[4]['correct_percentage'] == 50
         assert tests[5]['correct_percentage'] == 100
 
+    @pytest.mark.skipif(not os.getenv('MOSS_USER_ID'), reason='requires MOSS_USER_ID')
     def test_get_report_download_code_with_moss_report(self) -> None:
         request = Request('http://moss.stanford.edu', method='HEAD')
         try:
