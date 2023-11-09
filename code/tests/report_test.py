@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from io import BytesIO
+import os
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -87,6 +88,7 @@ int main() {{
 
         assert len(students) == 3
         for position, student in enumerate(students):
+            assert student['id'] is not None
             assert student['name'] is not None
             assert student['open_result_percentage'] == 100
             assert student['closed_result_percentage'] == 100
@@ -123,6 +125,7 @@ int main() {{
 
         assert len(students) == 3
         for student in students:
+            assert student['id'] is not None
             assert student['name'] is not None
             assert student['open_result_percentage'] == 0
             assert student['closed_result_percentage'] == 0
@@ -168,6 +171,7 @@ int main() {{
         assert results_percentages[2]['students_percentage'] == 33.33
 
         assert len(students) == 3
+        assert students[0]['id'] is not None
         assert students[0]['name'] is not None
         assert students[0]['open_result_percentage'] == 100
         assert students[0]['closed_result_percentage'] == 33.33
@@ -179,6 +183,7 @@ int main() {{
         assert response_get_code[0] == 200
         assert str(response_get_code[1]) == code_failing
 
+        assert students[1]['id'] is not None
         assert students[1]['name'] is not None
         assert students[1]['open_result_percentage'] == 100
         assert students[1]['closed_result_percentage'] == 100
@@ -190,6 +195,7 @@ int main() {{
         assert response_get_code[0] == 200
         assert str(response_get_code[1]) == code_success
 
+        assert students[2]['id'] is not None
         assert students[2]['name'] is not None
         assert students[2]['open_result_percentage'] == 0
         assert students[2]['closed_result_percentage'] == 0
@@ -206,6 +212,7 @@ int main() {{
         assert tests[4]['correct_percentage'] == 50
         assert tests[5]['correct_percentage'] == 100
 
+    @pytest.mark.skipif(not os.getenv('MOSS_USER_ID'), reason='requires MOSS_USER_ID')
     def test_get_report_download_code_with_moss_report(self) -> None:
         request = Request('http://moss.stanford.edu', method='HEAD')
         try:

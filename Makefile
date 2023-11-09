@@ -1,3 +1,4 @@
+python = $(shell which python3)
 VENV = venv
 PYTHON = $(VENV)/bin/python
 PIP = $(VENV)/bin/pip
@@ -19,7 +20,7 @@ stop-deploy:
 
 # setup
 setup: build-test
-	python -m venv $(VENV)
+	$(python) -m venv $(VENV)
 	$(PIP) install -r requirements.txt
 	chmod 777 scripts/pre-commit
 	chmod 777 scripts/create_dot_env.sh
