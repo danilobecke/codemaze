@@ -1,8 +1,10 @@
-# Codemaze
+# Codemaze (aka backend)
 
 [![Tests](https://github.com/danilobecke/codemaze/actions/workflows/test.yml/badge.svg)](https://github.com/danilobecke/codemaze/actions/workflows/test.yml) ![coverage-badge](./metadata/coverage.svg) [![Linter (Pylint)](https://github.com/danilobecke/codemaze/actions/workflows/lint.yml/badge.svg)](https://github.com/danilobecke/codemaze/actions/workflows/lint.yml) [![Type-Check (MyPy)](https://github.com/danilobecke/codemaze/actions/workflows/mypy.yml/badge.svg)](https://github.com/danilobecke/codemaze/actions/workflows/mypy.yml)
 
 Codemaze is an advanced platform specifically designed to enhance the programming education experience in higher education. Providing a virtual environment for code execution, Codemaze allows users to practice, test, and evaluate their programs across various programming languages. Furthermore, the software integrates powerful features including plagiarism detection reports, detailed logging capabilities, and Swagger documentation for easy reference. With support for adding programming languages, customizable configurations, and a flexible architecture built on Docker containers, Codemaze empowers both instructors and higher education students to collaboratively and efficiently explore the realm of programming.
+
+**This is the backend project. The suggested frontend is [Codemaze-Web](https://github.com/danilobecke/codemaze-web).**
 
 ## Table of contents
 
@@ -10,6 +12,7 @@ Codemaze is an advanced platform specifically designed to enhance the programmin
 2. [Deploy](#deploy)
 	1. [Environment](#env-deploy)
 	4. [Configuration](#config)
+	1. [Run deploy](#run-deploy)
 2. [Plugins](#plugins)
 	1. [Plagiarism report](#plagrep)
 	4. [Logs](#logs)
@@ -37,14 +40,7 @@ You must have installed in the host machine before deploying or in your local ma
 <a name=deploy></a>
 ## Deploy
 
-Clone this repository in the host machine and run:
-
-```sh
-make build
-make deploy
-```
-
-By doing this, Codemaze will be running in the `:8080` port. You can customize the port updating the [compose.deploy.yaml](./compose.deploy.yaml).
+Clone this repository in the host machine.
 
 <a name=env-deploy></a>
 ### Environment
@@ -54,6 +50,7 @@ Optionally, you can create an environment file on the root directory named `.env
 MOSS_USER_ID="999999999"
 PAPERTRAIL_ADDRESS="logsN.papertrailapp.com:XXXXX"
 ```
+
 <a name=config></a>
 ### Configuration
 The [config.toml](./config.toml) file contains admin-level settings:
@@ -68,6 +65,16 @@ The [config.toml](./config.toml) file contains admin-level settings:
 | `timeout` | Timeout for the student's code run (seconds). | Float |
 | `max-memory-mb` | Max memory allowed to be used for each container running students' code (MB). | Integer |
 | `gcc-parameters` | Compilation flags for the GCC (C compiler). | String |
+
+<a name=env-deploy></a>
+### Run deploy:
+
+```sh
+make build
+make deploy
+```
+
+By doing this, Codemaze will be running in the `:8080` port. You can customize the port updating the [compose.deploy.yaml](./compose.deploy.yaml).
 
 <a name=plugins></a>
 ## Plugins
@@ -198,6 +205,8 @@ Introduced by Danilo Cleber Becke in 2023, the BSD 2-Clause License outlines the
 
 <a name=tech></a>
 ## Technologies
+
+Developed using [Python 3.11](https://www.python.org/downloads/release/python-3110/).
 
 - [bcrypt](https://pypi.org/project/bcrypt/)
 - [coverage-badge](https://pypi.org/project/coverage-badge/)
