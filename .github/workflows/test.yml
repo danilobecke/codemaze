@@ -12,7 +12,6 @@ on:
       - configs/mypy.ini
       - configs/deploy.ini
       - configs/.pylintrc
-  pull_request:
   workflow_dispatch:
 jobs:
     run-tests:
