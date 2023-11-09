@@ -193,10 +193,19 @@ make stop-test # if testing
 <a name=todo></a>
 ## TODO
 
+### Endpoints
+
 - [ ] `POST /session/reset_password` - authorization: user
 - [ ] `PATCH /users/:id:` - authorization: user
 - [ ] `DELETE /tasks/:id:` - authorization: manager
 - [ ] `DELETE /groups/:id:` - authorization: manager
+
+### Improvements
+
+- [ ] Allow managers to submit code to test their own tasks
+- [ ] Develop a script to be used as a helper when creating tests (capturing the inputs and outputs and storing'em in the `test_n.in`/`test_n.out` files). The download path of this script should be added to the `/configs` endpoint response
+- [ ] Return the number of errors for the test with more failures, updating the `Report` model
+- [ ] Add support for supporting files when creating tasks (required updating the [MossService](./code/services/moss_service.py))
 
 <a name=lic></a>
 ## License
