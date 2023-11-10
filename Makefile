@@ -33,7 +33,7 @@ up-test:
 	./scripts/create_dot_env.sh test
 	docker compose -f compose.yaml -f compose.test.yaml up -d
 test: up-test
-	$(PYTEST) --cov-report term-missing:skip-covered -c configs/pytest.ini
+	$(PYTEST) --cov-report term-missing:skip-covered --cov-report xml:coverage.xml -c configs/pytest.ini
 stop-test:
 	docker compose -f compose.yaml -f compose.test.yaml down
 
