@@ -218,7 +218,6 @@ Introduced by Danilo Cleber Becke in 2023, the BSD 2-Clause License outlines the
 Developed using [Python 3.11](https://www.python.org/downloads/release/python-3110/).
 
 - [bcrypt](https://pypi.org/project/bcrypt/)
-- [coverage-badge](https://pypi.org/project/coverage-badge/)
 - [Docker](https://www.docker.com)
 - [Flask](https://flask.palletsprojects.com/en/2.3.x/)
 - [Flask-CORS](https://flask-cors.readthedocs.io/en/latest/)

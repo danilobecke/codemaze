@@ -33,27 +33,10 @@ jobs:
             - name: Install dependencies
               run: |
                   make setup
-            - name: Run tests
-              run: |
-                  make test
+            - name: Run tests & gather coverage info
+              uses: paambaati/codeclimate-action@v4.0.0
+              with:
+                coverageCommand: make test
             - name: Stop containers
               run: |
                   make stop-test
-            - name: Verify Changed files
-              uses: tj-actions/verify-changed-files@v16
-              id: verify-changed-files
-              with:
-                files: metadata/coverage.svg
-            - name: Commit files
-              if: steps.verify-changed-files.outputs.files_changed == 'true'
-              run: |
-                git config --local user.email "github-actions[bot]@users.noreply.github.com"
-                git config --local user.name "github-actions[bot]"
-                git add metadata/coverage.svg
-                git commit -m "Update coverage.svg"
-            - name: Push changes
-              if: steps.verify-changed-files.outputs.files_changed == 'true'
-              uses: ad-m/github-push-action@master
-              with:
-                github_token: ${{ secrets.GITHUB_TOKEN }}
-                branch: ${{ github.ref }}

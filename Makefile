@@ -3,7 +3,6 @@ VENV = venv
 PYTHON = $(VENV)/bin/python
 PIP = $(VENV)/bin/pip
 PYTEST = $(VENV)/bin/pytest
-COVERAGE_BADGE = $(VENV)/bin/coverage-badge
 PYCLEAN = $(VENV)/bin/pyclean
 PYLINT = $(VENV)/bin/pylint
 MYPY = $(VENV)/bin/mypy
@@ -35,7 +34,6 @@ up-test:
 	docker compose -f compose.yaml -f compose.test.yaml up -d
 test: up-test
 	$(PYTEST) --cov-report term-missing:skip-covered -c configs/pytest.ini
-	$(COVERAGE_BADGE) -f -o metadata/coverage.svg
 stop-test:
 	docker compose -f compose.yaml -f compose.test.yaml down
 
