@@ -3,18 +3,20 @@ from typing import Any
 
 import jwt
 
+from helpers.config import Config
 from helpers.exceptions import ServerError, Unauthorized
 
-EXPIRATION_DELTA: datetime.timedelta = datetime.timedelta(days=0, hours=0, minutes=15)
 ALGORITHM: str = 'HS256'
 
 class JWTService:
     def __init__(self, key:str) -> None:
         self.__key = key
+        expiration_minutes = int(Config.get('admin.session-duration'))
+        self.__expiration_delta = datetime.timedelta(days=0, hours=0, minutes=expiration_minutes)
 
     def create_token(self, user_id: int) -> str:
         payload = {
-            'exp': datetime.datetime.utcnow() + EXPIRATION_DELTA,
+            'exp': datetime.datetime.utcnow() + self.__expiration_delta,
             'iat': datetime.datetime.utcnow(),
             'sub': user_id,
         }

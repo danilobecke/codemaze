@@ -1,6 +1,7 @@
 [admin]
 managers-mail-list = []
 allowed-origins = ['*']
+session-duration = 15
 
 [files]
 task-max-size-mb = 2

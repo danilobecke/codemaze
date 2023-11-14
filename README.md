@@ -59,6 +59,7 @@ The [config.toml](./config.toml) file contains admin-level settings:
 |----------|:-------------:|:------:|
 | `managers-mail-list` | [Can be empty] - if not empty, list of emails allowed to register as manager. | Strings array |
 | `allowed-origins` | Allowed origins (CORS). | Strings array - REGEX supported |
+| `session-duration` | Duration of the session (minutes). | Integer |
 | `task-max-size-mb` | Max size allowed for each task description (MB). | Float |
 | `test-max-size-mb` | Max size allowed for each test case (MB). | Float |
 | `code-max-size-mb` | Max size allowed for each source code (MB). | Float |
