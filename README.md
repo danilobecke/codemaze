@@ -84,7 +84,7 @@ The following plugins are optional but improve the Codemaze experience.
 <a name=plagrep></a>
 ### Plagiarism Report
 
-Codemaze uses **Stanford's MOSS** as a plagiarism report tool. This is optional, but if you want it to work, the following steps must be followed:
+Codemaze uses **Stanford's Moss** as a plagiarism report tool. This is optional, but if you want it to work, the following steps must be followed:
 
 #### Get a user ID:
 
@@ -102,6 +102,8 @@ mail email@mail.com
 replacing *email@mail.com* with your email.
 
 From the response, search for `$userid=` and save your user ID.
+
+**NOTE:** as per Moss's suggestion: if you are having trouble registering, please try using Gmail to send the registration message.
 
 #### Edit the .env file
 
@@ -223,7 +225,7 @@ Developed using [Python 3.11](https://www.python.org/downloads/release/python-31
 - [Flask-CORS](https://flask-cors.readthedocs.io/en/latest/)
 - [flask-restx](https://flask-restx.readthedocs.io/en/latest/)
 - [Gunicorn](https://gunicorn.org)
-- [MOSS](https://theory.stanford.edu/~aiken/moss/)
+- [Moss](https://theory.stanford.edu/~aiken/moss/)
 - [mosspy](https://pypi.org/project/mosspy/)
 - [mypy](https://mypy-lang.org)
 - [Papertrail](https://www.papertrail.com)
