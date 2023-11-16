@@ -2,7 +2,7 @@
 
 [![Test Coverage](https://api.codeclimate.com/v1/badges/bd727aae4d4703fcf3eb/test_coverage)](https://codeclimate.com/github/danilobecke/codemaze/test_coverage) [![Maintainability](https://api.codeclimate.com/v1/badges/bd727aae4d4703fcf3eb/maintainability)](https://codeclimate.com/github/danilobecke/codemaze/maintainability) [![Tests](https://github.com/danilobecke/codemaze/actions/workflows/test.yml/badge.svg)](https://github.com/danilobecke/codemaze/actions/workflows/test.yml) [![Linter (Pylint)](https://github.com/danilobecke/codemaze/actions/workflows/lint.yml/badge.svg)](https://github.com/danilobecke/codemaze/actions/workflows/lint.yml) [![Type-Check (MyPy)](https://github.com/danilobecke/codemaze/actions/workflows/mypy.yml/badge.svg)](https://github.com/danilobecke/codemaze/actions/workflows/mypy.yml)
 
-Codemaze is an advanced platform specifically designed to enhance the programming education experience in higher education. Providing a virtual environment for code execution, Codemaze allows users to practice, test, and evaluate their programs across various programming languages. Furthermore, the software integrates powerful features including plagiarism detection reports, detailed logging capabilities, and Swagger documentation for easy reference. With support for adding programming languages, customizable configurations, and a flexible architecture built on Docker containers, Codemaze empowers both instructors and higher education students to collaboratively and efficiently explore the realm of programming.
+Codemaze is an advanced platform specifically designed to enhance the programming education experience in higher education. Providing a virtual environment for code execution, Codemaze allows users to practice, test, and evaluate their programs across various programming languages. Furthermore, the software integrates powerful features including plagiarism detection reports, detailed logging capabilities, and Swagger documentation for easy reference. With support for adding programming languages, customizable configurations, and flexible architecture built on Docker containers, Codemaze empowers both instructors and higher education students to collaboratively and efficiently explore the realm of programming.
 
 **This is the backend project. The suggested frontend is [Codemaze-Web](https://github.com/danilobecke/codemaze-web).**
 
@@ -75,7 +75,7 @@ make build
 make deploy
 ```
 
-By doing this, Codemaze will be running in the `:8080` port. You can customize the port updating the [compose.deploy.yaml](./compose.deploy.yaml).
+By doing this, Codemaze will be running in the `:8080` port. You can customize the port by updating the [compose.deploy.yaml](./compose.deploy.yaml).
 
 <a name=plugins></a>
 ## Plugins
