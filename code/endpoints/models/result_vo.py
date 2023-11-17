@@ -17,12 +17,14 @@ class ResultVO:
 
     @staticmethod
     def import_from_dto(dto: ResultDTO, attempt_numer: int, open_results: list[TCaseResultVO], closed_results: list[TCaseResultVO]) -> ResultVO:
+        len_open_tests = len(open_results)
+        len_closed_tests = len(closed_results)
         vo = ResultVO()
         vo.id = dto.id
         vo.attempt_number = attempt_numer
-        vo.open_result_percentage = round((dto.correct_open / len(open_results)) * 100, 2)
-        vo.closed_result_percentage = round((dto.correct_closed / len(closed_results)) * 100, 2) if len(closed_results) > 0 else None
-        vo.result_percentage = vo.open_result_percentage if vo.closed_result_percentage is None else round((vo.open_result_percentage + vo.closed_result_percentage) / 2, 2)
+        vo.open_result_percentage = round((dto.correct_open / len_open_tests) * 100, 2)
+        vo.closed_result_percentage = round((dto.correct_closed / len_closed_tests) * 100, 2) if len_closed_tests > 0 else None
+        vo.result_percentage = vo.open_result_percentage if vo.closed_result_percentage is None else round((vo.open_result_percentage * len_open_tests + vo.closed_result_percentage * len_closed_tests) / (len_open_tests + len_closed_tests), 2)
         vo.source_url = latest_source_code_download_url(dto.task_id)
         vo.open_results = open_results
         vo.closed_results = closed_results
