@@ -101,7 +101,7 @@ class RunnerService:
                 try:
                     with open(unwrap(test.input_path), encoding='utf-8') as stdin, open(unwrap(test.output_path), encoding='utf-8') as expected_result:
                         output = self.__execute(runner.execution_command(executable_path), stdin, timeout, runner.container_name)
-                        diff = '\n'.join(line for line in difflib.unified_diff(expected_result.readlines(), output.splitlines(), fromfile='expected.out', tofile='result.out', lineterm=''))
+                        diff = '\n'.join(line for line in difflib.unified_diff(expected_result.readlines(), output.splitlines(keepends=True), fromfile='expected.out', tofile='result.out', lineterm=''))
                         if len(diff) == 0:
                             dto.success = True
                         else:

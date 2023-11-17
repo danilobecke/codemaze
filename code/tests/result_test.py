@@ -39,7 +39,7 @@ int main() {
 
 VALID_PYTHON_CODE = '''
 a, b = input().split()
-print(int(a)+int(b))
+print(int(a)+int(b), end='')
 '''
 
 # fail second open test and first closed test
@@ -56,17 +56,33 @@ int main() {
 }
 '''
 
+VALID_PYTHON_CODE_LINE_BREAK = '''
+a, b = input().split()
+print(int(a)+int(b))
+'''
+
+VALID_C_CODE_LINE_BREAK = '''
+#include<stdio.h>
+int main() {
+    int a, b;
+    scanf("%d %d", &a, &b);
+    printf("%d\\n", a+b);
+    return 0;
+}
+'''
+
 # pylint: disable=too-many-public-methods
 class TestResult:
-    def __set_up_valid_2_open_2_closed_tests_task_id_student_token(self) -> tuple[str, str]:
+    def __set_up_valid_2_open_2_closed_tests_task_id_student_token(self, adding_trailing_line_break: bool = False) -> tuple[str, str]:
         manager_token = get_manager_id_token()[1]
         student_token = get_student_id_token()[1]
         group_id = create_join_request_group_id(student_token, manager_token, approve=True)
         task_id = create_task_json(manager_token, group_id, languages=['c', 'python'])['id']
-        create_test_case_json(manager_token, task_id, closed=False, content_in='1 2', content_out='3')
-        create_test_case_json(manager_token, task_id, closed=False, content_in='3 4', content_out='7')
-        create_test_case_json(manager_token, task_id, closed=True, content_in='5 6', content_out='11')
-        create_test_case_json(manager_token, task_id, closed=True, content_in='7 8', content_out='15')
+        trailing = '\n' if adding_trailing_line_break else ''
+        create_test_case_json(manager_token, task_id, closed=False, content_in='1 2', content_out=f'3{trailing}')
+        create_test_case_json(manager_token, task_id, closed=False, content_in='3 4', content_out=f'7{trailing}')
+        create_test_case_json(manager_token, task_id, closed=True, content_in='5 6', content_out=f'11{trailing}')
+        create_test_case_json(manager_token, task_id, closed=True, content_in='7 8', content_out=f'15{trailing}')
         return (task_id, student_token)
 
     def __set_up_result_source_code_url_student_token(self, code: str) -> tuple[str, str]:
@@ -246,8 +262,8 @@ class TestResult:
         assert all(result['success'] is False for result in closed_results)
         assert all(result.get('diff') is None for result in closed_results)
 
-    def __run_with_valid_code(self, code: str, filename: str) -> None:
-        task_id, student_token = self.__set_up_valid_2_open_2_closed_tests_task_id_student_token()
+    def __run_with_valid_code(self, code: str, filename: str, adding_trailing_line_break: bool = False) -> None:
+        task_id, student_token = self.__set_up_valid_2_open_2_closed_tests_task_id_student_token(adding_trailing_line_break)
         payload = {
             'code': (BytesIO(code.encode('utf-8')), filename)
         }
@@ -274,6 +290,35 @@ class TestResult:
 
     def test_post_result_with_valid_python_code_should_succeed_and_succeed_all_tests(self) -> None:
         self.__run_with_valid_code(VALID_PYTHON_CODE, 'code.py')
+
+    def test_post_result_with_valid_python_code_when_should_add_trailing_line_break_should_succeed(self) -> None:
+        self.__run_with_valid_code(VALID_PYTHON_CODE_LINE_BREAK, 'code.py', adding_trailing_line_break=True)
+
+    def test_post_result_with_valid_c_code_when_should_add_trailing_line_break_should_succeed(self) -> None:
+        self.__run_with_valid_code(VALID_C_CODE_LINE_BREAK, 'code.c', adding_trailing_line_break=True)
+
+    def test_post_result_without_line_break_when_should_add_trailing_line_break_should_fail_tests(self) -> None:
+        task_id, student_token = self.__set_up_valid_2_open_2_closed_tests_task_id_student_token(adding_trailing_line_break=True)
+        payload = {
+            'code': (BytesIO(VALID_PYTHON_CODE.encode('utf-8')), 'code.py')
+        }
+        response = post(f'/api/v1/tasks/{task_id}/results', payload, student_token, CONTENT_TYPE_FORM_DATA)
+
+        assert response[0] == 201
+        result = response[1]
+        assert result['attempt_number'] == 1
+        assert result['open_result_percentage'] == 0
+        assert result['closed_result_percentage'] == 0
+        assert result['result_percentage'] == 0
+        assert result['source_url'] == f'/api/v1/tasks/{task_id}/results/latest/code'
+        open_results = result['open_results']
+        assert len(open_results) == 2
+        assert all(result['success'] is False for result in open_results)
+        closed_results = result['closed_results']
+        assert all(result.get('diff') is not None for result in open_results)
+        assert len(closed_results) == 2
+        assert all(result['success'] is False for result in closed_results)
+        assert all(result.get('diff') is None for result in closed_results)
 
     def test_post_result_with_timeout_should_succeed_and_fail_tests_with_timeout(self) -> None:
         task_id, student_token = set_up_task_id_student_token()
