@@ -15,7 +15,7 @@ class TaskDTO(Base):
     id: Mapped[int] = mapped_column(Integer, Sequence('sq_task_pk'), primary_key=True, autoincrement=True)
     name: Mapped[str]
     max_attempts: Mapped[Optional[int]]
-    starts_on: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    starts_on: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), default=func.now())
     ends_on: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     languages: Mapped[list[str]] = mapped_column(ARRAY(String))
     file_path: Mapped[str]
