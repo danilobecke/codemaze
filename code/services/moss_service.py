@@ -1,7 +1,7 @@
 from mosspy import Moss # type: ignore
 
 from helpers.codemaze_logger import CodemazeLogger
-from helpers.commons import secure_filename
+from helpers.commons import secure_filename, file_extension
 
 class MossService:
     def __init__(self, user_id: str) -> None:
@@ -13,7 +13,7 @@ class MossService:
             return None
         try:
             for path, name in source_file_path_name_list:
-                moss.addFile(path, secure_filename(name))
+                moss.addFile(path, secure_filename(name) + file_extension(path))
             return str(moss.send())
         # pylint: disable=broad-exception-caught
         except Exception:
