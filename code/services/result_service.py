@@ -158,19 +158,14 @@ class ResultService:
         if task.ends_on >= datetime.now().astimezone():
             return # task didn't finish
         reports = self.__plagiarism_report_repository.get_reports_for_task(task.id)
-        if len(set(task.languages).symmetric_difference([report.language for report in reports])) != 0:
+        # assert they are valid (one week)
+        if any(report.created_at + timedelta(days=7) < datetime.now().astimezone() for report in reports):
             # delete all and create again
             for report in reports:
                 self.__plagiarism_report_repository.delete(report.id)
         else:
-            # assert they are valid (one week)
-            if any(report.created_at + timedelta(days=7) < datetime.now().astimezone() for report in reports):
-                # delete all and create again
-                for report in reports:
-                    self.__plagiarism_report_repository.delete(report.id)
-            else:
-                urls.extend([ report.url for report in reports ])
-                return
+            urls.extend([ report.url for report in reports ])
+            return
         task_results.reverse() # the latest is the relevant one
         results: list[ResultDTO] = []
         for result in task_results:
