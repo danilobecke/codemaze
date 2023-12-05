@@ -1,8 +1,6 @@
 from datetime import datetime, timedelta
 from io import BytesIO
 import os
-from urllib.error import HTTPError
-from urllib.request import Request, urlopen
 
 import pytest
 
@@ -214,16 +212,6 @@ int main() {{
 
     @pytest.mark.skipif(not os.getenv('MOSS_USER_ID'), reason='requires MOSS_USER_ID')
     def test_get_report_download_code_with_moss_report(self) -> None:
-        request = Request('http://moss.stanford.edu', method='HEAD')
-        try:
-            with urlopen(request, timeout=1) as response:
-                if response.status != 200:
-                    # server down, skip test
-                    assert True
-                    return
-        except HTTPError:
-            assert True
-            return
         manager_token, student_token_one, student_token_two, student_token_three, tests_ids, task_id = self.__set_up_valid_3_open_3_closed_tests_manager_three_students_tests_task(starts_on=(datetime.now().astimezone() - timedelta(days=2)).isoformat())
         code_failing_one_test = self.__get_code_failing_tests([4])
         code_success = self.__get_code_failing_tests([])
