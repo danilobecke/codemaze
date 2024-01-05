@@ -240,3 +240,6 @@ def get_filepath_of_size(size: int, extension: str = '.txt') -> str:
         file.seek(size - 1)
         file.write(b'\0')
     return full_path
+
+def get_script_path(filename: str) -> str:
+    return os.path.join(__app.application.config['SCRIPTS_PATH'], filename)

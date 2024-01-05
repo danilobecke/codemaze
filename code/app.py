@@ -25,6 +25,7 @@ def __init_app(storage_path: str) -> Flask:
     key = __get_env('CODEMAZE_KEY')
     app = Flask(__name__)
     app.config['STORAGE_PATH'] = storage_path
+    app.config['SCRIPTS_PATH'] = __get_path('files', 'scripts')
     CodemazeLogger.start(app)
     Database.initialize(__get_env('CODEMAZE_DB_STRING'))
     Config.initialize(__get_path('config.toml'))
