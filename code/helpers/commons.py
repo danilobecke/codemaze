@@ -37,3 +37,6 @@ def create_test_script_download_url() -> str:
 
 def secure_filename(fname: str) -> str:
     return w_secure_filename(fname)
+
+def compute_percentage(open_tests_percentage: float, closed_tests_percentage: float | None, len_open_tests: int, len_closed_tests: int) -> float:
+    return open_tests_percentage if closed_tests_percentage is None else round((open_tests_percentage * len_open_tests + closed_tests_percentage * len_closed_tests) / (len_open_tests + len_closed_tests), 2)

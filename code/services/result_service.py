@@ -13,7 +13,7 @@ from endpoints.models.result_vo import ResultVO
 from endpoints.models.task_vo import TaskVO
 from endpoints.models.tcase_result_vo import TCaseResultVO
 from endpoints.models.user import UserVO
-from helpers.commons import file_extension, source_code_download_url, secure_filename
+from helpers.commons import file_extension, source_code_download_url, secure_filename, compute_percentage
 from helpers.config import Config
 from helpers.exceptions import Forbidden, ServerError
 from helpers.file import File
@@ -102,7 +102,7 @@ class ResultService:
                 valid_result = results[-1] # last submitted
                 report.open_result_percentage = round((valid_result.correct_open / number_open_tests) * 100, 2)
                 report.closed_result_percentage = round((valid_result.correct_closed / number_closed_tests) * 100, 2) if number_closed_tests > 0 else None
-                report.result_percentage = round((report.open_result_percentage + report.closed_result_percentage) / 2, 2) if report.closed_result_percentage else report.open_result_percentage
+                report.result_percentage = compute_percentage(report.open_result_percentage, report.closed_result_percentage, number_open_tests, number_closed_tests)
                 report.number_attempts = len(results)
                 report.source_code_url = source_code_download_url(valid_result.id)
                 wrong_tests: list[int] = []

@@ -163,7 +163,7 @@ int main() {{
         assert len(results_percentages) == 3
         assert results_percentages[0]['result_percentage'] == 100
         assert results_percentages[0]['students_percentage'] == 33.33
-        assert results_percentages[1]['result_percentage'] == 66.66
+        assert results_percentages[1]['result_percentage'] == 66.67
         assert results_percentages[1]['students_percentage'] == 33.33
         assert results_percentages[2]['result_percentage'] == 0
         assert results_percentages[2]['students_percentage'] == 33.33
@@ -173,7 +173,7 @@ int main() {{
         assert students[0]['name'] is not None
         assert students[0]['open_result_percentage'] == 100
         assert students[0]['closed_result_percentage'] == 33.33
-        assert students[0]['result_percentage'] == 66.66
+        assert students[0]['result_percentage'] == 66.67
         assert students[0]['number_attempts'] == 1
         assert students[0]['source_code_url'] == f'/api/v1/results/{result_id_3}/code'
         assert students[0]['wrong_tests_id'] == failing_test_ids
@@ -241,7 +241,7 @@ int main() {{
         assert results_percentages[0]['students_percentage'] == 33.33
         assert results_percentages[1]['result_percentage'] == 83.34
         assert results_percentages[1]['students_percentage'] == 33.33
-        assert results_percentages[2]['result_percentage'] == 66.66
+        assert results_percentages[2]['result_percentage'] == 66.67
         assert results_percentages[2]['students_percentage'] == 33.33
 
         response_2 = get(f'/api/v1/tasks/{task_id}/results', manager_token)
