@@ -8,6 +8,9 @@ ALLOWED_TEXT_EXTENSIONS = { '.txt', '.pdf', '.doc', '.docx', '.md', '.in', '.out
 def storage_path() -> str:
     return str(current_app.config['STORAGE_PATH'])
 
+def scripts_path() -> str:
+    return str(current_app.config['SCRIPTS_PATH'])
+
 def filename(path: str) -> str:
     return os.path.split(path)[1]
 
@@ -28,6 +31,9 @@ def latest_source_code_download_url(task_id: int) -> str:
 
 def source_code_download_url(result_id: int) -> str:
     return url_for('api/v1.results_result_code_resource', id=result_id)
+
+def create_test_script_download_url() -> str:
+    return url_for('api/v1.configs_download_create_test_script_resource')
 
 def secure_filename(fname: str) -> str:
     return w_secure_filename(fname)

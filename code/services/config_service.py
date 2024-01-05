@@ -1,4 +1,7 @@
+import os
+
 from endpoints.models.configs_vo import ConfigsVO, LanguageConfigVO
+from helpers.commons import create_test_script_download_url, scripts_path
 from helpers.exceptions import ServerError
 from services.runner_service import RunnerService
 
@@ -13,4 +16,9 @@ class ConfigService:
             if language_help is None:
                 raise ServerError()
             languages.append(LanguageConfigVO(language, list(self.__runner_service.allowed_extensions([language])), language_help))
-        return ConfigsVO(languages)
+        return ConfigsVO(create_test_script_download_url(), languages)
+
+    def get_name_path_create_test_script(self) -> tuple[str, str]:
+        filename = 'create_test_case.py'
+        path = os.path.join(scripts_path(), filename)
+        return (filename, path)

@@ -6,6 +6,7 @@ COPY requirements.txt /codemaze
 COPY configs/gunicorn.deploy.py /codemaze
 COPY .env /codemaze/.env
 COPY config.toml /codemaze
+COPY files/scripts /codemaze/files/scripts
 
 RUN apk add --no-cache build-base libffi-dev docker
 RUN pip install --no-cache-dir -r requirements.txt
