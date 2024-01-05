@@ -239,7 +239,7 @@ int main() {{
         assert len(results_percentages) == 3
         assert results_percentages[0]['result_percentage'] == 100
         assert results_percentages[0]['students_percentage'] == 33.33
-        assert results_percentages[1]['result_percentage'] == 83.34
+        assert results_percentages[1]['result_percentage'] == 83.33
         assert results_percentages[1]['students_percentage'] == 33.33
         assert results_percentages[2]['result_percentage'] == 66.67
         assert results_percentages[2]['students_percentage'] == 33.33
