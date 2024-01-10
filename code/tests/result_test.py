@@ -3,7 +3,7 @@ from io import BytesIO
 
 import pytest
 
-from tests.helper import post, get_manager_id_token, create_task_json, create_test_case_json, get_student_id_token, create_join_request_group_id, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_new_group_id_code, get_random_name, get, patch, set_up_task_id_student_token
+from tests.helper import post, get_manager_id_token, create_task_json, create_test_case_json, get_student_id_token, create_join_request_group_id, CONTENT_TYPE_FORM_DATA, get_filepath_of_size, get_random_name, get, patch, set_up_task_id_student_token
 
 VALID_C_CODE = '''
 #include<stdio.h>
@@ -218,17 +218,31 @@ class TestResult:
 
         assert response[0] == 403
 
-    def test_post_result_with_manager_should_return_unauthorized(self) -> None:
+    def test_post_result_with_manager_should_run_and_show_diff_for_closed_tests(self) -> None:
         manager_token = get_manager_id_token()[1]
-        group_id = get_new_group_id_code(get_random_name(), manager_token)[0]
-        task_id = create_task_json(manager_token, group_id)['id']
-        create_test_case_json(manager_token, task_id)
+        task_id, _ = self.__set_up_valid_2_open_2_closed_tests_task_id_student_token()
+
         payload = {
-            'code': (BytesIO(VALID_C_CODE.encode('utf-8')), 'code.c')
+            'code': (BytesIO(FAIL_TWO_TESTS_C_CODE.encode('utf-8')), 'code.c')
         }
         response = post(f'/api/v1/tasks/{task_id}/results', payload, manager_token, CONTENT_TYPE_FORM_DATA)
 
-        assert response[0] == 401
+        assert response[0] == 201
+        assert response[1]['id'] == -1
+        assert response[1]['attempt_number'] == -1
+        assert response[1]['open_result_percentage'] == 50
+        assert response[1]['closed_result_percentage'] == 50
+        assert response[1]['result_percentage'] == 50
+        assert len(response[1]['open_results']) == 2
+        assert len(response[1]['closed_results']) == 2
+        assert response[1]['open_results'][0]['success'] is True
+        assert response[1]['open_results'][0].get('diff') is None
+        assert response[1]['open_results'][1]['success'] is False
+        assert response[1]['open_results'][1].get('diff') is not None
+        assert response[1]['closed_results'][0]['success'] is False
+        assert response[1]['closed_results'][0].get('diff') is not None
+        assert response[1]['closed_results'][1]['success'] is True
+        assert response[1]['closed_results'][1].get('diff') is None
 
     def test_post_result_with_invalid_task_id_should_return_not_found(self) -> None:
         student_token = get_student_id_token()[1]

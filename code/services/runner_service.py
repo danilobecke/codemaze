@@ -80,13 +80,13 @@ class RunnerService:
         subprocess.run(self.__execution_command(f'rm -rf {path}', container), check=True)
 
     # pylint: disable=too-many-branches,too-many-statements
-    def run(self, path: str, tests: AllTestsVO, result_id: int) -> list[TCaseResultVO]:
+    def run(self, path: str, tests: AllTestsVO, result_id: int, should_save: bool) -> list[TCaseResultVO]:
         results: list[TCaseResultVO] = []
         try:
             runner = next(_runner for _runner in self.__runners if _runner.is_source_code(path))
             if not RunnerQueueManager.check_container_available(runner):
                 RunnerQueueManager.continue_when_available(runner)
-                self.run(path, tests, result_id)
+                self.run(path, tests, result_id, should_save)
             RunnerQueueManager.set_using_container(runner)
             dest = str(uuid.uuid1()) # temp folder
             source_path = self.__add_to_sandbox(path, dest, runner.container_name)
@@ -114,7 +114,8 @@ class RunnerService:
                     dto.success = False
                     dto.diff = 'Timeout.'
                 finally:
-                    results.append(TCaseResultVO.import_from_dto(self.__tcase_result_repository.add(dto)))
+                    stored = self.__tcase_result_repository.add(dto) if should_save else dto
+                    results.append(TCaseResultVO.import_from_dto(stored))
             self.__remove_directory(dest, runner.container_name)
             RunnerQueueManager.release_container(runner)
             return results
@@ -129,7 +130,8 @@ class RunnerService:
                 dto.result_id = result_id
                 dto.success = False
                 dto.diff = str(e)
-                results.append(TCaseResultVO.import_from_dto(self.__tcase_result_repository.add(dto)))
+                stored = self.__tcase_result_repository.add(dto) if should_save else dto
+                results.append(TCaseResultVO.import_from_dto(stored))
             if runner:
                 self.__remove_directory(dest, runner.container_name)
                 RunnerQueueManager.release_container(runner)

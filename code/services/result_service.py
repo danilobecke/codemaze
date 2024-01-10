@@ -34,14 +34,55 @@ class ResultService:
         self.__plagiarism_report_repository = PlagiarismReportRepository()
 
     def run(self, user: UserVO, task: TaskVO, tests: AllTestsVO, file: File) -> ResultVO:
-        now = datetime.now().astimezone()
         if (len(tests.closed_tests) + len(tests.open_tests)) < 1:
             raise Forbidden() # Prevent running without tests
+        match user.role:
+            case Role.STUDENT:
+                return self.__run_as_student(user, task, tests, file)
+            case Role.MANAGER:
+                return self.__run_as_manager(user, task, tests, file)
+
+    def __run_as_student(self, user: UserVO, task: TaskVO, tests: AllTestsVO, file: File) -> ResultVO:
+        now = datetime.now().astimezone()
         if unwrap(task.starts_on) > now or (task.ends_on is not None and task.ends_on < now):
             raise Forbidden()
         attempt_number = self.__result_repository.get_number_of_results(user.id, task.id) + 1
         if task.max_attempts is not None and attempt_number > task.max_attempts:
             raise Forbidden()
+        stored = self.__result_repository.add(self.__create_result_dto(user, task, file))
+        try:
+            results = self.__runner_service.run(stored.file_path, tests, stored.id, should_save=True)
+            open_results, closed_results = self.__split_open_closed_results(results, tests)
+            correct_open, correct_closed = self.__compute_correct_open_correct_closed(open_results, closed_results)
+            stored.correct_open = correct_open
+            stored.correct_closed = correct_closed
+            self.__result_repository.update_session()
+            for result in closed_results:
+                result.diff = None
+            return ResultVO.import_from_dto(stored, attempt_number, open_results, closed_results)
+        except ServerError as e:
+            # rollback
+            os.remove(stored.file_path)
+            self.__result_repository.delete(stored.id)
+            raise e
+
+    def __run_as_manager(self, user: UserVO, task: TaskVO, tests: AllTestsVO, file: File) -> ResultVO:
+        dto = self.__create_result_dto(user, task, file)
+        dto.id = -1
+        try:
+            results = self.__runner_service.run(dto.file_path, tests, dto.id, should_save=False)
+            os.remove(dto.file_path)
+            open_results, closed_results = self.__split_open_closed_results(results, tests)
+            correct_open, correct_closed = self.__compute_correct_open_correct_closed(open_results, closed_results)
+            dto.correct_open = correct_open
+            dto.correct_closed = correct_closed
+            return ResultVO.import_from_dto(dto, -1, open_results, closed_results)
+        except ServerError as e:
+            # rollback
+            os.remove(dto.file_path)
+            raise e
+
+    def __create_result_dto(self, user: UserVO, task: TaskVO, file: File) -> ResultDTO:
         code_max_size_mb = float(Config.get('files.code-max-size-mb'))
         file_path = file.save(self.__runner_service.allowed_extensions(task.languages), max_file_size_mb=code_max_size_mb)
         dto = ResultDTO()
@@ -50,23 +91,16 @@ class ResultService:
         dto.file_path = file_path
         dto.student_id = user.id
         dto.task_id = task.id
-        stored = self.__result_repository.add(dto)
-        try:
-            results = self.__runner_service.run(file_path, tests, stored.id)
-            open_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.open_tests) , results))
-            closed_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.closed_tests) , results))
-            reducer: Callable[[int, TCaseResultVO], int] = lambda current, result: current + (1 if result.success else 0)
-            stored.correct_open = reduce(reducer, open_results, 0)
-            stored.correct_closed = reduce(reducer, closed_results, 0)
-            self.__result_repository.update_session()
-            for result in closed_results:
-                result.diff = None
-            return ResultVO.import_from_dto(stored, attempt_number, open_results, closed_results)
-        except ServerError as e:
-            # rollback
-            os.remove(file_path)
-            self.__result_repository.delete(stored.id)
-            raise e
+        return dto
+
+    def __split_open_closed_results(self, tcase_results: list[TCaseResultVO], tests: AllTestsVO) -> tuple[list[TCaseResultVO], list[TCaseResultVO]]:
+        open_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.open_tests) , tcase_results))
+        closed_results = list(filter(lambda result: any(result.test_case_id == test.id for test in tests.closed_tests) , tcase_results))
+        return (open_results, closed_results)
+
+    def __compute_correct_open_correct_closed(self, open_results: list[TCaseResultVO], closed_results: list[TCaseResultVO]) -> tuple[int, int]:
+        reducer: Callable[[int, TCaseResultVO], int] = lambda current, result: current + (1 if result.success else 0)
+        return (reduce(reducer, open_results, 0), reduce(reducer, closed_results, 0))
 
     def get_latest_source_code_name_path(self, task: TaskVO, user_id: int) -> tuple[str, str]:
         dto = self.__result_repository.get_latest_result(user_id, task.id)
