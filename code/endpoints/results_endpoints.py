@@ -84,7 +84,7 @@ class ResultsResource(Resource): # type: ignore
     _tcase_service: TCaseService | None
     _result_service: ResultService | None
 
-    @_namespace.doc(description='*Students only*\nSubmit a code to be evaluated.')
+    @_namespace.doc(description='Submit a code to be evaluated.')
     @_namespace.expect(_submit_result_parser, validate=True)
     @_namespace.param('code', _in='formData', type='file', required=True)
     @_namespace.response(400, 'Error')
@@ -96,7 +96,7 @@ class ResultsResource(Resource): # type: ignore
     @_namespace.response(500, 'Error')
     @_namespace.marshal_with(_result_model, code=201)
     @_namespace.doc(security='bearer')
-    @authentication_required(Role.STUDENT)
+    @authentication_required()
     def post(self, task_id: int, user: UserVO) -> tuple[ResultVO, int]:
         args = _submit_result_parser.parse_args()
         file_storage: FileStorage = args['code']
