@@ -205,7 +205,6 @@ make stop-test # if testing
 
 ### Improvements
 
-- [ ] Allow managers to submit code to test their own tasks
 - [ ] Return the number of errors for the test with more failures, updating the `Report` model
 - [ ] Add support for supporting files when creating tasks (required updating the [MossService](./code/services/moss_service.py))
 
