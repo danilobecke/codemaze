@@ -37,6 +37,9 @@ class SessionService:
     def get_user(self, id: int) -> UserVO:
         return self.__user_service.get_user_with_role(id, None)
 
+    def update_user(self, id: int, name: str) -> UserVO:
+        return self.__user_service.update_user(id, name)
+
     @staticmethod
     def initialize(key: str) -> None:
         if SessionService.shared is not None:

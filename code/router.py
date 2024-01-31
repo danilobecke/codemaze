@@ -11,6 +11,7 @@ from endpoints.session_endpoints import SessionEndpoints
 from endpoints.student_endpoints import StudentEndpoints
 from endpoints.task_endpoints import TaskEndpoints
 from endpoints.tcase_endpoints import TCaseEndpoints
+from endpoints.user_endpoints import UserEndpoints
 from helpers.config import Config
 from services.config_service import ConfigService
 from services.group_service import GroupService
@@ -60,6 +61,7 @@ class Router:
         ManagerEndpoints(v1_api).register_resources()
         SessionEndpoints(v1_api).register_resources()
         StudentEndpoints(v1_api).register_resources()
+        UserEndpoints(v1_api).register_resources()
         groups_namespace = GroupEndpoints(v1_api, self.__group_service).register_resources()
         tasks_namespace = TaskEndpoints(v1_api, groups_namespace, self.__group_service, self.__task_service, self.__tcase_service).register_resources()
         TCaseEndpoints(v1_api, tasks_namespace, self.__group_service, self.__task_service, self.__tcase_service).register_resources()

@@ -43,3 +43,9 @@ class UserService:
     def get_user_with_role(self, id: int, role: Role | None) -> UserVO:
         dto = self.__user_repository.find_user_with_role(id, role)
         return UserVO.import_from_dto(dto)
+
+    def update_user(self, id: int, name: str) -> UserVO:
+        dto = self.__user_repository.find(id)
+        dto.name = name
+        self.__user_repository.update_session()
+        return UserVO.import_from_dto(dto)
