@@ -8,7 +8,7 @@ from repository.base import Base
 class TestCaseResultDTO(Base):
     __tablename__ = 'test_case_result'
 
-    id: Mapped[int] = mapped_column(Integer, Sequence('sq_test_case_pk'), primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, Sequence('sq_test_case_result_pk'), primary_key=True, autoincrement=True)
     success: Mapped[bool]
     diff: Mapped[Optional[str]]
     test_case_id: Mapped[int] = mapped_column(Integer, ForeignKey('test_case.id'), nullable=False)
