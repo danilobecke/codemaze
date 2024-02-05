@@ -23,7 +23,7 @@ def authentication_required(role: Role | None = None) -> Callable[[Callable[...,
                 if not match:
                     abort(401, str(Unauthorized()))
                 token = match.group(1)
-                user = unwrap(SessionService.shared).validate_token(token, role)
+                user = unwrap(SessionService.shared).validate_session_token(token, role)
                 kwargs['user'] = user
                 return function(*args, **kwargs)
             except (Unauthorized, NotFound):

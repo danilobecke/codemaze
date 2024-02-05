@@ -25,7 +25,7 @@ class TestManager:
         }
         response = post('/api/v1/session', payload)
 
-        assert_user_response(response, user_payload['name'], user_payload['email'], 'manager', 200)
+        assert_user_response(response, user_payload['name'], user_payload['email'], 'manager', status_code=200)
 
     def test_create_manager_missing_name_should_return_bad_request(self) -> None:
         payload = {

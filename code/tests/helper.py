@@ -223,14 +223,17 @@ def set_up_task_id_student_token(starts_on: str | None = None, ends_on: str | No
 
 ## Asserts
 
-def assert_user_response(response: HTTPResponse, name: str, email: str, role: str, status_code: int = 201) -> None:
+def assert_user_response(response: HTTPResponse, name: str, email: str, role: str, has_token: bool = True, status_code: int = 201) -> None:
     assert response[0] == status_code
     data = response[1]
     assert data['id'] is not None
     assert data['name'] == name
     assert data['email'] == email
     assert data['role'] == role
-    assert data['token'] is not None
+    if has_token:
+        assert data['token'] is not None
+    else:
+        assert data.get('token') is None
 
 ## File helper
 

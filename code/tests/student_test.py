@@ -21,7 +21,7 @@ class TestStudent:
         }
         response = post('/api/v1/session', payload)
 
-        assert_user_response(response, user_payload['name'], user_payload['email'], 'student', 200)
+        assert_user_response(response, user_payload['name'], user_payload['email'], 'student', status_code=200)
 
     def test_login_missing_email_should_return_bad_request(self) -> None:
         payload = {
