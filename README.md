@@ -198,8 +198,7 @@ make stop-test # if testing
 
 ### Endpoints
 
-- [ ] `POST /session/reset_password` - authorization: user
-- [ ] `PATCH /users/:id:` - authorization: user
+- WIP - `POST /session/reset_password`
 - [ ] `DELETE /tasks/:id:` - authorization: manager
 - [ ] `DELETE /groups/:id:` - authorization: manager
 
