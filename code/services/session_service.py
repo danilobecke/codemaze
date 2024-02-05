@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Optional
 
 from endpoints.models.user import UserVO
 from helpers.role import Role
@@ -37,8 +38,8 @@ class SessionService:
     def get_user(self, id: int) -> UserVO:
         return self.__user_service.get_user_with_role(id, None)
 
-    def update_user(self, id: int, name: str) -> UserVO:
-        return self.__user_service.update_user(id, name)
+    def update_user(self, id: int, name: Optional[str], current_password: Optional[str], new_password: Optional[str]) -> UserVO:
+        return self.__user_service.update_user(id, name, current_password, new_password)
 
     @staticmethod
     def initialize(key: str) -> None:

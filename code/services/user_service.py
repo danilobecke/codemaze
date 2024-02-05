@@ -1,6 +1,8 @@
+from typing import Optional
+
 from endpoints.models.user import UserVO
 from helpers.config import Config
-from helpers.exceptions import Forbidden, NotFound, ServerError
+from helpers.exceptions import Forbidden, NotFound, ServerError, WrongCurrentPassword
 from helpers.role import Role
 from repository.user_repository import UserRepository
 from repository.dto.user_dto import UserDTO
@@ -40,12 +42,17 @@ class UserService:
         except Exception as e:
             raise ServerError() from e
 
-    def get_user_with_role(self, id: int, role: Role | None) -> UserVO:
+    def get_user_with_role(self, id: int, role: Optional[Role]) -> UserVO:
         dto = self.__user_repository.find_user_with_role(id, role)
         return UserVO.import_from_dto(dto)
 
-    def update_user(self, id: int, name: str) -> UserVO:
+    def update_user(self, id: int, name: Optional[str], current_password: Optional[str], new_password: Optional[str]) -> UserVO:
         dto = self.__user_repository.find(id)
-        dto.name = name
+        if name:
+            dto.name = name
+        if current_password and new_password:
+            if not dto.authenticate(current_password):
+                raise WrongCurrentPassword()
+            dto.password = new_password
         self.__user_repository.update_session()
         return UserVO.import_from_dto(dto)

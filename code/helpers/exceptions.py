@@ -44,3 +44,7 @@ class InvalidSourceCode(Exception):
 class ExecutionError(Exception):
     def __init__(self, message: str) -> None:
         super().__init__(f"Execution error:\n{message}")
+
+class WrongCurrentPassword(Exception):
+    def __init__(self) -> None:
+        super().__init__("Wrong password.")
