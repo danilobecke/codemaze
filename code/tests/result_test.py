@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from io import BytesIO
+from unittest.mock import patch as test_patch
 
 import pytest
 
@@ -67,6 +68,14 @@ int main() {
     int a, b;
     scanf("%d %d", &a, &b);
     printf("%d\\n", a+b);
+    return 0;
+}
+'''
+
+C_CODE_NON_UTF_CHAR = '''
+#include<stdio.h>
+int main() {
+    printf("éãü");
     return 0;
 }
 '''
@@ -374,8 +383,55 @@ class TestResult:
         assert len(open_results) == 1
         open_result = open_results[0]
         assert open_result['success'] is False
-        print(open_result['diff'])
         assert open_result['diff'] == 'Execution error:\nError'
+        closed_results = result['closed_results']
+        assert len(closed_results) == 0
+
+    def test_post_result_with_non_valid_coded_should_return_success_and_wrong_result(self) -> None:
+        task_id, student_token = set_up_task_id_student_token()
+        payload = {
+            'code': (BytesIO(C_CODE_NON_UTF_CHAR.encode('cp860')), 'code.c')
+        }
+
+        with test_patch('helpers.commons.CODEC_LIST') as mock_valid_codecs:
+            mock_valid_codecs.side_effect = { 'utf-8' }
+            response = post(f'/api/v1/tasks/{task_id}/results', payload, student_token, CONTENT_TYPE_FORM_DATA)
+
+        assert response[0] == 201
+        result = response[1]
+        assert result['attempt_number'] == 1
+        assert result['result_percentage'] == 0
+        assert result['open_result_percentage'] == 0
+        assert result.get('closed_result_percentage') is None
+        assert result['source_url'] == f'/api/v1/tasks/{task_id}/results/latest/code'
+        open_results = result['open_results']
+        assert len(open_results) == 1
+        open_result = open_results[0]
+        assert open_result['success'] is False
+        assert open_result['diff'] == 'Your code contains one or more invalid characters. Remove it before submitting the file again.'
+        closed_results = result['closed_results']
+        assert len(closed_results) == 0
+
+    def test_post_result_with_non_utf_but_valid_coded_should_return_success_and_wrong_result(self) -> None:
+        task_id, student_token = set_up_task_id_student_token()
+        payload = {
+            'code': (BytesIO(C_CODE_NON_UTF_CHAR.encode('cp860')), 'code.c')
+        }
+
+        response = post(f'/api/v1/tasks/{task_id}/results', payload, student_token, CONTENT_TYPE_FORM_DATA)
+
+        assert response[0] == 201
+        result = response[1]
+        assert result['attempt_number'] == 1
+        assert result['result_percentage'] == 0
+        assert result['open_result_percentage'] == 0
+        assert result.get('closed_result_percentage') is None
+        assert result['source_url'] == f'/api/v1/tasks/{task_id}/results/latest/code'
+        open_results = result['open_results']
+        assert len(open_results) == 1
+        open_result = open_results[0]
+        assert open_result['success'] is False
+        assert '--- expected.out\n+++ result.out\n' in open_result['diff']
         closed_results = result['closed_results']
         assert len(closed_results) == 0
 
