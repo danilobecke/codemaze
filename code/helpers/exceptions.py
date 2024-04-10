@@ -48,3 +48,7 @@ class ExecutionError(Exception):
 class WrongCurrentPassword(Exception):
     def __init__(self) -> None:
         super().__init__("Wrong password.")
+
+class InvalidCodec(Exception):
+    def __init__(self, file_type: str) -> None:
+        super().__init__(f"Your {file_type} contains one or more invalid characters. Remove it before submitting the file again.")

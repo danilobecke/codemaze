@@ -3,7 +3,10 @@ import os
 from flask import url_for, current_app
 from werkzeug.utils import secure_filename as w_secure_filename
 
+from helpers.exceptions import InvalidCodec
+
 ALLOWED_TEXT_EXTENSIONS = { '.txt', '.pdf', '.doc', '.docx', '.md', '.in', '.out' }
+CODEC_LIST = { 'utf-8', 'ascii', 'cp037', 'cp437', 'cp500', 'cp850', 'cp852', 'cp858', 'cp860', 'cp863', 'cp1140', 'cp1250', 'cp1252', 'latin-1', 'iso8859-2', 'iso8859-15', 'iso8859-16', 'mac-latin2', 'mac-roman', 'utf-16', 'utf-32' }
 
 def storage_path() -> str:
     return str(current_app.config['STORAGE_PATH'])
@@ -40,3 +43,11 @@ def secure_filename(fname: str) -> str:
 
 def compute_percentage(open_tests_percentage: float, closed_tests_percentage: float | None, len_open_tests: int, len_closed_tests: int) -> float:
     return open_tests_percentage if closed_tests_percentage is None else round((open_tests_percentage * len_open_tests + closed_tests_percentage * len_closed_tests) / (len_open_tests + len_closed_tests), 2)
+
+def lossless_decode(bytes_str: bytes) -> str:
+    for codec in CODEC_LIST:
+        try:
+            return bytes_str.decode(codec)
+        except UnicodeDecodeError:
+            continue
+    raise InvalidCodec('code')

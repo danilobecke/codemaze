@@ -5,9 +5,9 @@ import uuid
 
 from endpoints.models.all_tests_vo import AllTestsVO
 from endpoints.models.tcase_result_vo import TCaseResultVO
-from helpers.commons import file_extension, filename
+from helpers.commons import file_extension, filename, lossless_decode
 from helpers.config import Config
-from helpers.exceptions import InvalidSourceCode, ExecutionError, CompilationError, ServerError
+from helpers.exceptions import InvalidSourceCode, ExecutionError, CompilationError, ServerError, InvalidCodec
 from helpers.runner_queue_manager import RunnerQueueManager
 from helpers.unwrapper import unwrap
 from repository.tcase_result_repository import TCaseResultRepository
@@ -70,11 +70,12 @@ class RunnerService:
         subprocess.run(self.__execution_command(f'rm {source_path}', container), check=True)
 
     def __execute(self, command: str, stdin: TextIOWrapper, timeout: float, container: str) -> str:
-        with subprocess.Popen(self.__execution_command(command, container, interactive=True), stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) as process:
-            stdout, stderr = process.communicate(timeout=timeout)
+        with subprocess.Popen(self.__execution_command(command, container, interactive=True), stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=False) as process:
+            b_stdout, b_stderr = process.communicate(timeout=timeout)
+            stderr = lossless_decode(b_stderr)
             if stderr.strip():
                 raise ExecutionError(stderr)
-            return stdout
+            return lossless_decode(b_stdout)
 
     def __remove_directory(self, path: str, container: str) -> None:
         subprocess.run(self.__execution_command(f'rm -rf {path}', container), check=True)
@@ -113,6 +114,9 @@ class RunnerService:
                 except subprocess.TimeoutExpired:
                     dto.success = False
                     dto.diff = 'Timeout.'
+                except InvalidCodec as e:
+                    dto.success = False
+                    dto.diff = str(e)
                 finally:
                     stored = self.__tcase_result_repository.add(dto) if should_save else dto
                     results.append(TCaseResultVO.import_from_dto(stored))
