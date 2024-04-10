@@ -158,7 +158,8 @@ class ResultService:
         submissions_percentage = 0 if number_of_students == 0 else round((len([report for report in students_report if report.number_attempts > 0]) / number_of_students) * 100, 2)
         mean_attempts_success: int | None = None
         results_percentage: list[ResultPercentage] = []
-        for result, reports in groupby(students_report, lambda report: report.result_percentage):
+        # groupby requires a sorted list
+        for result, reports in groupby(sorted(students_report), lambda report: report.result_percentage):
             reports_list = list(reports)
             number_of_reports = len(reports_list)
             results_percentage.append(ResultPercentage(result, round((number_of_reports / number_of_students) * 100, 2)))

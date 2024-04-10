@@ -7,6 +7,7 @@ class ReportVO:
         self.students = students
         self.tests = tests
 
+@total_ordering
 class StudentReport:
     def __init__(self, id: int, name: str) -> None:
         self.id = id
@@ -17,6 +18,9 @@ class StudentReport:
         self.number_attempts = -1
         self.source_code_url: str | None = None
         self.wrong_tests_id: list[int] = []
+
+    def __lt__(self, obj: StudentReport) -> bool:
+        return self.result_percentage < obj.result_percentage
 
 class OverallReport:
     def __init__(self, submissions_percentage: float, results_percentages: list[ResultPercentage], mean_attempts_success_all: int | None, tests_more_failures: list[int]) -> None:
