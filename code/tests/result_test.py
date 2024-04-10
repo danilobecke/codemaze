@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from io import BytesIO
-from unittest.mock import patch as test_patch
+from unittest import mock
 
 import pytest
 
@@ -393,7 +393,7 @@ class TestResult:
             'code': (BytesIO(C_CODE_NON_UTF_CHAR.encode('cp860')), 'code.c')
         }
 
-        with test_patch('helpers.commons.CODEC_LIST') as mock_valid_codecs:
+        with mock.patch('helpers.commons.CODEC_LIST') as mock_valid_codecs:
             mock_valid_codecs.side_effect = { 'utf-8' }
             response = post(f'/api/v1/tasks/{task_id}/results', payload, student_token, CONTENT_TYPE_FORM_DATA)
 
