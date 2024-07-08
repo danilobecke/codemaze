@@ -2,6 +2,8 @@ from flask import Flask, json
 from flask.typing import ResponseReturnValue
 from werkzeug.exceptions import HTTPException
 
+from repository.database import Database
+
 class ErrorHandler:
     @staticmethod
     def __handle_http_exception(e: HTTPException) -> ResponseReturnValue:
@@ -13,6 +15,7 @@ class ErrorHandler:
             "description": e.description,
         })
         response.content_type = "application/json"
+        Database.close_session()
         return response # type: ignore
 
     @staticmethod

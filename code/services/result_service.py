@@ -186,12 +186,7 @@ class ResultService:
             reports.append(TestReport(test.id, correct_percentage))
         return reports
 
-    # pylint: disable=too-many-branches
-    def __get_plagiarism_report(self, task: TaskVO, task_results: list[ResultDTO], students: list[UserVO], urls: list[str]) -> None:
-        if self.__moss_service is None or task.ends_on is None:
-            return # MOSS user ID not set or task without ends_on set
-        if task.ends_on >= datetime.now().astimezone():
-            return # task didn't finish
+    def __get_current_plagiarism_reports(self, task: TaskVO) -> list[str]:
         reports = self.__plagiarism_report_repository.get_reports_for_task(task.id)
         if len(reports) > 0:
             # assert they are valid (one week)
@@ -199,9 +194,15 @@ class ResultService:
                 # delete all and create again
                 for report in reports:
                     self.__plagiarism_report_repository.delete(report.id)
-            else:
-                urls.extend([ report.url for report in reports ])
-                return
+                return []
+            return [ report.url for report in reports ]
+        return []
+
+    def __get_plagiarism_report(self, task: TaskVO, task_results: list[ResultDTO], students: list[UserVO], reports: dict[str, str]) -> None:
+        if self.__moss_service is None or task.ends_on is None:
+            return # MOSS user ID not set or task without ends_on set
+        if task.ends_on >= datetime.now().astimezone():
+            return # task didn't finish
         task_results.reverse() # the latest is the relevant one
         results: list[ResultDTO] = []
         for result in task_results:
@@ -222,21 +223,33 @@ class ResultService:
             report_url = self.__moss_service.get_report(filepath_name_list, language)
             if report_url is None:
                 continue
+            reports[language] = report_url
+
+    def __handle_reports(self, reports: dict[str, str], task: TaskVO) -> list[str]:
+        result: list[str] = []
+        for key in reports.keys():
             dto = PlagiarismReportDTO()
-            dto.language = language
+            dto.language = key
+            report_url = reports[key]
             dto.url = report_url
             dto.task_id = task.id
             self.__plagiarism_report_repository.add(dto)
-            urls.append(report_url)
+            result.append(report_url)
+        return result
 
     def get_results_report(self, task: TaskVO, students: list[UserVO], tests: AllTestsVO) -> ReportVO:
         task_results = self.__result_repository.get_results_for_task(task.id)
-        plagiarism_report_urls: list[str] = []
-        thread = Thread(target=self.__get_plagiarism_report, args=[task, task_results.copy(), students, plagiarism_report_urls])
-        thread.start()
+        plagiarism_report_urls: list[str] = self.__get_current_plagiarism_reports(task)
+        thread: Thread | None = None
+        reports = dict[str, str]()
+        if len(plagiarism_report_urls) == 0:
+            thread = Thread(target=self.__get_plagiarism_report, args=[task, task_results.copy(), students, reports])
+            thread.start()
         students_report = self.__get_students_report(task_results, students, tests)
         overall_report = self.__get_overall_report(students_report)
         tests_report = self.__get_tests_report(students_report, tests)
-        thread.join()
+        if thread:
+            thread.join()
+            plagiarism_report_urls.extend(self.__handle_reports(reports, task))
         overall_report.plagiarism_report_urls = plagiarism_report_urls
         return ReportVO(overall_report, students_report, tests_report)

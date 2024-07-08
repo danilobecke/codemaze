@@ -27,7 +27,7 @@ def __init_app(storage_path: str) -> Flask:
     app.config['STORAGE_PATH'] = storage_path
     app.config['SCRIPTS_PATH'] = __get_path('files', 'scripts')
     CodemazeLogger.start(app)
-    Database.initialize(__get_env('CODEMAZE_DB_STRING'))
+    Database.initialize(__get_env('CODEMAZE_DB_STRING'), app)
     Config.initialize(__get_path('config.toml'))
     RunnerQueueManager.initialize(__get_env('REDIS_ADDRESS'))
     SessionService.initialize(key)

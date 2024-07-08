@@ -58,7 +58,7 @@ class CodemazeLogger:
     @staticmethod
     def start(app: Flask) -> None:
         CodemazeLogger.__shared = app.logger
-        app.after_request_funcs.setdefault(None, []).append(CodemazeLogger.log_after_request)
+        app.after_request(CodemazeLogger.log_after_request)
 
     @staticmethod
     def log_after_request(response: Response) -> Response:
