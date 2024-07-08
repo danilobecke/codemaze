@@ -1,4 +1,3 @@
-import re
 from typing import Callable, TypeVar, Any
 
 from flask import request, abort
@@ -10,19 +9,16 @@ from services.session_service import SessionService
 
 RT = TypeVar('RT')
 
-_PATTERN = r'^Bearer ((?:\.?(?:[A-Za-z0-9-_]+)){3})$'
-
 def authentication_required(role: Role | None = None) -> Callable[[Callable[..., RT]], Callable[..., RT]]:
     def decorator(function: Callable[..., RT]) -> Callable[..., RT]:
         def wrapper(*args: Any, **kwargs: Any) -> RT:
-            if 'Authorization' not in request.headers:
+            authorization = request.authorization
+            if not authorization:
+                abort(401, str(Unauthorized()))
+            token = authorization.token
+            if authorization.type != 'bearer' or not token:
                 abort(401, str(Unauthorized()))
             try:
-                header = request.headers['Authorization']
-                match = re.match(_PATTERN, header)
-                if not match:
-                    abort(401, str(Unauthorized()))
-                token = match.group(1)
                 user = unwrap(SessionService.shared).validate_session_token(token, role)
                 kwargs['user'] = user
                 return function(*args, **kwargs)
